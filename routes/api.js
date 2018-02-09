@@ -7,6 +7,8 @@ const Order = require('../models/Order');
 const Category = require('../models/Category');
 const Brand = require('../models/Brand');
 
+const { authenticateUser } = require('./helpers/auth');
+
 router.post('/login', (req, res)=>{
 	res.sendStatus(501);
 })
@@ -50,7 +52,7 @@ router.get('/products', (req, res)=>{
 
 router.get('/products/:id', (req, res)=>{
 
-	let { sortBy, sortDirection, filter }
+	let { sortBy, sortDirection, filter } = req.query;
 
 	Product.findById(req.params.id).lean()
 	.then((product)=>{
