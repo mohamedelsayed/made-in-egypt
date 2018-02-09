@@ -14,6 +14,14 @@ const Review = new Schema({
 	}
 })
 
+const View = new Schema({
+	viewedBy: {
+		type: Schema.Types.ObjectId,
+		required: true,
+		ref: 'User'
+	}
+})
+
 const ProductSchema = new Schema({
 	name: {
 		type: String,
@@ -55,6 +63,10 @@ const ProductSchema = new Schema({
 	},
 	productDetails: {
 		type: Object
+	},
+	views: {
+		type: [View],
+		required: true
 	}
 })
 
