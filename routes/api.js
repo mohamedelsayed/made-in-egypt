@@ -77,6 +77,7 @@ router.get('/users/:id', (req, res)=>{
 })
 
 router.get('/products', (req, res)=>{
+
 	Product.find({}).lean()
 	.then((products)=>{
 		res.json(products)
@@ -88,8 +89,6 @@ router.get('/products', (req, res)=>{
 })
 
 router.get('/products/:id', (req, res)=>{
-
-	let { sortBy, sortDirection, filter } = req.query;
 
 	Product.findById(req.params.id).lean()
 	.then((product)=>{
