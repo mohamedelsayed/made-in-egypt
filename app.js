@@ -5,12 +5,19 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const muler = require('multer');
+const mongoose = require('mongoose');
 global.Promise = require('bluebird');
 
 
 const index = require('./routes/index');
 const api = require('./routes/api');
 const users = require('./routes/users');
+
+mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost'}:${process.env.MONGO_PORT || '27017'}/${process.env.MONGO_DB_NAME || 'madeInEgypt'}`, function(err){
+  if(err){
+    console.error(err);
+  }
+})
 
 const app = express();
 
