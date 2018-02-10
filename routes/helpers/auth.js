@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET || 'sUG6akIrGG4T5eEGTc6Caau825btqttL1uPZlCqx';
 const User = require('../../models/User');
+const Admin = require('../../models/Admin');
 
 module.exports = {
 	authenticateUser: function(req, res, next){
@@ -8,7 +9,7 @@ module.exports = {
 			if(err){
 				return res.sendStatus(401);
 			}
-			User.findById(decoded.id)
+			User.findById(decoded.id).lean()
 			.then((user)=>{
 				req.user = user;
 				next();
@@ -28,7 +29,7 @@ module.exports = {
 				console.warn(err);
 				return res.sendStatus(500);
 			}
-			User.findById(decoded.id)
+			User.findById(decoded.id).lean()
 			.then((user)=>{
 				req.user = user;
 				next();
@@ -40,7 +41,20 @@ module.exports = {
 		})
 	},
 	authenticateAdmin: function(req, res, next){
-		next();
+		jwt.verify(req.headers['X-Auth-Token'], jwtSecret, function(err, decoded){
+			if(err){
+				return res.sendStatus(401);
+			}
+			Admin.findById(decoded.id).lean()
+			.then((admin)=>{
+				req.admin = admin;
+				next();
+			})
+			.catch((err)=>{
+				console.error(err);
+				res.sendStatus(500);
+			})
+		})
 	},
 	optionalAuthenticateAdmin: function(req, res, next){
 		next();

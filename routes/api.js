@@ -3,6 +3,7 @@ const router = express.Router();
 
 const bcrypt = require('bcrypt');
 
+const Admin = require('../models/Admin');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
