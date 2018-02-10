@@ -17,6 +17,8 @@ const ItemOrderSchema = new Schema({
 		required: true
 	},
 	productDetails: Object
+}, {
+	timestamps: true
 })
 
 const OrderSchema = new Schema({
@@ -38,6 +40,8 @@ const OrderSchema = new Schema({
 		required: true,
 		enum: ['Pending', 'Cancelled', 'On Route', 'Delivered']
 	}
+}, {
+	timestamps: true
 })
 
 module.exports = mongoose.model('Order', OrderSchema);

@@ -10,6 +10,8 @@ const BrandSchema = new Schema({
 	logo: {
 		type: String
 	}
+}, {
+	timestamps: true
 })
 
 module.exports = mongoose.model('Brand', BrandSchema);

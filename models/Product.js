@@ -12,6 +12,8 @@ const Review = new Schema({
 		type: String,
 		required: true
 	}
+}, {
+	timestamps: true
 })
 
 const View = new Schema({
@@ -20,6 +22,8 @@ const View = new Schema({
 		required: true,
 		ref: 'User'
 	}
+}, {
+	timestamps: true
 })
 
 const ProductSchema = new Schema({
@@ -68,6 +72,8 @@ const ProductSchema = new Schema({
 		type: [View],
 		required: true
 	}
+}, {
+	timestamps: true
 })
 
 module.exports = mongoose.model('Product', ProductSchema);

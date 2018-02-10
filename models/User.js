@@ -40,6 +40,8 @@ const UserSchema = new Schema({
 	creditCard: {
 		type: Object
 	}
+}, {
+	timestamps: true
 })
 
 module.exports = mongoose.model('User', UserSchema);
