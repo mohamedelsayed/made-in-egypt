@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const Admin = require('../models/Admin');
 const User = require('../models/User');
@@ -10,10 +11,66 @@ const Order = require('../models/Order');
 const Category = require('../models/Category');
 const Brand = require('../models/Brand');
 
+const { jwtSecret } = require('./helpers/config');
+
 const { authenticateUser, optionalAuthenticateUser } = require('./helpers/auth');
 
 router.post('/login', (req, res)=>{
-	res.sendStatus(501);
+	let {email, password} = req.body;
+	User.findOne({
+		email: req.body.email
+	}).lean()
+	.then((user)=>{
+		if(user){
+			bcrypt.compare(password, user.password, (err, correct)=>{
+				if(err){
+					console.error(err);
+				}
+				if(correct){
+					return res.json({
+						token: jwt.sign({
+							id: user._id
+						}, jwtSecret)
+					})
+				} else {
+					return res.sendStatus(401);
+				}
+			})
+		}
+	})
+	.catch((err)=>{
+		console.error(err);
+		return res.sendStatus(500);
+	})
+})
+
+router.post('/admin/login', (req, res)=>{
+	let {username, password} = req.body;
+	Admin.findOne({
+		username: req.body.username
+	}).lean()
+	.then((admin)=>{
+		if(admin){
+			bcrypt.compare(password, admin.password, (err, correct)=>{
+				if(err){
+					console.error(err);
+				}
+				if(correct){
+					return res.json({
+						token: jwt.sign({
+							id: admin._id
+						}, jwtSecret)
+					})
+				} else {
+					return res.sendStatus(401);
+				}
+			})
+		}
+	})
+	.catch((err)=>{
+		console.error(err);
+		return res.sendStatus(500);
+	})
 })
 
 router.get('/auth', (req, res, next)=>{
