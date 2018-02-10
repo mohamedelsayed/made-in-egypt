@@ -242,6 +242,29 @@ router.post('/review/:productId', authenticateUser, (req, res)=>{
 	})
 })
 
+router.get('/similar/:productId', (req, res)=>{
+	Product.findOne(req.params.productId).lean()
+	.then((product)=>{
+		return Product.find({
+			$not: {
+				_id: req.params.productId
+			},
+			price: {
+				$lte: product.price * 1.25,
+				$gte: product.price * 0.75
+			},
+			category: product.category
+		}).lean()
+	})
+	.then((similarProducts)=>{
+		res.json(similarProducts);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
 router.route('/orders')
 .get((req, res)=>{
 	Order.find({}).sort({}).lean()
