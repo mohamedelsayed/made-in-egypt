@@ -71,6 +71,10 @@ const ProductSchema = new Schema({
 	views: {
 		type: [View],
 		required: true
+	},
+	reviews: {
+		type: [Review],
+		required: true
 	}
 }, {
 	timestamps: true
