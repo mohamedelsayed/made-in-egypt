@@ -257,11 +257,11 @@ router.get('/similar/:productId', (req, res)=>{
 		}).lean()
 	})
 	.then((similarProducts)=>{
-		res.json(similarProducts);
+		return res.json(similarProducts);
 	})
 	.catch((err)=>{
 		console.error(err);
-		res.sendStatus(500);
+		return res.sendStatus(500);
 	})
 })
 
