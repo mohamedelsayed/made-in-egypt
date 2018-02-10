@@ -9,7 +9,7 @@ const Order = require('../models/Order');
 const Category = require('../models/Category');
 const Brand = require('../models/Brand');
 
-const { authenticateUser } = require('./helpers/auth');
+const { authenticateUser, optionalAuthenticateUser } = require('./helpers/auth');
 
 router.post('/login', (req, res)=>{
 	res.sendStatus(501);
@@ -76,9 +76,41 @@ router.get('/users/:id', (req, res)=>{
 	})
 })
 
-router.get('/products', (req, res)=>{
+router.route('/products')
+.get((req, res)=>{
 
-	Product.find({}).lean()
+	/**
+	 * Finds all products and filters them and sort them according to the query sent
+	*/
+
+	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo } = req.query;
+
+	let query = {};
+	let sort = {};
+
+	if(filterByBrand){
+		filter.brand = filterByBrand;
+	}
+	if(filterPriceFrom || filterPriceTo){
+		filter.price = {};
+		if(filterPriceFrom){
+			Object.assign(filter.price, {$gte: parseFloat(filterPriceFrom)})
+		}
+		if(filterPriceTo){
+			Object.assign(filter.price, {$lte: parseFloat(filterPriceTo)})
+		}
+	}
+
+	
+	if(sortBy){
+		let direction = parseInt(sortDirection);
+		sort[sortBy] = (direction && [1, -1].includes(direction))? direction : -1;
+	}
+
+	/* In all cases, sort by creation time */
+	Object.assign(sort, {createdAt: -1});
+
+	Product.find(query).sort(sort).lean()
 	.then((products)=>{
 		res.json(products)
 	})
@@ -87,17 +119,52 @@ router.get('/products', (req, res)=>{
 		res.sendStatus(500);
 	})
 })
+.post((req, res)=>{
+	res.sendStatus(501);
+})
 
-router.get('/products/:id', (req, res)=>{
+router.get('/products/:id', optionalAuthenticateUser, (req, res)=>{
 
 	Product.findById(req.params.id).lean()
 	.then((product)=>{
 		res.json(product);
+		/* Creates a view if viewed by user */
+		if(!req.admin){	
+			let createdView = { viewedBy: null };
+			if(req.user){
+				createdView.viewedBy = req.user._id;
+			}
+			
+			Product.updateOne({_id: product._id}, {
+				$push: {
+					views: createdView
+				}
+			})
+			.catch((err)=>{
+				console.error("Couldn't create view instance for product", req.para)
+			})
+		}
+	})
+	.catch((err)=>{
+		console.error(err);
+	})
+})
+
+router.route('/orders')
+.get((req, res)=>{
+	Order.find({}).sort({}).lean()
+	.then((orders)=>{
+		res.json(orders);
 	})
 	.catch((err)=>{
 		console.error(err);
 		res.sendStatus(500);
 	})
 })
+.post((req, res)=>{
+	res.sendStatus(501);
+})
+
+
 
 module.exports = router;
