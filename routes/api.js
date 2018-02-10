@@ -217,7 +217,7 @@ router.post('/review/:productId', authenticateUser, (req, res)=>{
 	Product.findById(req.params.productId)
 	.then((product)=>{
 		if(product){
-			Product.findByIdAndUpdate(req.params.productId, {
+			return Product.findByIdAndUpdate(req.params.productId, {
 				$push: {
 					reviews: 
 						{
@@ -227,7 +227,14 @@ router.post('/review/:productId', authenticateUser, (req, res)=>{
 					}
 				}
 			)
+		} else {
+			return res.sendStatus(404);
 		}
+	})
+	.then((updatedProduct)=>{
+		return res.json({
+			success: "Review submitted successfully"
+		})
 	})
 	.catch((err)=>{
 		console.error(err);
