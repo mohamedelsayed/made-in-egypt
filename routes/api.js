@@ -150,6 +150,33 @@ router.get('/products/:id', optionalAuthenticateUser, (req, res)=>{
 	})
 })
 
+router.post('/review/:productId', authenticateUser, (req, res)=>{
+	if(!req.body.review){
+		return res.json({
+			error: "Review cannot be empty"
+		})
+	}
+	Product.findById(req.params.productId)
+	.then((product)=>{
+		if(product){
+			Product.findByIdAndUpdate(req.params.productId, {
+				$push: {
+					reviews: 
+						{
+							reviewer: req.user._id,
+							content: req.body.review
+						}
+					}
+				}
+			)
+		}
+	})
+	.catch((err)=>{
+		console.error(err);
+		return res.sendStatus(500);
+	})
+})
+
 router.route('/orders')
 .get((req, res)=>{
 	Order.find({}).sort({}).lean()
