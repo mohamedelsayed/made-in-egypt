@@ -18,5 +18,31 @@ module.exports = {
 				res.sendStatus(500);
 			})
 		})
+	},
+	optionalAuthenticateUser: function(req, res, next){
+		if(!req.headers['X-Auth-Token']){
+			return next();
+		}
+		jwt.verify(req.headers['X-Auth-Token'], jwtSecret, function(err, decoded){
+			if(err){
+				console.warn(err);
+				return res.sendStatus(500);
+			}
+			User.findById(decoded.id)
+			.then((user)=>{
+				req.user = user;
+				next();
+			})
+			.catch((err)=>{
+				console.error(err);
+				res.sendStatus(500);
+			})
+		})
+	},
+	authenticateAdmin: function(req, res, next){
+		next();
+	},
+	optionalAuthenticateAdmin: function(req, res, next){
+		next();
 	}
 }
