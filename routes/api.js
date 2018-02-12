@@ -173,15 +173,15 @@ router.route('/users')
 					return res.sendStatus(500);
 				}
 				attrs.password = hash;
-				return updateUser(req, res, attrs);
+				return _updateUser(req, res, attrs);
 			})
 		}
 	} else {
-		return updateUser(req, res, attrs)
+		return _updateUser(req, res, attrs)
 	}
 })
 
-function updateUser(req, res, attrs){
+function _updateUser(req, res, attrs){
 	User.findByIdAndUpdate(req.user._id, attrs)
 	.then((result)=>{
 		res.json({
