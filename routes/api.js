@@ -25,6 +25,7 @@ router.post('/login', (req, res)=>{
 			bcrypt.compare(password, user.password, (err, correct)=>{
 				if(err){
 					console.error(err);
+					return res.sendStatus(500);
 				}
 				if(correct){
 					return res.json({
@@ -36,6 +37,8 @@ router.post('/login', (req, res)=>{
 					return res.sendStatus(401);
 				}
 			})
+		} else {
+			return res.sendStatus(404);
 		}
 	})
 	.catch((err)=>{
@@ -138,7 +141,7 @@ router.route('/users')
 			})
 		})
 		.then((newUser)=>{
-			return res.sendStatus(201);
+			res.sendStatus(201);
 		})
 		.catch((err)=>{
 			console.error(err);
@@ -349,6 +352,39 @@ router.route('/orders')
 })
 .post((req, res)=>{
 	res.sendStatus(501);
+})
+
+router.route('/categories')
+.get((req, res)=>{
+
+})
+.post(authenticateAdmin, async (req, res)=>{
+	let { name, parentCategory } = req.body;
+	let attrs = {name};
+	if(name){
+		let foundCategory = await Category.findOne({name});
+		if(foundCategory){
+			return res.sendStatus(409);
+		}
+	} else {
+		return res.sendStatus(406);
+	}
+	if(parentCategory){
+		let parent = await Category.findOne({name: parentCategory}).lean();
+		if(parent){
+			attrs['parentCategory'] = parent._id;
+		} else {
+			return res.sendStatus(406);
+		}
+	}
+	Category.create(attrs)
+	.then((category)=>{
+		res.sendStatus(201);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
 })
 
 
