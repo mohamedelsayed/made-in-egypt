@@ -13,7 +13,7 @@ const Brand = require('../models/Brand');
 
 const { jwtSecret } = require('./helpers/config');
 
-const { authenticateUser, optionalAuthenticateUser } = require('./helpers/auth');
+const { authenticateUser, optionalAuthenticateUser, authenticateAdmin } = require('./helpers/auth');
 
 router.post('/login', (req, res)=>{
 	let {email, password} = req.body;
@@ -73,8 +73,34 @@ router.post('/admin/login', (req, res)=>{
 	})
 })
 
-router.get('/auth', (req, res, next)=>{
+router.get('/auth', authenticateUser, (req, res, next)=>{
 	res.sendStatus(200);
+})
+
+router.get('/admin/auth', authenticateAdmin, (req, res, next)=>{
+	res.sendStatus(200);
+})
+
+router.route('/admins')
+.post(authenticateAdmin, (req, res)=>{
+	let { username, password } = req.body;
+	bcrypt.hash(password, 10, (err, hash)=>{
+		if(err){
+			console.error(err);
+			return res.sendStatus(500);
+		}
+		Admin.create({
+			username,
+			password: hash
+		})
+		.then((created)=>{
+			res.sendStatus(201);
+		})
+		.catch((err)=>{
+			console.error(err);
+			res.sendStatus(500);
+		})
+	})
 })
 
 router.route('/users')
@@ -121,6 +147,9 @@ router.route('/users')
 		})
 	}
 
+})
+.put((req, res)=>{
+	res.sendStatus(501);
 })
 
 router.get('/users/:id', (req, res)=>{
