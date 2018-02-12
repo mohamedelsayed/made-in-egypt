@@ -102,6 +102,9 @@ router.route('/admins')
 		})
 	})
 })
+.put(authenticateAdmin, (req, res)=>{
+	res.sendStatus(501);
+})
 
 router.route('/users')
 .get((req, res)=>{
@@ -148,9 +151,48 @@ router.route('/users')
 	}
 
 })
-.put((req, res)=>{
-	res.sendStatus(501);
+.put(authenticateUser, (req, res)=>{
+	// res.sendStatus(501);
+	// let { firstName, lastName, email, password, passwordConfirmation, phone, address } = req.body;
+	let acceptedAttrs = [ "firstName", "lastName", "email", "password", "passwordConfirmation", "phone", "address" ]
+	let attrs = {};
+	Object.keys(req.body).forEach((key)=>{
+		if(acceptedAttrs.includes(key)) Object.assign(attrs, {[key]: req.body[key]});
+	})
+
+	if(attrs.password || attrs.passwordConfirmation){
+		if(attrs.password !== attrs.passwordConfirmation){
+			return res.json({
+				failure: "Passwords don't match"
+			});
+		} else {
+			delete attrs.passwordConfirmation;
+			bcrypt.hash(password, 10, (err, hash)=>{
+				if(err){
+					console.error(err);
+					return res.sendStatus(500);
+				}
+				attrs.password = hash;
+				return updateUser(req, res, attrs);
+			})
+		}
+	} else {
+		return updateUser(req, res, attrs)
+	}
 })
+
+function updateUser(req, res, attrs){
+	User.findByIdAndUpdate(req.user._id, attrs)
+	.then((result)=>{
+		res.json({
+			success: "User updated successfully"
+		})
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+}
 
 router.get('/users/:id', (req, res)=>{
 	User.findById(req.params.id).lean()
@@ -206,7 +248,7 @@ router.route('/products')
 		res.sendStatus(500);
 	})
 })
-.post((req, res)=>{
+.post(authenticateUser, (req, res)=>{
 	res.sendStatus(501);
 })
 
