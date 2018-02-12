@@ -3,6 +3,7 @@ const router = express.Router();
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const co = require('co');
 
 const Admin = require('../models/Admin');
 const User = require('../models/User');
@@ -252,7 +253,25 @@ router.route('/products')
 	})
 })
 .post(authenticateUser, (req, res)=>{
-	res.sendStatus(501);
+	// res.sendStatus(501);
+	let { name, description, price, quantity, category, brand, productDetails } = req.body;
+	co(function*(){
+		let theCategory = yield Category.findOne({name: category}).lean();
+		let theBrand = yield Brand.findOne({name: brand}).lean();
+		if(!theBrand || !theCategory){
+			return res.json({
+				failure: "Brand and/or category not found"
+			})
+		}
+		yield Product.create({
+			name, description, price, quantity, categoryId: theCategory._id, brandId: theBrand._id, productDetails
+		})
+		return res.sendStatus(201);
+	})
+	.catch(err =>{
+		console.error(err);
+		res.sendStatus(500);
+	});
 })
 
 router.get('/products/:id', optionalAuthenticateUser, (req, res)=>{
