@@ -274,7 +274,8 @@ router.route('/products')
 	});
 })
 
-router.get('/products/:id', optionalAuthenticateUser, (req, res)=>{
+router.route('/products/:id')
+.get(optionalAuthenticateUser, (req, res)=>{
 
 	Product.findById(req.params.id).lean()
 	.then((product)=>{
@@ -300,6 +301,10 @@ router.get('/products/:id', optionalAuthenticateUser, (req, res)=>{
 		console.error(err);
 	})
 })
+.put(authenticateUser, (req, res)=>{
+	res.sendStatus(501);
+})
+
 
 router.post('/review/:productId', authenticateUser, (req, res)=>{
 	if(!req.body.review){
