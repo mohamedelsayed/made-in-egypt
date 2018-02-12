@@ -5,7 +5,7 @@ const Admin = require('../../models/Admin');
 
 module.exports = {
 	authenticateUser: function(req, res, next){
-		jwt.verify(req.headers['X-Auth-Token'], jwtSecret, function(err, decoded){
+		jwt.verify(req.headers['x-auth-token'], jwtSecret, function(err, decoded){
 			if(err){
 				return res.sendStatus(401);
 			}
@@ -21,10 +21,10 @@ module.exports = {
 		})
 	},
 	optionalAuthenticateUser: function(req, res, next){
-		if(!req.headers['X-Auth-Token']){
+		if(!req.headers['x-auth-token']){
 			return next();
 		}
-		jwt.verify(req.headers['X-Auth-Token'], jwtSecret, function(err, decoded){
+		jwt.verify(req.headers['x-auth-token'], jwtSecret, function(err, decoded){
 			if(err){
 				console.warn(err);
 				return res.sendStatus(500);
@@ -41,7 +41,7 @@ module.exports = {
 		})
 	},
 	authenticateAdmin: function(req, res, next){
-		jwt.verify(req.headers['X-Auth-Token'], jwtSecret, function(err, decoded){
+		jwt.verify(req.headers['x-auth-token'], jwtSecret, function(err, decoded){
 			if(err){
 				return res.sendStatus(401);
 			}
