@@ -11,8 +11,9 @@ const upload = multer();
 const AWS = require('aws-sdk');
 AWS.config.setPromisesDependency(global.Promise);
 const publicS3 = new AWS.S3({
-	accessKeyId: process.env.ACCESS_KEY_ID || 'AKIAIGADI4DACW34KQVQ',
-	secretAccessKey: process.env.SECRET_ACCESS_KEY || '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'
+	accessKeyId: process.env.ACCESS_KEY_ID || 'AKIAIYLCCVSOEDYBUVVA',
+	secretAccessKey: process.env.SECRET_ACCESS_KEY || '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',
+	// region: 'eu-west-2'
 })
 
 const Admin = require('../models/Admin');
@@ -487,7 +488,7 @@ router.route('/brands')
 	if(req.file){
 		publicS3.putObject({
 			Body: req.file.buffer,
-			Bucket: process.eventNames.BUCKET_NAME || 'madeinegypt-test',
+			Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
 			Key: photoName
 		}).promise()
 		.then((dataSent)=>{
