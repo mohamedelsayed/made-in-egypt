@@ -4,6 +4,16 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const co = require('co');
+const randomstring = require('randomstring');
+const multer = require('multer');
+// const upload = multer({storage: multer.memoryStorage()});
+const upload = multer();
+const AWS = require('aws-sdk');
+AWS.config.setPromisesDependency(global.Promise);
+const publicS3 = new AWS.S3({
+	accessKeyId: process.env.ACCESS_KEY_ID || 'AKIAIGADI4DACW34KQVQ',
+	secretAccessKey: process.env.SECRET_ACCESS_KEY || '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'
+})
 
 const Admin = require('../models/Admin');
 const User = require('../models/User');
@@ -110,6 +120,7 @@ router.route('/admins')
 	res.sendStatus(501);
 })
 
+// TODO: add authenticateAdmin for fetching all users route
 router.route('/users')
 .get((req, res)=>{
 	User.find({}).lean()
@@ -380,7 +391,14 @@ router.route('/orders')
 
 router.route('/categories')
 .get((req, res)=>{
-
+	Category.find().lean()
+	.then((categories)=>{
+		return res.json(categories);
+	})
+	.catch((err)=>{
+		console.error(err);
+		return res.sendStatus(500);
+	})
 })
 .post(authenticateAdmin, async (req, res)=>{
 	let { name, parentCategory } = req.body;
@@ -409,6 +427,85 @@ router.route('/categories')
 		console.error(err);
 		res.sendStatus(500);
 	})
+})
+
+router.route('/categories/:id')
+.get((req, res)=>{
+	Category.findById(req.params.id).lean()
+	.then((category)=>{
+		if(category){
+			return Product.find({categoryId: category._id}).lean();
+		}
+	})
+	.then((products)=>{
+		if(!products){
+			return res.sendStatus(404);
+		}
+		res.json(products);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
+router.route('/brands')
+.get((req, res)=>{
+	Brand.find().lean()
+	.then((brands)=>{
+		res.json(brands);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+.post(authenticateUser, upload.single('logo'), (req, res)=>{
+	console.log("BODY", req.body, req.file);
+	let { name } = req.body;
+	let photoName = "brandImage-"+randomstring.generate();
+	function createBrand(){
+		let params = { name };
+		console.log("PARAMS", params);
+		if(req.file){
+			Object.assign(params, {
+				logo: 'https://s3.amazonaws.com/'
+					+ process.eventNames.BUCKET_NAME || 'madeinegypt-test' + '/'
+					+ photoName
+				}
+			)
+		}
+		Brand.create(params)
+		.then((brand)=>{
+			return res.sendStatus(201);
+		})
+		.catch((err)=>{
+			console.error(err);
+			return res.sendStatus(500);
+		})
+	}
+	if(req.file){
+		publicS3.putObject({
+			Body: req.file.buffer,
+			Bucket: process.eventNames.BUCKET_NAME || 'madeinegypt-test',
+			Key: photoName
+		}).promise()
+		.then((dataSent)=>{
+			return true;
+		})
+		.catch((err)=>{
+			console.error(err);
+			return false;
+		})
+		.then((shouldContinue)=>{
+			if(shouldContinue){
+				return createBrand();
+			}
+			return res.sendStatus(500);
+		})
+	} else {
+		createBrand();
+	}
 })
 
 
