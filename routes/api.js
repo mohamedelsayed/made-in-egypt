@@ -41,6 +41,10 @@ router.post('/login', (req, res)=>{
 				}
 				if(correct){
 					return res.json({
+						firstName: user.firstName,
+						lastName: user.lastName,
+						phone: user.phone,
+						address: user.address,
 						token: jwt.sign({
 							id: user._id
 						}, jwtSecret)
@@ -142,7 +146,7 @@ router.route('/users')
 		})
 		.then((user)=>{
 			if(user){
-				return res.json({
+				return res.status(409).json({
 					error: "User with same email already exists"
 				})
 			}
@@ -264,7 +268,7 @@ router.route('/products')
 		res.sendStatus(500);
 	})
 })
-.post(authenticateUser, (req, res)=>{
+.post(authenticateAdmin, (req, res)=>{
 	// res.sendStatus(501);
 	let { name, description, price, quantity, category, brand, productDetails } = req.body;
 	co(function*(){
@@ -388,6 +392,10 @@ router.route('/orders')
 })
 .post((req, res)=>{
 	res.sendStatus(501);
+})
+
+router.post('/order/:orderId/cancel', (req, res)=>{
+	return res.sendStatus(501);
 })
 
 router.route('/categories')

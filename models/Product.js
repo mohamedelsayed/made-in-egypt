@@ -27,7 +27,11 @@ const View = new Schema({
 })
 
 const ProductSchema = new Schema({
-	name: {
+	nameEn: {
+		type: String,
+		required: true
+	},
+	nameAr: {
 		type: String,
 		required: true
 	},
@@ -65,7 +69,10 @@ const ProductSchema = new Schema({
 		required: true,
 		ref: 'Brand'
 	},
-	productDetails: {
+	productDetailsEn: {
+		type: Object
+	},
+	productDetailsAr: {
 		type: Object
 	},
 	views: {

@@ -3,9 +3,191 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <style>
+    	@import url(https://fonts.googleapis.com/css?family=Gruppo);
+			body {
+			  background-color: white;
+			  font-family: 'Gruppo', cursive;
+			  color:#3B8183;
+			  font-size:2em;
+			}
+			#timer {
+			  margin:auto;
+			}
+			.countdown {
+			  width:100%;
+			  text-align:center;
+			}
+			#days {
+			  color: #ED303C;
+			}
+			#hours {
+			  color: #F5634A;
+			}
+			#minutes {
+			  color: #FF9C5B;
+			}
+			#seconds {
+			  color: #FAD089;
+			}
+
+			.thinWide {
+			  margin:20px 2.5%;
+			  width:95%;
+			  height:3px;
+			  background-color: #3B8183;
+			  position:relative;
+			  border: none;
+			}
+			.thinWide:after {
+			  content: '';
+			  position:absolute;
+			  top: -6px;
+			  left:0;
+			  right:0;
+			  margin:auto;
+			  height:15px;
+			  width:20%;
+			  background-color:#3B8183;
+			}
+
+			footer {
+			  font-size:.6em;
+			  text-align:center;
+			}
+			footer a {
+			  color:#3B8183;
+			  text-decoration:none;
+			}
+			footer a:hover {
+			  color:#666;
+			}
+			canvas {
+			  transform:rotate(-90deg);
+			  -ms-transform:rotate(-90deg); /* IE 9 */
+			  -webkit-transform:rotate(-90deg); /* Safari and Chrome */
+			  padding:1em 0;
+			}
+	    </style>
+	    <script>
+	    	$( document ).ready(function() {
+
+				// set the date we're counting down to
+				var target_date = new Date("Aug 1, 2018").getTime();
+				 
+				// variables for time units
+				var days, hours, minutes, seconds;
+				 
+				var $days = $("#days"),
+				    $hours = $("#hours"),
+				    $minutes = $("#minutes"),
+				    $seconds = $("#seconds");
+				  
+				var center = 200,
+				    canvas = document.getElementById('timer'),
+				    ctx = canvas.getContext("2d"),
+				    daySetup = {
+				        radie:170,
+				        lineWidth:30,
+				        back:48,
+				        color:"#ED303C ",
+				        counter:0,
+				        old:0
+				    },
+				    hourSetup = {
+				        radie:130,
+				        lineWidth:30,
+				        back:48,
+				        color:"#F5634A ",
+				        counter:0,
+				        old:0
+				    },
+				    minSetup = {
+				        radie:90,
+				        lineWidth:30,
+				        back:45,
+				        color:"#FF9C5B",
+				        counter:0,
+				        old:0
+				    },
+				    secSetup = {
+				        radie:50,
+				        lineWidth:30,
+				        back:65,
+				        color:"#FAD089",
+				        counter:0,
+				        old:0
+				    },
+				    check = function(count, setup, ctx) {
+				        if (count < setup.old){
+				          setup.counter++
+				        }
+				        draw(setup.radie, setup.color, setup.lineWidth, count, ctx);
+				    },
+				    draw = function(radie, color, lineWidth, count, ctx) {
+				        ctx.beginPath();
+				        ctx.arc(center, center, radie, 0, count * Math.PI, false);
+				        ctx.lineWidth = lineWidth;
+				        ctx.strokeStyle = color;
+				        ctx.stroke();
+				    };
+				 
+				// update the tag with id "countdown" every 1 second
+				setInterval(function () {
+				    canvas.width = canvas.width;
+				    
+				    ctx.beginPath();
+				    ctx.arc(center, center, 50, 0, 2 * Math.PI, false);
+				    ctx.lineWidth = 30,
+				    ctx.fillStyle = 'white';
+				    ctx.fill();
+				  
+				    // find the amount of "seconds" between now and target
+				    var current_date = new Date().getTime();
+				    var seconds_left = (target_date - current_date) / 1000;
+				 
+				    // do some time calculations
+				    days = parseInt(seconds_left / 86400);
+				    seconds_left = seconds_left % 86400;
+				     
+				    hours = parseInt(seconds_left / 3600);
+				    seconds_left = seconds_left % 3600;
+				     
+				    minutes = parseInt(seconds_left / 60);
+				    seconds = parseInt(seconds_left % 60);
+				     
+				    $days.text(days);
+				    $hours.text(hours);
+				    $minutes.text(minutes);
+				    $seconds.text(seconds);
+
+				    var dayCount = (2 / 360) * days,
+				      hourCount = (2 / 24) * hours,
+				      minCount = (2 / 60) * minutes,
+				      secCount = (2 / 60) * seconds;
+				      
+				    check(secCount, secSetup, ctx);
+				    check(minCount, minSetup, ctx);
+				    check(hourCount, hourSetup, ctx);
+				    check(dayCount, daySetup, ctx);
+
+				    secSetup.old = secCount - 0.01;
+				    minSetup.old = minCount - 0.01;
+				    hourSetup.old = hourCount - 0.01; 
+				    daySetup.old = dayCount - 0.01; 
+
+				}, 1000);
+				});
+    </script>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <hr class="thinWide" />
+	<div class="countdown">
+	  <div>coming soon<br/>Made In Egypt App</div>
+	  <canvas width="400" height="400" id="timer"></canvas>
+	  <div><span id="days"></span> days <span id="hours"></span> hours <span id="minutes"></span> minutes <span id="seconds"></span> seconds</div>
+	</div>
+	<hr class="thinWide" />
   </body>
 </html>
