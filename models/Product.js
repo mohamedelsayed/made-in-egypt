@@ -70,10 +70,10 @@ const ProductSchema = new Schema({
 		ref: 'Brand'
 	},
 	productDetailsEn: {
-		type: Object
+		type: Schema.Types.Mixed
 	},
 	productDetailsAr: {
-		type: Object
+		type: Schema.Types.Mixed
 	},
 	views: {
 		type: [View],
