@@ -445,7 +445,7 @@ router.route('/orders')
 	})
 })
 
-router.post(authenticateUser, '/order/:orderId/cancel', (req, res)=>{
+router.post('/order/:orderId/cancel', authenticateUser, (req, res)=>{
 	co(function*(){
 		let order  = yield Order.findById(req.params.orderId)
 		if(order.userId === req.user._id){
@@ -552,9 +552,9 @@ router.route('/brands')
 		console.log("PARAMS", params);
 		if(req.file){
 			Object.assign(params, {
-				logo: 'https://s3.amazonaws.com/'
-					+ process.eventNames.BUCKET_NAME || 'madeinegypt-test' + '/'
-					+ photoName
+				logo: ('https://s3.amazonaws.com/'
+					+ (process.eventNames.BUCKET_NAME || 'madeinegypt-test') + '/'
+					+ photoName)
 				}
 			)
 		}
