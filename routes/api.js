@@ -410,21 +410,26 @@ router.route('/orders')
 })
 
 router.post(authenticateUser, '/order/:orderId/cancel', (req, res)=>{
-	Order.findById(req.params.orderId)
-	.then((order)=>{
+	co(function*(){
+		let order  = yield Order.findById(req.params.orderId)
 		if(order.userId === req.user._id){
 			order.set({status: 'Cancelled'});
-			return order.save();
+			let promiseArray = [];
+			for(item in order.items){
+				promiseArray.push(
+					Product.findByIdAndUpdate(item.productId, {$inc: {quantity: item.quantity}}).exec()
+				)
+			}
+			promiseArray.push(order.save());
+			yield promiseArray;
+			return res.json({
+				success: "Order cancelled"
+			})
 		} else {
 			res.status(403).send({
 				error: "You are not allowed to edit this order"
 			});
 		}
-	})
-	.then((updatedDoc)=>{
-		res.json({
-			success: "Order updated successfully"
-		})
 	})
 	.catch((err)=>{
 		console.error(err);
