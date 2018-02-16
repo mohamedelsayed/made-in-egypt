@@ -1,5 +1,5 @@
 module.exports = {
-	removeEmptyObjectKeys = (givenObject)=>{
+	removeEmptyObjectKeys: (givenObject)=>{
 		let theObject = {};
 		Object.keys(theObject).map((key)=>{
 			if(givenObject[key]){
