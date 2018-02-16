@@ -24,6 +24,7 @@ const Category = require('../models/Category');
 const Brand = require('../models/Brand');
 
 const { jwtSecret } = require('./helpers/config');
+const { removeEmptyObjectKeys } = require('./helpers/helpers');
 
 const { authenticateUser, optionalAuthenticateUser, authenticateAdmin } = require('./helpers/auth');
 
@@ -317,8 +318,22 @@ router.route('/products/:id')
 		console.error(err);
 	})
 })
-.put(authenticateUser, (req, res)=>{
-	res.sendStatus(501);
+.put(authenticateAdmin, (req, res)=>{
+	let { nameEn,	nameAr,	description, price,	quantity,
+				ratingTotal, categoryId, brandId,	productDetailsEn,
+				productDetailsAr } = req.body;
+	let theBody = { nameEn,	nameAr,	description, price,	quantity,
+					ratingTotal, categoryId, brandId,	productDetailsEn,
+					productDetailsAr };
+	theBody = removeEmptyObjectKeys(theBody);
+	Product.findByIdAndUpdate(req.params.id, theBody)
+	.then((result)=>{
+		res.sendStatus(200);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
 })
 
 
@@ -394,8 +409,27 @@ router.route('/orders')
 	res.sendStatus(501);
 })
 
-router.post('/order/:orderId/cancel', (req, res)=>{
-	return res.sendStatus(501);
+router.post(authenticateUser, '/order/:orderId/cancel', (req, res)=>{
+	Order.findById(req.params.orderId)
+	.then((order)=>{
+		if(order.userId === req.user._id){
+			order.set({status: 'Cancelled'});
+			return order.save();
+		} else {
+			res.status(403).send({
+				error: "You are not allowed to edit this order"
+			});
+		}
+	})
+	.then((updatedDoc)=>{
+		res.json({
+			success: "Order updated successfully"
+		})
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
 })
 
 router.route('/categories')
@@ -470,10 +504,9 @@ router.route('/brands')
 	})
 })
 .post(authenticateUser, upload.single('logo'), (req, res)=>{
-	console.log("BODY", req.body, req.file);
 	let { name } = req.body;
 	let photoName = "brandImage-"+randomstring.generate();
-	function createBrand(){
+	let createBrand = function(){
 		let params = { name };
 		console.log("PARAMS", params);
 		if(req.file){
@@ -515,6 +548,27 @@ router.route('/brands')
 	} else {
 		createBrand();
 	}
+})
+
+router.route('/brands/:id')
+.get((req, res)=>{
+	let brand;
+	Brand.findById(req.params.id).lean()
+	.then((theBrand)=>{
+		if(theBrand){
+			brand = theBrand;
+			return Product.find({brandId: brand._id}).lean()
+		} else {
+			return null;
+		}
+	})
+	.then((products)=>{
+		if(products){
+			res.json({brand, products})
+		} else {
+			res.sendStatus(404);
+		}
+	})
 })
 
 
