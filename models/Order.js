@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const Schema = mongoose.Schema;
 
-const ItemOrderSchema = new Schema({
+const OrderItemSchema = new Schema({
 	price: {
 		type: Number,
 		required: true
@@ -32,7 +32,7 @@ const OrderSchema = new Schema({
 		require: true
 	},
 	items: {
-		type: [ItemOrderSchema],
+		type: [OrderItemSchema],
 		required: true
 	},
 	paymentMethod: {
