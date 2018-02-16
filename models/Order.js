@@ -22,6 +22,11 @@ const ItemOrderSchema = new Schema({
 })
 
 const OrderSchema = new Schema({
+	userId: {
+		type: Schema.Types.ObjectId,
+		required: true,
+		ref: 'User'
+	},
 	price: {
 		type: Number,
 		require: true
