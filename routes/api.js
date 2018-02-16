@@ -405,8 +405,44 @@ router.route('/orders')
 		res.sendStatus(500);
 	})
 })
-.post((req, res)=>{
-	res.sendStatus(501);
+.post(authenticateUser, (req, res)=>{
+	let { items, paymentMethod } = req.body;
+	let finalPrice = 0;
+	let orderProducts = [];
+	let invalidItems = false;
+	co(function*(){
+		for(let item in items){
+			if(item.quantity && item.productId){
+				let currentProduct = yield Product.findById(item.productId);
+				if(!currentProduct){
+					invalidItems = true;
+					continue;
+				}
+				if(currentProduct.quantity >= item.quantity && item.quantity > 0){
+					yield Product.findByIdAndUpdate(item.productId, {$inc: {quantity: -(item.quantity)}});
+					orderProducts.push(item);
+					finalPrice += (item.quantity * item.price)
+				} else {
+					invalidItems = true;
+				}
+			}
+		}
+		let theOrder = yield Order.create({
+			userId: req.user._id,
+			price: finalPrice,
+			items: orderProducts,
+			paymentMethod: paymentMethod,
+			state: 'Pending'
+		})
+		if(invalidItems){
+			Object.assign(theOrder, {error: "Order created with some invalid content"});
+		}
+		res.send(theOrder);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
 })
 
 router.post(authenticateUser, '/order/:orderId/cancel', (req, res)=>{
@@ -415,7 +451,7 @@ router.post(authenticateUser, '/order/:orderId/cancel', (req, res)=>{
 		if(order.userId === req.user._id){
 			order.set({status: 'Cancelled'});
 			let promiseArray = [];
-			for(item in order.items){
+			for(let item in order.items){
 				promiseArray.push(
 					Product.findByIdAndUpdate(item.productId, {$inc: {quantity: item.quantity}}).exec()
 				)
