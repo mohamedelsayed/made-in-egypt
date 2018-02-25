@@ -23,6 +23,10 @@ export default class Login extends React.Component {
 		})
 		.then((response)=>{
 			console.log(response.status, response.data);
+			if(response.status === 200){
+				localStorage.setItem('auth', response.data.token);
+			}
+			this.props.changeView('products');
 		})
 		.catch((err)=>{
 			console.error(err);
