@@ -43,6 +43,7 @@ module.exports = {
 	authenticateAdmin: function(req, res, next){
 		jwt.verify(req.headers['x-auth-token'], jwtSecret, function(err, decoded){
 			if(err){
+				console.warn(err.message);
 				return res.sendStatus(401);
 			}
 			Admin.findById(decoded.id).lean()
