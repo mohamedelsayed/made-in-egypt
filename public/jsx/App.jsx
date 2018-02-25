@@ -5,6 +5,7 @@ import { Container } from 'semantic-ui-react';
 import axios from 'axios';
 
 import Login from './Login.jsx';
+import Products from './Products.jsx';
 
 export default class App extends Component {
 	constructor(){
@@ -19,7 +20,8 @@ export default class App extends Component {
 			return this.setState({currentView: <ViewComponent changeView={this.changeView} />})
 		}
 		switch(view){
-			case 'login': componentShortCut(Login);
+			case 'login': componentShortCut(Login); break;
+			case 'products': componentShortCut(Products); break;
 			default: <div />
 		}
 	}
@@ -34,7 +36,7 @@ export default class App extends Component {
 			})
 			.then((response)=>{
 				if(response.status == 200){
-					this.changeView('dashboard');
+					this.changeView('products');
 				} else {
 					console.warn('Something is wrong');
 					this.changeView('login');
