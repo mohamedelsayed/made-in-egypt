@@ -12,6 +12,7 @@ global.Promise = require('bluebird');
 const index = require('./routes/index');
 const api = require('./routes/api');
 const users = require('./routes/users');
+// const admins = require('./routes/admins');
 
 mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost'}:${process.env.MONGO_PORT || '27017'}/${process.env.MONGO_DB_NAME || 'madeInEgypt'}`, function(err){
   if(err){
@@ -33,9 +34,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
 app.use('/api', api);
-app.use('/users', users);
+app.use('/admin', function(req, res){
+  res.render('admin');
+});
+// app.use('/users', users);
+app.use('/', index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

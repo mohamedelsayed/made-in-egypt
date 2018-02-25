@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Container } from 'semantic-ui-react';
+// import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
 
 import Login from './Login.jsx';
@@ -26,7 +27,7 @@ export default class App extends Component {
 	componentDidMount(){
 		let auth = localStorage.getItem('auth');
 		if(auth){
-			axios.get('localhost:3000/api/admin/auth', {
+			axios.get('http://localhost:3000/api/admin/auth', {
 				headers: {
 					'x-auth-token': auth
 				}
@@ -50,12 +51,14 @@ export default class App extends Component {
 
 	render(){
 		return(
-			<Container>
+			<div>
 				{
 					this.state.currentView
 				}
-			</Container>
+			</div>
 		)
 	}
 }
+
+ReactDOM.render(<App />, document.getElementById('app'));
 
