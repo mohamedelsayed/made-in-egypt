@@ -69,10 +69,7 @@ const ProductSchema = new Schema({
 		required: true,
 		ref: 'Brand'
 	},
-	productDetailsEn: {
-		type: Schema.Types.Mixed
-	},
-	productDetailsAr: {
+	productDetails: {
 		type: Schema.Types.Mixed
 	},
 	views: {
