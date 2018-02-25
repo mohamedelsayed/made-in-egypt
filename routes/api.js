@@ -271,7 +271,7 @@ router.route('/products')
 })
 .post(authenticateAdmin, (req, res)=>{
 	// res.sendStatus(501);
-	let { name, description, price, quantity, category, brand, productDetails } = req.body;
+	let { nameEn, nameAr, description, price, quantity, category, brand, productDetails } = req.body;
 	co(function*(){
 		let theCategory = yield Category.findOne({name: category}).lean();
 		let theBrand = yield Brand.findOne({name: brand}).lean();
@@ -281,7 +281,8 @@ router.route('/products')
 			})
 		}
 		yield Product.create({
-			name, description, price, quantity, categoryId: theCategory._id, brandId: theBrand._id, productDetails
+			nameEn, nameAr, description, price, quantity, categoryId: theCategory._id, brandId: theBrand._id, productDetails,
+			ratingTotal: 0, ratingCount: 0
 		})
 		return res.sendStatus(201);
 	})
@@ -289,6 +290,18 @@ router.route('/products')
 		console.error(err);
 		res.sendStatus(500);
 	});
+})
+
+router.route('/admin/products')
+.get(authenticateAdmin, (req, res)=>{
+	Product.find().populate('brandId').populate('categoryId')
+	.then((products)=>{
+		return res.send(products);
+	})
+	.catch((err)=>{
+		console.error(err);
+		return res.sendStatus(500);
+	})
 })
 
 router.route('/products/:id')
