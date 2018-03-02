@@ -346,9 +346,35 @@ router.route('/products/:id')
 					ratingTotal, categoryId, brandId,	productDetailsEn,
 					productDetailsAr };
 	theBody = removeEmptyObjectKeys(theBody);
-	Product.findByIdAndUpdate(req.params.id, theBody)
-	.then((result)=>{
+	let theProduct;
+	Product.findByIdAndUpdate(req.params.id, theBody).lean()
+	.then((product)=>{
+		if(!product){
+			return res.sendStatus(404);
+		}
 		res.sendStatus(200);
+		// Check if this product is a favourite for any user.
+		// Then send these users a notification that it came into stock if it was less than 5
+		theProduct = product;
+		if(theBody.quantity > 5 && result.quantity <= 5){
+			// The quantity of the product has been increased beyond 5
+			return User.find({
+				favourites: product._id
+			}).lean()
+		}
+	})
+	.then((theUsers)=>{
+		if(theUsers && theProduct){
+			for (let userIndex = 0; userIndex < theUsers.length; userIndex++) {
+				const element = theUsers[userIndex];
+				const ref = firebaseDB.ref(`/notifications/${theUsers[userIndex]._id}`);
+				ref.push(`An item you added to your favourites (${theProduct.nameEn}) has come into stock`, (err)=>{
+					if(err){
+						console.error(err);
+					}
+				})
+			}
+		}
 	})
 	.catch((err)=>{
 		console.error(err);
@@ -634,11 +660,11 @@ router.route('/brands/:id')
 
 router.route('/notifications')
 .post(authenticateAdmin, (req, res)=>{
-	let { userId, message } = req.body;
-	if(!userId || !message){
+	let { targetAudience, message } = req.body;
+	if(!targetAudience || !message){
 		return res.sendStatus(400);
 	}
-	const ref = firebaseDB.ref(`/notifications/${userId}`);
+	const ref = firebaseDB.ref(`/notifications/${targetAudience}`);
 	ref.push(message, (err)=>{
 		if(err){
 			console.error(err);
