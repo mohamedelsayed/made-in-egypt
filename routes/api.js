@@ -15,6 +15,13 @@ const publicS3 = new AWS.S3({
 	secretAccessKey: process.env.SECRET_ACCESS_KEY || '2lfCmyIe2hhHT2C7T+tGaFSwIZoO9QosmrjZ0IIw',
 	// region: 'eu-west-2'
 })
+const firebase = require('firebase-admin');
+firebase.initializeApp({
+	databaseURL: process.env.FIREBASE_DB || 'https://made-in-egypt-dev.firebaseio.com/',
+	credential: firebase.credential.cert(require('../firebaseCredentials.json'))
+});
+
+const firebaseDB = firebase.database();
 
 const Admin = require('../models/Admin');
 const User = require('../models/User');
@@ -622,6 +629,22 @@ router.route('/brands/:id')
 		} else {
 			res.sendStatus(404);
 		}
+	})
+})
+
+router.route('/notifications')
+.post(authenticateAdmin, (req, res)=>{
+	let { userId, message } = req.body;
+	if(!userId || !message){
+		return res.sendStatus(400);
+	}
+	const ref = firebaseDB.ref(`/notifications/${userId}`);
+	ref.push(message, (err)=>{
+		if(err){
+			console.error(err);
+			return res.status(500).send("Error occured will adding message to user's notifications");
+		}
+		res.status(201).send("Pushed");
 	})
 })
 
