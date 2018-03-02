@@ -48,6 +48,10 @@ module.exports = {
 			}
 			Admin.findById(decoded.id).lean()
 			.then((admin)=>{
+				if(!admin){
+					console.log("DECODED", decoded);
+					return res.status(401).send('Admin not found');
+				}
 				req.admin = admin;
 				next();
 			})
