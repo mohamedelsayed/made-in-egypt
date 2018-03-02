@@ -79,6 +79,11 @@ const ProductSchema = new Schema({
 	reviews: {
 		type: [Review],
 		required: true
+	},
+	createdBy: {
+		// Admin who created the product
+		type: Schema.Types.ObjectId,
+		required: true
 	}
 }, {
 	timestamps: true
