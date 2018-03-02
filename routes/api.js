@@ -282,7 +282,7 @@ router.route('/products')
 		}
 		yield Product.create({
 			nameEn, nameAr, description, price, quantity, categoryId: theCategory._id, brandId: theBrand._id, productDetails,
-			ratingTotal: 0, ratingCount: 0
+			ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 		})
 		return res.sendStatus(201);
 	})
