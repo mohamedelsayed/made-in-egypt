@@ -278,7 +278,10 @@ router.route('/products')
 })
 .post(authenticateAdmin, (req, res)=>{
 	// res.sendStatus(501);
-	let { nameEn, nameAr, description, price, quantity, category, brand, productDetails } = req.body;
+	let { nameEn, nameAr, description, price, quantity, category, brand, sizes, color } = req.body;
+	if(!(_.isArray(quantity) && _.isArray(sizes) && (quantity.length === sizes.length || (sizes.length === 0 && quantity.length === 1)) )){
+		return res.sendStatus(400);
+	}
 	co(function*(){
 		let theCategory = yield Category.findOne({name: category}).lean();
 		let theBrand = yield Brand.findOne({name: brand}).lean();
@@ -288,7 +291,7 @@ router.route('/products')
 			})
 		}
 		yield Product.create({
-			nameEn, nameAr, description, price, quantity, categoryId: theCategory._id, brandId: theBrand._id, productDetails,
+			nameEn, nameAr, description, price, quantity, categoryId: theCategory._id, brandId: theBrand._id, sizes, color,
 			ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 		})
 		return res.sendStatus(201);
@@ -364,6 +367,7 @@ router.route('/products/:id')
 		}
 	})
 	.then((theUsers)=>{
+		console.log("THE USERS",theUsers)
 		if(theUsers && theProduct){
 			for (let userIndex = 0; userIndex < theUsers.length; userIndex++) {
 				const element = theUsers[userIndex];
@@ -439,6 +443,35 @@ router.get('/similar/:productId', (req, res)=>{
 		return res.sendStatus(500);
 	})
 })
+
+router.route('/favourites/:productId')
+.post(authenticateUser, (req, res)=>{
+	let { productId } = req.params;
+	Product.findById(productId).lean()
+	.then((product)=>{
+		if(!product){
+			return res.sendStatus(404);
+		}
+		console.log("FIND FAV", product)
+		if(req.user.favourites.indexOf(product._id) > -1){
+			return User.updateOne({_id: req.user._id}, {
+				$push: {favourites: product._id}
+			})
+			.then((doc)=>{
+				console.log("FAV DOC",doc);
+				return res.sendStatus(201);
+			})
+		}
+	})
+	.catch((err)=>{
+		console.error(err);
+		return res.sendStatus(500);
+	})
+})
+.delete(authenticateUser, (req, res)=>{
+	res.sendStatus(501);
+})
+
 
 router.route('/orders')
 .get((req, res)=>{
