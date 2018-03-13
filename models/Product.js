@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const Schema = mongoose.Schema;
+const _ = require('lodash');
 
 const Review = new Schema({
 	reviewer: {
@@ -41,11 +42,45 @@ const ProductSchema = new Schema({
 	},
 	price: {
 		type: Number,
+		required: true,
+		validate: {
+			validator: function(value){
+				return value >= 0
+			},
+			msg: "Price is less than 0"
+		}
+	},
+	color: {
+		type: String
+	},
+	sizes: {
+		type: [String],
 		required: true
 	},
 	quantity: {
-		type: Number,
-		required: true
+		type: [Number],
+		required: true,
+		validate: [{
+			validator: function(value){
+				return _.isArray(value)
+			},
+			msg: "Quantity is not an array"
+		}, {
+			validator: function(value){
+				if(value.length < 1){
+					return false;
+				}
+				let valid = true;
+				for (let i = 0; i < value.length; i++) {
+					if(value[i] < 0 || !_.isInteger(value[i])){
+						valid = false;
+						break;
+					}
+				}
+				return valid;
+			},
+			msg: "Quantity array is either empty or has non integer values"
+		}]
 	},
 	photos: {
 		type: [String],
@@ -69,9 +104,9 @@ const ProductSchema = new Schema({
 		required: true,
 		ref: 'Brand'
 	},
-	productDetails: {
-		type: Schema.Types.Mixed
-	},
+	// productDetails: {
+	// 	type: Schema.Types.Mixed
+	// },
 	views: {
 		type: [View],
 		required: true
