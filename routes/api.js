@@ -490,15 +490,28 @@ router.route('/orders')
 	let orderProducts = [];
 	let invalidItems = false;
 	co(function*(){
-		for(let item in items){
+		for(let itemIndex = 0; itemIndex < items.length; itemIndex++){
+			let item = items[itemIndex]
+			debugger;
 			if(item.quantity && item.productId){
 				let currentProduct = yield Product.findById(item.productId);
 				if(!currentProduct){
 					invalidItems = true;
 					continue;
 				}
-				if(currentProduct.quantity >= item.quantity && item.quantity > 0){
-					yield Product.findByIdAndUpdate(item.productId, {$inc: {quantity: -(item.quantity)}});
+				// find index of the product size if it exists. if it doesn't fall back to single entry quantity
+				let index;
+				if(currentProduct.sizes){
+					index = currentProduct.sizes.indexOf(item.size)
+				} else {
+					index = 0;
+				}
+				if(index < 0){
+					invalidItems = true;
+					continue;
+				}
+				if(currentProduct.quantity[index] >= item.quantity && item.quantity > 0){
+					yield Product.findByIdAndUpdate(item.productId, {$inc: {['quantity.'+index]: -(item.quantity)}});
 					orderProducts.push(item);
 					finalPrice += (item.quantity * item.price)
 				} else {
