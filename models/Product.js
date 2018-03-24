@@ -70,7 +70,7 @@ const ProductSchema = new Schema({
 		type: String
 	},
 	details: {
-		type: [Schema.Types.ObjectId],
+		type: [Schema.Types.Mixed],
 		required: true
 	},
 	photos: {
@@ -79,11 +79,13 @@ const ProductSchema = new Schema({
 	},
 	ratingTotal: {
 		type: Number,
-		required: true
+		required: true,
+		default: 0
 	},
 	ratingCount: {
 		type: Number,
-		required: true
+		required: true,
+		default: 0
 	},
 	ratings: {
 		type: [Rating],
