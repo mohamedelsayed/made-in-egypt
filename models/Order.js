@@ -33,7 +33,13 @@ const OrderSchema = new Schema({
 	},
 	items: {
 		type: [OrderItemSchema],
-		required: true
+		required: true,
+		validate: {
+			validator: function(value){
+				return value.length > 0
+			},
+			msg: "Cannot create order with no items"
+		}
 	},
 	paymentMethod: {
 		type: String,
