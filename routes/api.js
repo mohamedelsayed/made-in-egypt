@@ -756,7 +756,7 @@ router.route('/brands')
 		res.sendStatus(500);
 	})
 })
-.post(authenticateUser, upload.single('logo'), (req, res)=>{
+.post(authenticateAdmin, upload.single('logo'), (req, res)=>{
 	let { name } = req.body;
 	let photoName = "brandImage-"+randomstring.generate();
 	let createBrand = function(){
