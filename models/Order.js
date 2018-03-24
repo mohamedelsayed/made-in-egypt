@@ -16,7 +16,10 @@ const OrderItemSchema = new Schema({
 		type: Number,
 		required: true
 	},
-	productDetails: Object
+	details: {
+		type: Schema.Types.Mixed,
+		required: true
+	}
 }, {
 	timestamps: true
 })
