@@ -53,34 +53,9 @@ const ProductSchema = new Schema({
 	color: {
 		type: String
 	},
-	sizes: {
-		type: [String],
+	details: {
+		type: [Schema.Types.ObjectId],
 		required: true
-	},
-	quantity: {
-		type: [Number],
-		required: true,
-		validate: [{
-			validator: function(value){
-				return _.isArray(value)
-			},
-			msg: "Quantity is not an array"
-		}, {
-			validator: function(value){
-				if(value.length < 1){
-					return false;
-				}
-				let valid = true;
-				for (let i = 0; i < value.length; i++) {
-					if(value[i] < 0 || !_.isInteger(value[i])){
-						valid = false;
-						break;
-					}
-				}
-				return valid;
-			},
-			msg: "Quantity array is either empty or has non integer values"
-		}]
 	},
 	photos: {
 		type: [String],
