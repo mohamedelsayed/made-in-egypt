@@ -66,6 +66,11 @@ const ProductSchema = new Schema({
 			msg: "Price is less than 0"
 		}
 	},
+	discount: {
+		type: Number,
+		min: 0,
+		max: 99
+	},
 	color: {
 		type: String
 	},
