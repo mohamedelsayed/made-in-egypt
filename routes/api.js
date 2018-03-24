@@ -460,7 +460,7 @@ router.post('/rate/:productId', authenticateUser, (req, res)=>{
 		}
 		let {ratingTotal, ratingCount, ratings} = product;
 		let userRating = ratings.find(function(rating){
-			return rating.user === req.user._id
+			return rating.user.toString() == req.user._id.toString()
 		})
 		// let incrementValue = rating - (userRating)? userRating.value : 0;
 		if(userRating){
@@ -469,7 +469,7 @@ router.post('/rate/:productId', authenticateUser, (req, res)=>{
 				_id: productId,
 				'ratings.user': req.user._id
 			}, {
-				'ratings.user.$.value': rating,
+				'ratings.$.value': rating,
 				$inc: {
 					ratingTotal: ratingDifference
 				}
