@@ -73,6 +73,10 @@ const ProductSchema = new Schema({
 		type: Number,
 		required: true
 	},
+	raters: {
+		type: [Schema.Types.ObjectId],
+		required: true
+	},
 	categoryId: {
 		type: Schema.Types.ObjectId,
 		required: true,
