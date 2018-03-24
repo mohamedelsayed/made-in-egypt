@@ -112,6 +112,9 @@ const ProductSchema = new Schema({
 		type: [Review],
 		required: true
 	},
+	featured: {
+		type: Boolean
+	},
 	createdBy: {
 		// Admin who created the product
 		type: Schema.Types.ObjectId,
