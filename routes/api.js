@@ -444,6 +444,71 @@ router.get('/similar/:productId', (req, res)=>{
 	})
 })
 
+router.post('/rate/:productId', authenticateUser, (req, res)=>{
+	let { productId } = req.params;
+	let { rating } = req.body;
+	if(!rating || !_.isNumber(rating) || rating > 5 || rating < 1){
+		return res.sendStatus(400);
+	}
+	let responseSent = false;
+	Product.findById(productId).lean()
+	.then((product)=>{
+		if(!product){
+			res.sendStatus(404);
+			responseSent = true;
+			throw Error("Product not found");
+		}
+		let {ratingTotal, ratingCount, ratings} = product;
+		let userRating = ratings.find(function(rating){
+			return rating.user === req.user._id
+		})
+		// let incrementValue = rating - (userRating)? userRating.value : 0;
+		if(userRating){
+			let ratingDifference = rating - userRating.value;
+			return Product.findOneAndUpdate({
+				_id: productId,
+				'ratings.user': req.user._id
+			}, {
+				'ratings.user.$.value': rating,
+				ratingTotal: {
+					$inc: ratingDifference
+				}
+			}, {
+				new: true
+			})
+		} else {
+			return Product.findByIdAndUpdate(productId, {
+				$push: {
+					ratings: {
+						user: req.user._id,
+						value: rating
+					}
+				},
+				ratingTotal: {
+					$inc: rating
+				},
+				ratingCount: {
+					$inc: 1
+				}
+			}, {
+				new: true
+			})
+		}
+	})
+	.then((updatedProduct)=>{
+		if(!updatedProduct){
+			throw Error("Product not updated")
+		}
+		res.sendStatus(201);
+	})
+	.catch((err)=>{
+		console.error(err);
+		if(!responseSent){
+			res.sendStatus(500);
+		}
+	})
+})
+
 router.route('/favourites/:productId')
 .post(authenticateUser, (req, res)=>{
 	let { productId } = req.params;
