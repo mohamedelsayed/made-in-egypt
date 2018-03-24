@@ -36,7 +36,11 @@ const ProductSchema = new Schema({
 		type: String,
 		required: true
 	},
-	description: {
+	descriptionEn: {
+		type: String,
+		required: true
+	},
+	descriptionAr: {
 		type: String,
 		required: true
 	},
