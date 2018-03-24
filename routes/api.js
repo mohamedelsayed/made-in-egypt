@@ -340,6 +340,17 @@ router.route('/featured')
 	})
 })
 
+router.get('/latest', (req, res)=>{
+	Product.find().sort({createdAt: -1}).limit(20).lean()
+	.then((latestProducts)=>{
+		res.send(latestProducts);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
 router.route('/products/:id')
 .get(optionalAuthenticateUser, (req, res)=>{
 
