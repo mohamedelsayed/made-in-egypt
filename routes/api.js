@@ -621,7 +621,7 @@ router.get('/orders/:orderId', authenticateUser, (req, res)=>{
 router.post('/order/:orderId/cancel', authenticateUser, (req, res)=>{
 	co(function*(){
 		let order  = yield Order.findById(req.params.orderId)
-		if(order.userId === req.user._id){
+		if(order.userId === req.user._id && order.status === 'Pending'){
 			order.set({status: 'Cancelled'});
 			let promiseArray = [];
 			for(let item in order.items){
