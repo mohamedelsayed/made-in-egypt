@@ -27,6 +27,18 @@ const View = new Schema({
 	timestamps: true
 })
 
+const Rating = new Schema({
+	user: {
+		type: Schema.Types.ObjectId,
+		required: true
+	},
+	value: {
+		type: Number,
+		min: 1,
+		max: 5
+	}
+})
+
 const ProductSchema = new Schema({
 	nameEn: {
 		type: String,
@@ -73,8 +85,8 @@ const ProductSchema = new Schema({
 		type: Number,
 		required: true
 	},
-	raters: {
-		type: [Schema.Types.ObjectId],
+	ratings: {
+		type: [Rating],
 		required: true
 	},
 	categoryId: {
