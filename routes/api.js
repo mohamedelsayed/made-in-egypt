@@ -314,6 +314,32 @@ router.route('/admin/products')
 	})
 })
 
+router.route('/featured')
+.get((req, res)=>{
+	Product.find({featured: true})
+	.then((products)=>{
+		res.send(products)
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+.put(authenticateAdmin, (req, res)=>{
+	let { productId, featured } = req.body;
+	if(!_.isBoolean(featured)){
+		return res.sendStatus(400);
+	}
+	Product.findByIdAndUpdate(productId, {featured}, {new: true})
+	.then((updatedProduct)=>{
+		res.send(updatedProduct);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
 router.route('/products/:id')
 .get(optionalAuthenticateUser, (req, res)=>{
 
