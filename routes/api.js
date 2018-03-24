@@ -8,6 +8,7 @@ const randomstring = require('randomstring');
 const multer = require('multer');
 // const upload = multer({storage: multer.memoryStorage()});
 const upload = multer();
+const _ = require('lodash');
 const AWS = require('aws-sdk');
 AWS.config.setPromisesDependency(global.Promise);
 const publicS3 = new AWS.S3({
@@ -277,9 +278,8 @@ router.route('/products')
 	})
 })
 .post(authenticateAdmin, (req, res)=>{
-	// res.sendStatus(501);
-	let { nameEn, nameAr, description, price, quantity, category, brand, sizes, color } = req.body;
-	if(!(_.isArray(quantity) && _.isArray(sizes) && (quantity.length === sizes.length || (sizes.length === 0 && quantity.length === 1)) )){
+	let { nameEn, nameAr, descriptionEn, descriptionAr, price, details, category, brand, color } = req.body;
+	if(!_.isArray(details) && !_.isUndefined(details)){
 		return res.sendStatus(400);
 	}
 	co(function*(){
@@ -291,7 +291,7 @@ router.route('/products')
 			})
 		}
 		yield Product.create({
-			nameEn, nameAr, description, price, quantity, categoryId: theCategory._id, brandId: theBrand._id, sizes, color,
+			nameEn, nameAr, descriptionEn, descriptionAr, price, details, categoryId: theCategory._id, brandId: theBrand._id, color,
 			ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 		})
 		return res.sendStatus(201);
@@ -470,8 +470,8 @@ router.post('/rate/:productId', authenticateUser, (req, res)=>{
 				'ratings.user': req.user._id
 			}, {
 				'ratings.user.$.value': rating,
-				ratingTotal: {
-					$inc: ratingDifference
+				$inc: {
+					ratingTotal: ratingDifference
 				}
 			}, {
 				new: true
@@ -484,11 +484,9 @@ router.post('/rate/:productId', authenticateUser, (req, res)=>{
 						value: rating
 					}
 				},
-				ratingTotal: {
-					$inc: rating
-				},
-				ratingCount: {
-					$inc: 1
+				$inc: {
+					ratingTotal: rating,
+					ratingCount: 1	
 				}
 			}, {
 				new: true
