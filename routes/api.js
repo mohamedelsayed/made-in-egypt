@@ -507,6 +507,19 @@ router.post('/rate/:productId', authenticateUser, (req, res)=>{
 	})
 })
 
+router.get('/favourites', authenticateUser, (req, res)=>{
+	User.findById(req.user._id)
+	.populate('favourites', '_id nameEn nameAr')
+	.lean()
+	.then((populatedUser)=>{
+		res.send(populatedUser.favourites);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
 router.route('/favourites/:productId')
 .post(authenticateUser, (req, res)=>{
 	let { productId } = req.params;
