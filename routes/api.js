@@ -600,7 +600,7 @@ router.route('/orders')
 	})
 })
 
-router.get('/order/:orderId', authenticateUser, (req, res)=>{
+router.get('/orders/:orderId', authenticateUser, (req, res)=>{
 	let { orderId } = req.params;
 	Order.findOne({
 		_id: orderId,
