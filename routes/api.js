@@ -600,6 +600,24 @@ router.route('/orders')
 	})
 })
 
+router.get('/order/:orderId', authenticateUser, (req, res)=>{
+	let { orderId } = req.params;
+	Order.findOne({
+		_id: orderId,
+		userId: req.user._id
+	})
+	.then((order)=>{
+		if(order){
+			return res.send(order);
+		}
+		res.sendStatus(404);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
 router.post('/order/:orderId/cancel', authenticateUser, (req, res)=>{
 	co(function*(){
 		let order  = yield Order.findById(req.params.orderId)
