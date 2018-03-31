@@ -54,6 +54,7 @@ router.post('/login', (req, res)=>{
 						lastName: user.lastName,
 						phone: user.phone,
 						address: user.address,
+						email,
 						token: jwt.sign({
 							id: user._id
 						}, jwtSecret)
@@ -349,6 +350,10 @@ router.get('/latest', (req, res)=>{
 		console.error(err);
 		res.sendStatus(500);
 	})
+})
+
+router.get('/mostpopular', (req, res)=>{
+	return res.sendStatus(501);
 })
 
 router.route('/products/:id')
