@@ -473,8 +473,8 @@ router.get('/similar/:productId', (req, res)=>{
 			throw Error("Product not found");
 		}
 		return Product.find({
-			$not: {
-				_id: req.params.productId
+			_id: {
+				$ne: req.params.productId
 			},
 			price: {
 				$lte: product.price * 1.25,
