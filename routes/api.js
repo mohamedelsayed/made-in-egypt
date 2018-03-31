@@ -841,7 +841,8 @@ router.route('/brands/:id')
 	})
 	.then((products)=>{
 		if(products){
-			res.json({brand, products})
+			brand.products = products;
+			res.json({brand})
 		} else {
 			res.sendStatus(404);
 		}
