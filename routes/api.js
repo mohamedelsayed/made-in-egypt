@@ -464,8 +464,14 @@ router.post('/review/:productId', authenticateUser, (req, res)=>{
 })
 
 router.get('/similar/:productId', (req, res)=>{
-	Product.findOne(req.params.productId).lean()
+	let responseSent = false;
+	Product.findById(req.params.productId).lean()
 	.then((product)=>{
+		if(!product){
+			res.sendStatus(404);
+			responseSent = true;
+			throw Error("Product not found");
+		}
 		return Product.find({
 			$not: {
 				_id: req.params.productId
@@ -482,7 +488,9 @@ router.get('/similar/:productId', (req, res)=>{
 	})
 	.catch((err)=>{
 		console.error(err);
-		return res.sendStatus(500);
+		if(!responseSent){
+			return res.sendStatus(500);
+		}
 	})
 })
 
