@@ -252,14 +252,15 @@ router.route('/products')
 	}
 	if(filterPriceFrom || filterPriceTo){
 		filter.price = {};
-		if(filterPriceFrom && _.isNumber(filterPriceFrom)){
-			Object.assign(filter.price, {$gte: parseFloat(filterPriceFrom)})
+		if(filterPriceFrom && _.isNumber(parseFloat(filterPriceFrom))){
+			filter.price = Object.assign({}, filter.price, {$gte: parseFloat(filterPriceFrom)})
 		}
-		if(filterPriceTo && _.isNumber(filterPriceTo)){
-			Object.assign(filter.price, {$lte: parseFloat(filterPriceTo)})
+		if(filterPriceTo && _.isNumber(parseFloat(filterPriceTo))){
+			filter.price = Object.assign({}, filter.price, {$lte: parseFloat(filterPriceTo)})
 		}
 	}
-
+	
+	console.log(filter);
 	
 	if(sortBy){
 		let direction = parseInt(sortDirection);
