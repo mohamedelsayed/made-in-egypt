@@ -242,9 +242,9 @@ router.route('/products')
 	 * Finds all products and filters them and sort them according to the query sent
 	*/
 
-	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo } = req.query;
+	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo, pageNumber = 1 } = req.query;
 
-	let query = {};
+	let filter = {};
 	let sort = {};
 
 	if(filterByBrand){
@@ -252,10 +252,10 @@ router.route('/products')
 	}
 	if(filterPriceFrom || filterPriceTo){
 		filter.price = {};
-		if(filterPriceFrom){
+		if(filterPriceFrom && _.isNumber(filterPriceFrom)){
 			Object.assign(filter.price, {$gte: parseFloat(filterPriceFrom)})
 		}
-		if(filterPriceTo){
+		if(filterPriceTo && _.isNumber(filterPriceTo)){
 			Object.assign(filter.price, {$lte: parseFloat(filterPriceTo)})
 		}
 	}
@@ -269,7 +269,7 @@ router.route('/products')
 	/* In all cases, sort by creation time */
 	Object.assign(sort, {createdAt: -1});
 
-	Product.find(query).sort(sort).lean()
+	Product.find(filter).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).lean()
 	.then((products)=>{
 		res.json(products)
 	})
