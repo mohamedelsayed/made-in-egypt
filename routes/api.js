@@ -24,6 +24,7 @@ firebase.initializeApp({
 
 const firebaseDB = firebase.database();
 
+const mongoose = require('mongoose');
 const Admin = require('../models/Admin');
 const User = require('../models/User');
 const Product = require('../models/Product');
@@ -248,7 +249,12 @@ router.route('/products')
 	let sort = {};
 
 	if(filterByBrand){
-		filter.brand = filterByBrand;
+		try {
+			filter.brandId = mongoose.Types.ObjectId(filterByBrand);
+		} catch(err){
+			console.error(err);
+			return res.sendStatus(400);
+		}
 	}
 	if(filterPriceFrom || filterPriceTo){
 		filter.price = {};
@@ -258,9 +264,8 @@ router.route('/products')
 		if(filterPriceTo && _.isNumber(parseFloat(filterPriceTo))){
 			filter.price = Object.assign({}, filter.price, {$lte: parseFloat(filterPriceTo)})
 		}
+		if(Object.keys(filter.price).length < 1) delete filter.price;
 	}
-	
-	console.log(filter);
 	
 	if(sortBy){
 		let direction = parseInt(sortDirection);
