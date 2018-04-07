@@ -38,9 +38,6 @@ const UserSchema = new Schema({
 	// 	required: true,
 	// 	ref: 'Product'
 	// },
-	creditCard: {
-		type: Object
-	}
 }, {
 	timestamps: true
 })
