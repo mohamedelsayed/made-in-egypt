@@ -757,10 +757,42 @@ router.route('/categories')
 
 router.route('/categories/:id')
 .get((req, res)=>{
+	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo, pageNumber = 1 } = req.query;
+
+	let filter = {};
+	let sort = {};
+
+	if(filterByBrand){
+		try {
+			filter.brandId = mongoose.Types.ObjectId(filterByBrand);
+		} catch(err){
+			console.error(err);
+			return res.sendStatus(400);
+		}
+	}
+	if(filterPriceFrom || filterPriceTo){
+		filter.price = {};
+		if(filterPriceFrom && _.isNumber(parseFloat(filterPriceFrom))){
+			filter.price = Object.assign({}, filter.price, {$gte: parseFloat(filterPriceFrom)})
+		}
+		if(filterPriceTo && _.isNumber(parseFloat(filterPriceTo))){
+			filter.price = Object.assign({}, filter.price, {$lte: parseFloat(filterPriceTo)})
+		}
+		if(Object.keys(filter.price).length < 1) delete filter.price;
+	}
+	
+	if(sortBy){
+		let direction = parseInt(sortDirection);
+		sort[sortBy] = (direction && [1, -1].includes(direction))? direction : -1;
+	}
+
+	/* In all cases, sort by creation time */
+	Object.assign(sort, {createdAt: -1});
+
 	Category.findById(req.params.id).lean()
 	.then((category)=>{
 		if(category){
-			return Product.find({categoryId: category._id}).populate('brandId').lean();
+			return Product.find(Object.assign({}, {categoryId: category._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).populate('brandId').lean();
 		}
 	})
 	.then((products)=>{
@@ -835,12 +867,44 @@ router.route('/brands')
 
 router.route('/brands/:id')
 .get((req, res)=>{
+	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo, pageNumber = 1 } = req.query;
+
+	let filter = {};
+	let sort = {};
+
+	if(filterByBrand){
+		try {
+			filter.brandId = mongoose.Types.ObjectId(filterByBrand);
+		} catch(err){
+			console.error(err);
+			return res.sendStatus(400);
+		}
+	}
+	if(filterPriceFrom || filterPriceTo){
+		filter.price = {};
+		if(filterPriceFrom && _.isNumber(parseFloat(filterPriceFrom))){
+			filter.price = Object.assign({}, filter.price, {$gte: parseFloat(filterPriceFrom)})
+		}
+		if(filterPriceTo && _.isNumber(parseFloat(filterPriceTo))){
+			filter.price = Object.assign({}, filter.price, {$lte: parseFloat(filterPriceTo)})
+		}
+		if(Object.keys(filter.price).length < 1) delete filter.price;
+	}
+	
+	if(sortBy){
+		let direction = parseInt(sortDirection);
+		sort[sortBy] = (direction && [1, -1].includes(direction))? direction : -1;
+	}
+
+	/* In all cases, sort by creation time */
+	Object.assign(sort, {createdAt: -1});
+
 	let brand;
 	Brand.findById(req.params.id).lean()
 	.then((theBrand)=>{
 		if(theBrand){
 			brand = theBrand;
-			return Product.find({brandId: brand._id}).lean()
+			return Product.find(Object.assign({}, {brandId: brand._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).lean()
 		} else {
 			return null;
 		}
