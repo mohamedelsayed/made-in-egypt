@@ -275,7 +275,7 @@ router.route('/products')
 	/* In all cases, sort by creation time */
 	Object.assign(sort, {createdAt: -1});
 
-	Product.find(filter).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).lean()
+	Product.find(filter).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).populate('brandId').lean()
 	.then((products)=>{
 		res.json(products)
 	})
@@ -760,7 +760,7 @@ router.route('/categories/:id')
 	Category.findById(req.params.id).lean()
 	.then((category)=>{
 		if(category){
-			return Product.find({categoryId: category._id}).lean();
+			return Product.find({categoryId: category._id}).populate('brandId').lean();
 		}
 	})
 	.then((products)=>{
