@@ -169,7 +169,7 @@ router.route('/users')
 			})
 		})
 		.then((newUser)=>{
-			res.sendStatus(201);
+			res.status(201).send(newUser);
 		})
 		.catch((err)=>{
 			console.error(err);
