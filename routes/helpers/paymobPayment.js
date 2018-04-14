@@ -93,10 +93,10 @@ const tokenization = function(token, user, cardNumber, cardHolderName, expiryMon
 
 module.exports = {
 	pay: async function(requestedCardToken, amount, user, cvn){
-		// if(!(requestedCardToken && amount && user && cvn)){
-		// 	throw Error("Paramters sent are incomplete");
-		// }
-		// let cardToken = await CardToken.findOne({user: user._id, token: requestedCardToken}).lean()
+		if(!(requestedCardToken && amount && user && cvn)){
+			throw Error("Paramters sent are incomplete");
+		}
+		let cardToken = await CardToken.findOne({userId: user._id, token: requestedCardToken}).lean()
 		let authResponse = await authentication();
 		let {token, profile} = authResponse.data;
 		let merchantId = profile.id;
