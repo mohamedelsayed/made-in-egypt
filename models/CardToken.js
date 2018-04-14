@@ -17,8 +17,7 @@ const CardTokenSchema = new Schema({
 		required: true
 	},
 	cardSubType: {
-		type: String,
-		
+		type: String
 	}
 }, {
 	timestamps: true

@@ -34,6 +34,7 @@ const Brand = require('../models/Brand');
 
 const { jwtSecret } = require('./helpers/config');
 const { removeEmptyObjectKeys } = require('./helpers/helpers');
+const paymob = require('./helpers/paymobPayment');
 
 const { authenticateUser, optionalAuthenticateUser, authenticateAdmin } = require('./helpers/auth');
 
@@ -149,31 +150,62 @@ router.route('/users')
 	})
 })
 .post((req, res)=>{
-
-	let { firstName, lastName, email, password, passwordConfirmation, phone, address } = req.body;
+	let responseSent = false;
+	let { firstName, lastName, email, password, passwordConfirmation, phone, address, creditCard } = req.body;
 	if(password === passwordConfirmation){
 		User.findOne({
 			email
 		})
 		.then((user)=>{
 			if(user){
-				return res.status(409).json({
+				res.status(409).json({
 					error: "User with same email already exists"
 				})
+				responseSent = true;
+				throw Error("User with same email");
 			}
 			return bcrypt.hash(password, parseInt(process.env.SALT) || 10)
 		})
-		.then((hash)=>{
-			return User.create({
+		.then(async (hash)=>{
+			let newUser = await User.create({
 				firstName, lastName, email, password: hash, phone, address
+			}).catch((err)=>{
+				console.error(err);
+				res.status(400).send({
+					errorCode: 0
+				})
+				responseSent = true
+				throw Error("User invalid");
 			})
-		})
-		.then((newUser)=>{
+			if(creditCard){
+				let { cardNumber, cardHolderName, expiryMonth, expiryYear, cvn } = creditCard;
+				if(!(cardNumber || cardHolderName || expiryMonth || expiryYear || cvn)){
+					User.findByIdAndRemove(newUser._id)
+					res.status(400).send({
+						errorCode: 1
+					})
+					responseSent = true;
+					throw Error("Invalid credit card details")
+				}
+				let createdToken = await paymob.createCreditCardToken(newUser, cardHolderName, cardNumber, expiryYear, expiryMonth, cvn).catch((err)=>{
+					console.error(err);
+					User.findByIdAndRemove(newUser._id)
+					res.status(400).send({
+						errorCode: 1
+					})
+					responseSent = true;
+					throw Error("Error creating token")
+				})
+				Object.assign(newUser, {maskedPan: createdToken.maskedPan})
+			}
 			res.status(201).send(newUser);
 		})
 		.catch((err)=>{
 			console.error(err);
-			return res.sendStatus(500);
+			// return res.sendStatus(500);
+			if(!responseSent){
+				return res.sendStatus(500);
+			}
 		})
 	} else {
 		res.json({
