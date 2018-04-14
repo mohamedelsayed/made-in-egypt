@@ -341,6 +341,24 @@ router.route('/products')
 	});
 })
 
+router.post('/fetch/products', (req, res)=>{
+	let { productIds } = req.body;
+	Product.find({
+		_id: {
+			$in: productIds
+		}
+	})
+	.populate('brandId')
+	.lean()
+	.then((products)=>{
+		res.send(products);
+	})
+	.catch((err)=>{
+		console.error(err)
+		res.sendStatus(500);
+	})
+})
+
 router.route('/admin/products')
 .get(authenticateAdmin, (req, res)=>{
 	Product.find().populate('brandId').populate('categoryId')
