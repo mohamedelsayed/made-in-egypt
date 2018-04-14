@@ -127,8 +127,7 @@ module.exports = {
 			user: user._id,
 			token: tokenizationResponse.data.token,
 			maskedPan: tokenizationResponse.data.masked_pan,
-			cardSubType: tokenizationResponse.data.card_subtype,
-			sourceCompany: "Paymob"
+			cardSubType: tokenizationResponse.data.card_subtype
 		})
 		return createdCardToken;
 	}

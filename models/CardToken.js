@@ -15,6 +15,10 @@ const CardTokenSchema = new Schema({
 	maskedPan: {
 		type: String,
 		required: true
+	},
+	cardSubType: {
+		type: String,
+		
 	}
 }, {
 	timestamps: true
