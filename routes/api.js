@@ -31,6 +31,7 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const Category = require('../models/Category');
 const Brand = require('../models/Brand');
+const CardToken = require('../models/CardToken')
 
 const { jwtSecret } = require('./helpers/config');
 const { removeEmptyObjectKeys } = require('./helpers/helpers');
@@ -355,6 +356,36 @@ router.post('/fetch/products', (req, res)=>{
 	})
 	.catch((err)=>{
 		console.error(err)
+		res.sendStatus(500);
+	})
+})
+
+router.route('/creditcard')
+.put(authenticateUser, async (req, res)=>{
+	let {cardNumber, cardHolderName, expiryMonth, expiryYear, cvn} = req.body;
+	try{
+		let oldToken = await CardToken.findOne({userId: req.user._id})
+		let newToken = await paymob.createCreditCardToken(req.user, cardHolderName, cardNumber, expiryYear, expiryMonth, cvn)
+		if(oldToken){
+			CardToken.findByIdAndRemove(oldToken._id)
+		}
+		res.status(201).send({
+			maskedPan: newToken.maskedPan
+		})
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
+	}
+})
+.delete(authenticateUser, (req, res)=>{
+	CardToken.remove({
+		userId: req.user._id
+	})
+	.then(()=>{
+		res.sendStatus(200);
+	})
+	.catch(err=>{
+		console.error(err);
 		res.sendStatus(500);
 	})
 })
