@@ -361,6 +361,21 @@ router.post('/fetch/products', (req, res)=>{
 })
 
 router.route('/creditcard')
+.get(authenticateUser, (req, res)=>{
+	CardToken.findOne({
+		userId: req.user._id
+	}, '_id maskedPan').lean()
+	.then((card)=>{
+		if(card){
+			return res.send(card);
+		}
+		return res.status(404).send(null)
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
 .put(authenticateUser, async (req, res)=>{
 	let {cardNumber, cardHolderName, expiryMonth, expiryYear, cvn} = req.body;
 	try{
