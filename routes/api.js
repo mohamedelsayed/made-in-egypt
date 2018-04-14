@@ -323,7 +323,7 @@ router.route('/admin/products')
 
 router.route('/featured')
 .get((req, res)=>{
-	Product.find({featured: true})
+	Product.find({featured: true}).populate('brandId').lean()
 	.then((products)=>{
 		res.send(products)
 	})
@@ -348,7 +348,7 @@ router.route('/featured')
 })
 
 router.get('/latest', (req, res)=>{
-	Product.find().sort({createdAt: -1}).limit(20).lean()
+	Product.find().sort({createdAt: -1}).limit(20).populate('brandId').lean()
 	.then((latestProducts)=>{
 		res.send(latestProducts);
 	})
@@ -471,7 +471,7 @@ router.post('/review/:productId', authenticateUser, (req, res)=>{
 
 router.get('/similar/:productId', (req, res)=>{
 	let responseSent = false;
-	Product.findById(req.params.productId).lean()
+	Product.findById(req.params.productId).populate('brandId').lean()
 	.then((product)=>{
 		if(!product){
 			res.sendStatus(404);
