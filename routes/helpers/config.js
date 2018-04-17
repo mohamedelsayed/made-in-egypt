@@ -4,5 +4,6 @@ module.exports = {
 		username: "MadeInEgypt" || process.env.PAYMOB_USERNAME,
 		password: "MyP@ssw0rd1" || process.env.PAYMOB_PASSWORD,
 		cardIntegrationId: "1141" || process.env.PAYMOB_CID
-	}
+	},
+	shippingFee: process.env.SHIPPING_FEE || 20
 }
