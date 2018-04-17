@@ -9,6 +9,7 @@ const multer = require('multer');
 // const upload = multer({storage: multer.memoryStorage()});
 const upload = multer();
 const _ = require('lodash');
+const moment = require('moment')
 const AWS = require('aws-sdk');
 AWS.config.setPromisesDependency(global.Promise);
 const publicS3 = new AWS.S3({
@@ -33,7 +34,7 @@ const Category = require('../models/Category');
 const Brand = require('../models/Brand');
 const CardToken = require('../models/CardToken')
 
-const { jwtSecret } = require('./helpers/config');
+const { jwtSecret, shippingFee } = require('./helpers/config');
 const { removeEmptyObjectKeys } = require('./helpers/helpers');
 const paymob = require('./helpers/paymobPayment');
 
@@ -703,7 +704,7 @@ router.route('/favourites/:productId')
 
 router.route('/orders')
 .get((req, res)=>{
-	Order.find({}).sort({}).lean()
+	Order.find({}).populate('items.productId').sort({}).lean()
 	.then((orders)=>{
 		res.json(orders);
 	})
@@ -763,6 +764,68 @@ router.route('/orders')
 		console.error(err);
 		res.sendStatus(500);
 	})
+})
+
+router.post(authenticateUser, '/orders/mock', async (req, res)=>{
+	let { products } = req.body;
+	if(!_.isArray(products) || products.length < 1){
+		return res.sendStatus(400);
+	}
+	let processedProducts = [];
+	let productsPromiseArray = products.map(element => {
+		return Product.findById(element._id).populate('groupId')
+	})
+	let theProducts = yield productsPromiseArray;
+	// TODO: check there is no id replicas
+	try {
+		let totalPrice = 0;
+		theProducts.forEach((element, index)=>{
+			if(!products[index].details){
+				res.status(400).json({
+					error: "Product details not provided"
+				})
+				throw Error("Product at index "+index+" has no details")
+			}
+			let detailIndex;
+			if(!products[index].details.size){
+				detailIndex = 0
+			} else {
+				detailIndex = _.findIndex(element.details, (entry)=>{
+					return entry.size === products[index].details.size
+				})
+			}
+			if(detailIndex < 0){
+				res.status(400).json({
+					error: "Specified size for product " + products[index]._id + "found"
+				})
+				throw Error("Size not found");
+			}
+			if(!products[index].details.quantity || products[index].details.quantity > element.details[detailIndex].quantity){
+				res.status(400).json({
+					error: "Quantity of product not sent or quatity is less than product quantity"
+				});
+				throw Error("Quantity conflict");
+			}
+			totalPrice += element.details.price
+		})
+		let balanceToUse = 0;
+		if(req.user.balance > 0){
+			if(req.user.balance >= totalPrice){
+				balanceToUse = req.user.balanceToUse - totalPrice;
+			}
+			balanceToUse = req.user.balance;
+		}
+		return res.status(200).json({
+			products: theProducts,
+			currentBalance: req.user.balance,
+			balanceToBeUsed: balanceToUse,
+			shippingFee: shippingFee,
+			totalPrice,
+			deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')
+		});
+	} catch(err) {
+		console.error(err);
+	}
 })
 
 router.get('/orders/:orderId', authenticateUser, (req, res)=>{
