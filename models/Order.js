@@ -12,10 +12,6 @@ const OrderItemSchema = new Schema({
 		required: true,
 		ref: 'Product'
 	},
-	quantity: {
-		type: Number,
-		required: true
-	},
 	details: {
 		type: Schema.Types.Mixed,
 		required: true
@@ -30,9 +26,14 @@ const OrderSchema = new Schema({
 		required: true,
 		ref: 'User'
 	},
-	price: {
+	totalPrice: {
+		// With shipping
 		type: Number,
 		require: true
+	},
+	shippingFees: {
+		type: Number,
+		required: true
 	},
 	items: {
 		type: [OrderItemSchema],
@@ -53,7 +54,11 @@ const OrderSchema = new Schema({
 		type: String,
 		required: true,
 		enum: ['Pending', 'Cancelled', 'On Route', 'Delivered']
-	}
+	},
+	deliveryDate: {
+		type: Date,
+		required: true
+	},
 }, {
 	timestamps: true
 })
