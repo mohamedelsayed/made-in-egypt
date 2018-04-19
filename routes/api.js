@@ -879,7 +879,7 @@ router.route('/orders')
 	}
 })
 
-router.post(authenticateUser, '/orders/mock', async (req, res)=>{
+router.post('/orders/mock', authenticateUser, async (req, res)=>{
 	let { products } = req.body;
 	if(!_.isArray(products) || products.length < 1){
 		return res.sendStatus(400);
