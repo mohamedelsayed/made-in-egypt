@@ -34,7 +34,7 @@ const Category = require('../models/Category');
 const Brand = require('../models/Brand');
 const CardToken = require('../models/CardToken')
 
-const { jwtSecret, shippingFee } = require('./helpers/config');
+const { jwtSecret, shippingFees } = require('./helpers/config');
 const { removeEmptyObjectKeys } = require('./helpers/helpers');
 const paymob = require('./helpers/paymobPayment');
 
@@ -713,57 +713,171 @@ router.route('/orders')
 		res.sendStatus(500);
 	})
 })
-.post(authenticateUser, (req, res)=>{
-	let { items, paymentMethod } = req.body;
-	let finalPrice = 0;
-	let orderProducts = [];
-	let invalidItems = false;
-	co(function*(){
-		for(let itemIndex = 0; itemIndex < items.length; itemIndex++){
-			let item = items[itemIndex]
-			debugger;
-			if(item.quantity && item.productId){
-				let currentProduct = yield Product.findById(item.productId);
-				if(!currentProduct){
-					invalidItems = true;
-					continue;
-				}
-				// find index of the product size if it exists. if it doesn't fall back to single entry quantity
-				let index;
-				if(currentProduct.sizes){
-					index = currentProduct.sizes.indexOf(item.size)
-				} else {
-					index = 0;
-				}
-				if(index < 0){
-					invalidItems = true;
-					continue;
-				}
-				if(currentProduct.quantity[index] >= item.quantity && item.quantity > 0){
-					yield Product.findByIdAndUpdate(item.productId, {$inc: {['quantity.'+index]: -(item.quantity)}});
-					orderProducts.push(item);
-					finalPrice += (item.quantity * item.price)
-				} else {
-					invalidItems = true;
-				}
+.post(authenticateUser, async (req, res)=>{
+	let { products, paymentMethod, creditCard } = req.body;
+	// let finalPrice = 0;
+	// let orderProducts = [];
+	// let invalidItems = false;
+	// co(function*(){
+	// 	for(let itemIndex = 0; itemIndex < items.length; itemIndex++){
+	// 		let item = items[itemIndex]
+	// 		debugger;
+	// 		if(item.quantity && item.productId){
+	// 			let currentProduct = yield Product.findById(item.productId);
+	// 			if(!currentProduct){
+	// 				invalidItems = true;
+	// 				continue;
+	// 			}
+	// 			// find index of the product size if it exists. if it doesn't fall back to single entry quantity
+	// 			let index;
+	// 			if(currentProduct.sizes){
+	// 				index = currentProduct.sizes.indexOf(item.size)
+	// 			} else {
+	// 				index = 0;
+	// 			}
+	// 			if(index < 0){
+	// 				invalidItems = true;
+	// 				continue;
+	// 			}
+	// 			if(currentProduct.quantity[index] >= item.quantity && item.quantity > 0){
+	// 				yield Product.findByIdAndUpdate(item.productId, {$inc: {['quantity.'+index]: -(item.quantity)}});
+	// 				orderProducts.push(item);
+	// 				finalPrice += (item.quantity * item.price)
+	// 			} else {
+	// 				invalidItems = true;
+	// 			}
+	// 		}
+	// 	}
+	// 	let theOrder = yield Order.create({
+	// 		userId: req.user._id,
+	// 		price: finalPrice,
+	// 		items: orderProducts,
+	// 		paymentMethod: paymentMethod,
+	// 		state: 'Pending'
+	// 	})
+	// 	if(invalidItems){
+	// 		Object.assign(theOrder, {error: "Order created with some invalid content"});
+	// 	}
+	// 	res.send(theOrder);
+	// })
+	// .catch((err)=>{
+	// 	console.error(err);
+	// 	res.sendStatus(500);
+	// })
+	let { products } = req.body;
+	if(!_.isArray(products) || products.length < 1){
+		return res.sendStatus(400);
+	}
+	let processedProducts = [];
+	let productsPromiseArray = products.map(element => {
+		return Product.findById(element._id).populate('groupId')
+	})
+	let theProducts = await productsPromiseArray;
+	// TODO: check there is no id replicas
+	try {
+		let totalPrice = 0;
+		theProducts.forEach((element, index)=>{
+			if(!products[index].details){
+				res.status(400).json({
+					error: "Product details not provided"
+				})
+				throw Error("Product at index "+index+" has no details")
 			}
-		}
-		let theOrder = yield Order.create({
-			userId: req.user._id,
-			price: finalPrice,
-			items: orderProducts,
-			paymentMethod: paymentMethod,
-			state: 'Pending'
+			let detailIndex;
+			if(!products[index].details.size){
+				detailIndex = 0
+			} else {
+				detailIndex = _.findIndex(element.details, (entry)=>{
+					return entry.size === products[index].details.size
+				})
+			}
+			if(detailIndex < 0){
+				res.status(400).json({
+					error: "Specified size for product " + products[index]._id + "found"
+				})
+				throw Error("Size not found");
+			}
+			if(!products[index].details.quantity || products[index].details.quantity > element.details[detailIndex].quantity){
+				res.status(400).json({
+					error: "Quantity of product not sent or quatity is less than product quantity"
+				});
+				throw Error("Quantity conflict");
+			}
+			processedProducts.push({
+				productId: products[index]._id,
+				price: products[index].details.quantity * products[index].price,
+				details: products[index].details
+			})
+			totalPrice += element.details.price
 		})
-		if(invalidItems){
-			Object.assign(theOrder, {error: "Order created with some invalid content"});
+		totalPrice += shippingFees;
+		let balanceToUse = 0;
+		if(req.user.balance > 0){
+			if(req.user.balance >= totalPrice){
+				balanceToUse = req.user.balanceToUse - totalPrice;
+			}
+			balanceToUse = req.user.balance;
 		}
-		res.send(theOrder);
-	})
-	.catch((err)=>{
+		switch(paymentMethod){
+			case 'Credit Card':
+				if(!creditCard){
+					return res.status(400).json({
+						error: "Credit card info missing"
+					})
+				}
+				let theOrder = await Order.create({
+					userId: req.user._id,
+					price: totalPrice,
+					shippingFees: shippingFees,
+					paymentMethod,
+					state: 'Pending',
+					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')
+				}).catch((err)=>console.log("Order failed to create created", err))
+				if(!theOrder){
+					res.status(500).json({
+						error: "Order failed"
+					})
+				}
+
+				let theToken = (Object.keys(creditCard).length < 2)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.cardHolderName, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>res.status(400).json({error: "Credit card info provided are not correct or incomplete"}))
+				if(theToken){
+					let paymentResponse = await paymob.pay(theToken.token, totalPrice * 100, req.user, creditCard.cvn).catch((err)=>{
+						await Order.findByIdAndRemove(theOrder._id)
+						res.status(400).json({
+							error: "Failed to complete payment"
+						})
+					})
+					if(paymentResponse && paymentResponse.status < 300){
+						return res.sendStatus(200)
+					} else {
+						await Order.findByIdAndRemove(theOrder._id)
+						return res.status(400).json({
+							error: "Couldn't complete payment"
+						})
+					}
+				} else {
+					throw Error("Incorrect credit card info")
+				}
+				break;
+			case 'Cash On Delivery':
+				Order.create({
+					userId: req.user._id,
+					price: totalPrice,
+					shippingFees: shippingFees,
+					paymentMethod,
+					state: 'Pending',
+					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY'),
+					items: processedProducts
+				})
+				break;
+			default:
+				return res.status(400).json({
+					error: "Payment method invalid"
+				})
+		}
+	} catch(err) {
 		console.error(err);
-		res.sendStatus(500);
-	})
+	}
 })
 
 router.post(authenticateUser, '/orders/mock', async (req, res)=>{
@@ -775,7 +889,7 @@ router.post(authenticateUser, '/orders/mock', async (req, res)=>{
 	let productsPromiseArray = products.map(element => {
 		return Product.findById(element._id).populate('groupId')
 	})
-	let theProducts = yield productsPromiseArray;
+	let theProducts = await productsPromiseArray;
 	// TODO: check there is no id replicas
 	try {
 		let totalPrice = 0;
@@ -819,7 +933,7 @@ router.post(authenticateUser, '/orders/mock', async (req, res)=>{
 			products: theProducts,
 			currentBalance: req.user.balance,
 			balanceToBeUsed: balanceToUse,
-			shippingFee: shippingFee,
+			shippingFees: shippingFees,
 			totalPrice,
 			deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')
 		});
