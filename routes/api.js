@@ -764,7 +764,6 @@ router.route('/orders')
 	// 	console.error(err);
 	// 	res.sendStatus(500);
 	// })
-	let { products } = req.body;
 	if(!_.isArray(products) || products.length < 1){
 		return res.sendStatus(400);
 	}
@@ -841,7 +840,7 @@ router.route('/orders')
 
 				let theToken = (Object.keys(creditCard).length < 2)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.cardHolderName, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>res.status(400).json({error: "Credit card info provided are not correct or incomplete"}))
 				if(theToken){
-					let paymentResponse = await paymob.pay(theToken.token, totalPrice * 100, req.user, creditCard.cvn).catch((err)=>{
+					let paymentResponse = await paymob.pay(theToken.token, totalPrice * 100, req.user, creditCard.cvn).catch(async (err)=>{
 						await Order.findByIdAndRemove(theOrder._id)
 						res.status(400).json({
 							error: "Failed to complete payment"
