@@ -769,13 +769,17 @@ router.route('/orders')
 	}
 	let processedProducts = [];
 	let productsPromiseArray = products.map(element => {
-		return Product.findById(element._id).populate('groupId')
+		return Product.findById(element._id).populate('brandId').lean()
 	})
-	let theProducts = await productsPromiseArray;
+	let theProducts = await Promise.all(productsPromiseArray);
 	// TODO: check there is no id replicas
 	try {
 		let totalPrice = 0;
 		theProducts.forEach((element, index)=>{
+			if(!element){
+				res.sendStatus(500);
+				throw Error("Element unknown:", element);
+			}
 			if(!products[index].details){
 				res.status(400).json({
 					error: "Product details not provided"
@@ -807,7 +811,7 @@ router.route('/orders')
 				price: products[index].details.quantity * products[index].price,
 				details: products[index].details
 			})
-			totalPrice += element.details.price
+			totalPrice += element.details.price * products[index].details.quantity
 		})
 		totalPrice += shippingFees;
 		let balanceToUse = 0;
@@ -886,13 +890,17 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 	}
 	let processedProducts = [];
 	let productsPromiseArray = products.map(element => {
-		return Product.findById(element._id).populate('groupId')
+		return Product.findById(element._id).populate('brandId').lean()
 	})
-	let theProducts = await productsPromiseArray;
+	let theProducts = await Promise.all(productsPromiseArray);
 	// TODO: check there is no id replicas
 	try {
 		let totalPrice = 0;
 		theProducts.forEach((element, index)=>{
+			if(!element){
+				res.sendStatus(500);
+				throw Error("Element unknown:", element);
+			}
 			if(!products[index].details){
 				res.status(400).json({
 					error: "Product details not provided"
@@ -903,13 +911,14 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 			if(!products[index].details.size){
 				detailIndex = 0
 			} else {
+				console.log("Element details", element.details)
 				detailIndex = _.findIndex(element.details, (entry)=>{
 					return entry.size === products[index].details.size
 				})
 			}
 			if(detailIndex < 0){
 				res.status(400).json({
-					error: "Specified size for product " + products[index]._id + "found"
+					error: "Specified size for product " + products[index]._id + " not found. Allowed "+JSON.stringify(products[index].details)
 				})
 				throw Error("Size not found");
 			}
@@ -919,7 +928,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 				});
 				throw Error("Quantity conflict");
 			}
-			totalPrice += element.details.price
+			totalPrice += element.price * products[index].details.quantity
 		})
 		let balanceToUse = 0;
 		if(req.user.balance > 0){
@@ -937,7 +946,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 			deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')
 		});
 	} catch(err) {
-		console.error(err);
+		console.error("Caught error", err);
 	}
 })
 
