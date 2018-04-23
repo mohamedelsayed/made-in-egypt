@@ -759,18 +759,24 @@ router.route('/orders')
 			}
 			processedProducts.push({
 				productId: products[index]._id,
-				price: products[index].details.quantity * products[index].price,
+				price: products[index].details.quantity * element.price,
 				details: products[index].details
 			})
-			totalPrice += element.details.price * products[index].details.quantity
+			totalPrice += element.price * products[index].details.quantity
 		})
+		console.log("TOTAL", totalPrice, "SF", shippingFees)
 		totalPrice += shippingFees;
 		let balanceToUse = 0;
 		if(req.user.balance > 0){
 			if(req.user.balance >= totalPrice){
-				balanceToUse = req.user.balanceToUse - totalPrice;
+				balanceToUse = req.user.balance - totalPrice;
 			}
 			balanceToUse = req.user.balance;
+			await User.findByIdAndUpdate(req.user._id, {
+				$inc: {
+					balance: -totalPrice
+				}
+			})
 		}
 		switch(paymentMethod){
 			case 'Credit Card':
@@ -785,7 +791,8 @@ router.route('/orders')
 					shippingFees: shippingFees,
 					paymentMethod,
 					state: 'Pending',
-					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')
+					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY'),
+					items:processedProducts
 				}).catch((err)=>console.log("Order failed to create created", err))
 				if(!theOrder){
 					res.status(500).json({
@@ -793,7 +800,7 @@ router.route('/orders')
 					})
 				}
 
-				let theToken = (Object.keys(creditCard).length < 2)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.cardHolderName, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>res.status(400).json({error: "Credit card info provided are not correct or incomplete"}))
+				let theToken = (Object.keys(creditCard).length < 2)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.cardHolderName, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>{console.error(err); res.status(400).json({error: "Credit card info provided are not correct or incomplete"})})
 				if(theToken){
 					let paymentResponse = await paymob.pay(theToken.token, totalPrice * 100, req.user, creditCard.cvn).catch(async (err)=>{
 						await Order.findByIdAndRemove(theOrder._id)
@@ -810,11 +817,12 @@ router.route('/orders')
 						})
 					}
 				} else {
+					res.status(400).send("Incorrect credit card info")
 					throw Error("Incorrect credit card info")
 				}
 				break;
 			case 'Cash On Delivery':
-				Order.create({
+				await Order.create({
 					userId: req.user._id,
 					price: totalPrice,
 					shippingFees: shippingFees,
@@ -823,6 +831,7 @@ router.route('/orders')
 					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY'),
 					items: processedProducts
 				})
+				return res.sendStatus(201);
 				break;
 			default:
 				return res.status(400).json({
@@ -884,7 +893,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 		let balanceToUse = 0;
 		if(req.user.balance > 0){
 			if(req.user.balance >= totalPrice){
-				balanceToUse = req.user.balanceToUse - totalPrice;
+				balanceToUse = req.user.balance - totalPrice;
 			}
 			balanceToUse = req.user.balance;
 		}
