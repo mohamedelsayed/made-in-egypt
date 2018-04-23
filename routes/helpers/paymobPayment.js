@@ -122,9 +122,8 @@ module.exports = {
 		let paymentKeyToken = paymentKeyResponse.data.token;
 		let tokenizationResponse = await tokenization(paymentKeyToken, user, cardNumber, cardHolderName, expiryMonth, expiryYear, cvn);
 		console.log(tokenizationResponse.data);
-		return tokenization.data;
 		let createdCardToken = await CardToken.create({
-			user: user._id,
+			userId: user._id,
 			token: tokenizationResponse.data.token,
 			maskedPan: tokenizationResponse.data.masked_pan,
 			cardSubType: tokenizationResponse.data.card_subtype
