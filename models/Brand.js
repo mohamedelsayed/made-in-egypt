@@ -3,7 +3,12 @@ mongoose.Promise = require('bluebird');
 const Schema = mongoose.Schema;
 
 const BrandSchema = new Schema({
-	name: {
+	nameEn: {
+		type: String,
+		required: true,
+		unique: true
+	},
+	nameAr: {
 		type: String,
 		required: true,
 		unique: true
