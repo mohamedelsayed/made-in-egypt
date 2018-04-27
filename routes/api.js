@@ -324,8 +324,8 @@ router.route('/products')
 		return res.sendStatus(400);
 	}
 	co(function*(){
-		let theCategory = yield Category.findOne({name: category}).lean();
-		let theBrand = yield Brand.findOne({name: brand}).lean();
+		let theCategory = yield Category.findOne({_id: category}).lean();
+		let theBrand = yield Brand.findOne({_id: brand}).lean();
 		if(!theBrand || !theCategory){
 			return res.json({
 				failure: "Brand and/or category not found"
