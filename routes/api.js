@@ -968,10 +968,15 @@ router.route('/categories')
 	})
 })
 .post(authenticateAdmin, async (req, res)=>{
-	let { name, parentCategory } = req.body;
-	let attrs = {name};
-	if(name){
-		let foundCategory = await Category.findOne({name});
+	let { nameEn, nameAr, parentCategory } = req.body;
+	let attrs = {nameEn, nameAr};
+	if(nameEn || nameAr){
+		let foundCategory = await Category.findOne({
+			$or: [
+				{nameEn},
+				{nameAr}
+			]
+		});
 		if(foundCategory){
 			return res.sendStatus(409);
 		}
@@ -1060,10 +1065,10 @@ router.route('/brands')
 	})
 })
 .post(authenticateAdmin, upload.single('logo'), (req, res)=>{
-	let { name } = req.body;
+	let { nameEn, nameAr } = req.body;
 	let photoName = "brandImage-"+randomstring.generate();
 	let createBrand = function(){
-		let params = { name };
+		let params = { nameEn, nameAr };
 		console.log("PARAMS", params);
 		if(req.file){
 			Object.assign(params, {
