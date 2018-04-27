@@ -21,4 +21,9 @@ const CategorySchema = new Schema({
 	timestamps: true
 })
 
+CategorySchema.index({
+	nameEn: "text",
+	nameAr: "text"
+})
+
 module.exports = mongoose.model('Category', CategorySchema);

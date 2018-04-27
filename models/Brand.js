@@ -20,4 +20,9 @@ const BrandSchema = new Schema({
 	timestamps: true
 })
 
+BrandSchema.index({
+	nameEn: "text",
+	nameAr: "text"
+})
+
 module.exports = mongoose.model('Brand', BrandSchema);
