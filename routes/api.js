@@ -462,7 +462,7 @@ router.get('/mostpopular', (req, res)=>{
 router.route('/products/:id')
 .get(optionalAuthenticateUser, (req, res)=>{
 
-	Product.findById(req.params.id).lean()
+	Product.findById(req.params.id).populate('brandId').lean()
 	.then((product)=>{
 		res.json(product);
 		/* Creates a view if viewed by user */
