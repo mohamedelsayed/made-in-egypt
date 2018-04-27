@@ -984,7 +984,7 @@ router.route('/categories')
 		return res.sendStatus(406);
 	}
 	if(parentCategory){
-		let parent = await Category.findOne({name: parentCategory}).lean();
+		let parent = await Category.findOne({_id: parentCategory}).lean();
 		if(parent){
 			attrs['parentCategory'] = parent._id;
 		} else {
