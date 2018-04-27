@@ -189,7 +189,7 @@ router.route('/users')
 					responseSent = true;
 					throw Error("Invalid credit card details")
 				}
-				let createdToken = await paymob.createCreditCardToken(newUser, cardHolderName, cardNumber, expiryYear, expiryMonth, cvn).catch((err)=>{
+				let createdToken = await paymob.createCreditCardToken(newUser, cardHolderName, cardNumber, expiryYear, expiryMonth, cvn).catch(async (err)=>{
 					console.error(err);
 					await User.deleteOne(newUser._id)
 					res.status(400).send({
