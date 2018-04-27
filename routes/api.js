@@ -182,7 +182,7 @@ router.route('/users')
 			if(creditCard){
 				let { cardNumber, cardHolderName, expiryMonth, expiryYear, cvn } = creditCard;
 				if(!(cardNumber || cardHolderName || expiryMonth || expiryYear || cvn)){
-					User.findByIdAndRemove(newUser._id)
+					await User.deleteOne(newUser._id)
 					res.status(400).send({
 						errorCode: 1
 					})
@@ -191,7 +191,7 @@ router.route('/users')
 				}
 				let createdToken = await paymob.createCreditCardToken(newUser, cardHolderName, cardNumber, expiryYear, expiryMonth, cvn).catch((err)=>{
 					console.error(err);
-					User.findByIdAndRemove(newUser._id)
+					await User.deleteOne(newUser._id)
 					res.status(400).send({
 						errorCode: 1
 					})
