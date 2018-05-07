@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const uglifyPlugin = require('uglifyjs-webpack-plugin');
 const copyWebpackPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+// const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var jsx = {
     entry: path.join(__dirname,"public/jsx/App.jsx"),

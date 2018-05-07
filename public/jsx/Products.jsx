@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, Table } from 'semantic-ui-react'
+import { Icon, Table, Modal, Button, Form } from 'semantic-ui-react'
 
 import axios from 'axios';
 
@@ -37,12 +37,36 @@ export default class Products extends Component {
 	}
 
 	render(){
+		const actionBtnStyle = {
+			margin: '3px auto'
+		}
 		return(
-			<div>
+			<div style={{padding: '15px'}}>
+				<h1 style={{textAlign: 'center'}}>Products</h1>
+				<Modal
+					trigger={<Button>Create New Product</Button>}
+					header="New Product"
+					content={<ProductForm context={this} />}
+				/>
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
-							<Table.HeaderCell colSpan='12'>Products ({this.state.products.length})</Table.HeaderCell>
+							<Table.HeaderCell colSpan='13'>Products ({this.state.products.length})</Table.HeaderCell>
+						</Table.Row>
+						<Table.Row>
+							<Table.HeaderCell textAlign='center'>English Name</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Arabic Name</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Description</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Price</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Quantity</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Number of photos</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Rating</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Brand</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Category</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Details</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Views</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Reviews</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Actions</Table.HeaderCell>
 						</Table.Row>
 					</Table.Header>
 
@@ -64,12 +88,69 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{JSON.stringify(product.productDetails)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell>
+									<Table.Cell textAlign='center'><Button style={actionBtnStyle}>Action 1</Button><Button style={actionBtnStyle}>Action 2</Button><Button style={actionBtnStyle}>Action 3</Button></Table.Cell>
 								</Table.Row>
 								)
 							})
 						}
 					</Table.Body>
 				</Table>
+			</div>
+		)
+	}
+}
+
+class ProductForm extends Component {
+	constructor(){
+		super();
+		this.state = {}
+	}
+
+	render(){
+		return(
+			<div style={{padding: '20px'}}>
+				<Form>
+					<Form.Field>
+						<label>English Name</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>English Name</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Arabic Name</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Description</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Price</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Quantity</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Photos</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Brand</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Category</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Details</label>
+						<input />
+					</Form.Field>
+				</Form>
 			</div>
 		)
 	}
