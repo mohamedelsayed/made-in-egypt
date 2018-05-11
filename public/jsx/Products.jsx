@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, Table, Modal, Button, Form } from 'semantic-ui-react'
+import { Icon, Table, Modal, Button, Form, Select, Radio } from 'semantic-ui-react'
 
 import axios from 'axios';
 
@@ -8,7 +8,9 @@ export default class Products extends Component {
 	constructor(){
 		super();
 		this.state  = {
-			products: []
+			products: [],
+
+			featured: "no"
 		}
 	}
 
@@ -41,7 +43,7 @@ export default class Products extends Component {
 			margin: '3px auto'
 		}
 		return(
-			<div style={{padding: '15px'}}>
+			<div style={{padding: '15px', overflowX: 'scroll'}}>
 				<h1 style={{textAlign: 'center'}}>Products</h1>
 				<Modal
 					trigger={<Button>Create New Product</Button>}
@@ -51,13 +53,15 @@ export default class Products extends Component {
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
-							<Table.HeaderCell colSpan='13'>Products ({this.state.products.length})</Table.HeaderCell>
+							<Table.HeaderCell colSpan='15'>Products ({this.state.products.length})</Table.HeaderCell>
 						</Table.Row>
 						<Table.Row>
 							<Table.HeaderCell textAlign='center'>English Name</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Arabic Name</Table.HeaderCell>
-							<Table.HeaderCell textAlign='center'>Description</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>English Description</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Arabic Description</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Price</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Discount</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Quantity</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Number of photos</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Rating</Table.HeaderCell>
@@ -78,8 +82,10 @@ export default class Products extends Component {
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, categoryId, brandId, productDetailsEn, productDetailsAr, views, reviews */}
 									<Table.Cell collapsing>{/* <Icon name='folder' /> */} {product.nameEn}</Table.Cell>
 									<Table.Cell collapsing textAlign='center'>{product.nameAr}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.description}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.descriptionEn}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.descriptionAr}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.price}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.discount}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.quantity}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.photos.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.ratingTotal/product.ratingCount || 0}</Table.Cell>
@@ -88,7 +94,7 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{JSON.stringify(product.productDetails)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell>
-									<Table.Cell textAlign='center'><Button style={actionBtnStyle}>Action 1</Button><Button style={actionBtnStyle}>Action 2</Button><Button style={actionBtnStyle}>Action 3</Button></Table.Cell>
+									<Table.Cell textAlign='center'><Button style={actionBtnStyle}>Edit</Button><Button style={actionBtnStyle}>Delete</Button></Table.Cell>
 								</Table.Row>
 								)
 							})
@@ -115,15 +121,15 @@ class ProductForm extends Component {
 						<input />
 					</Form.Field>
 					<Form.Field>
-						<label>English Name</label>
-						<input />
-					</Form.Field>
-					<Form.Field>
 						<label>Arabic Name</label>
 						<input />
 					</Form.Field>
 					<Form.Field>
-						<label>Description</label>
+						<label>English Description</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Arabic Description</label>
 						<input />
 					</Form.Field>
 					<Form.Field>
@@ -131,8 +137,21 @@ class ProductForm extends Component {
 						<input />
 					</Form.Field>
 					<Form.Field>
-						<label>Quantity</label>
+						<label>Discount</label>
 						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Color</label>
+						<input />
+					</Form.Field>
+					<Form.Field>
+						<label>Details</label>
+						<div>
+							<label>Quantity</label>
+							<input />
+							<label>Size</label>
+							<input />
+						</div>
 					</Form.Field>
 					<Form.Field>
 						<label>Photos</label>
@@ -140,15 +159,16 @@ class ProductForm extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Brand</label>
-						<input />
+						<Select />
 					</Form.Field>
 					<Form.Field>
 						<label>Category</label>
-						<input />
+						<Select />
 					</Form.Field>
 					<Form.Field>
-						<label>Details</label>
-						<input />
+						<label>Featured</label>
+						<Radio label="Yes" checked={this.state.featured === 'yes'} value="yes" onChange={(e, {value})=>this.setState({featured: value})} />
+						<Radio label="No" checked={this.state.featured === 'no'} value="no" onChange={(e, {value})=>this.setState({featured: value})} />
 					</Form.Field>
 				</Form>
 			</div>

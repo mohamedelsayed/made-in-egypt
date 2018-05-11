@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Container } from 'semantic-ui-react';
+import { Container, Button } from 'semantic-ui-react';
 // import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
 
@@ -52,8 +52,17 @@ export default class App extends Component {
 	}
 
 	render(){
+		const navBarButtonStyle = {
+			flex: 1
+		}
 		return(
 			<div>
+				<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
+					<Button style={navBarButtonStyle}>Products</Button>
+					<Button style={navBarButtonStyle}>Orders</Button>
+					<Button style={navBarButtonStyle}>Brands</Button>
+					<Button style={navBarButtonStyle}>Categories</Button>
+				</div>
 				{
 					this.state.currentView
 				}
