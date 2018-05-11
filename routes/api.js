@@ -114,6 +114,32 @@ router.get('/admin/auth', authenticateAdmin, (req, res, next)=>{
 	res.sendStatus(200);
 })
 
+router.route('/admin/categories')
+.all(authenticateAdmin)
+.get((req, res)=>{
+	Category.find().populate('parentCategory').lean()
+	.then((categories)=>{
+		res.send(categories);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
+router.route('/admin/brands')
+.all(authenticateAdmin)
+.get((req, res)=>{
+	Brand.find().lean()
+	.then((brands)=>{
+		res.send(brands);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
 router.route('/admins')
 .post(authenticateAdmin, (req, res)=>{
 	let { username, password } = req.body;

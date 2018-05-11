@@ -6,6 +6,8 @@ import axios from 'axios';
 
 import Login from './Login.jsx';
 import Products from './Products.jsx';
+import Categories from './Categories.jsx';
+import Brands from './Brands.jsx';
 
 export default class App extends Component {
 	constructor(){
@@ -22,6 +24,8 @@ export default class App extends Component {
 		switch(view){
 			case 'login': componentShortCut(Login); break;
 			case 'products': componentShortCut(Products); break;
+			case 'categories': componentShortCut(Categories); break;
+			case 'brands': componentShortCut(Brands); break;
 			default: <div />
 		}
 	}
@@ -58,10 +62,10 @@ export default class App extends Component {
 		return(
 			<div>
 				<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
-					<Button style={navBarButtonStyle}>Products</Button>
+					<Button style={navBarButtonStyle} onClick={()=>this.changeView('products')}>Products</Button>
 					<Button style={navBarButtonStyle}>Orders</Button>
-					<Button style={navBarButtonStyle}>Brands</Button>
-					<Button style={navBarButtonStyle}>Categories</Button>
+					<Button style={navBarButtonStyle} onClick={()=>this.changeView('brands')}>Brands</Button>
+					<Button style={navBarButtonStyle} onClick={()=>this.changeView('categories')}>Categories</Button>
 				</div>
 				{
 					this.state.currentView
