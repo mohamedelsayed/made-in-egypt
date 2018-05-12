@@ -1176,7 +1176,7 @@ router.route('/brands/:id')
 	.then((theBrand)=>{
 		if(theBrand){
 			brand = theBrand;
-			return Product.find(Object.assign({}, {brandId: brand._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).lean()
+			return Product.find(Object.assign({}, {brandId: brand._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*15).populate('brandId').limit(15).lean()
 		} else {
 			return null;
 		}

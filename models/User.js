@@ -33,6 +33,10 @@ const UserSchema = new Schema({
 		required: true,
 		ref: 'Product'
 	},
+	verified: {
+		type: Boolean,
+		required: true
+	},
 	// orders: {
 	// 	type: [Schema.Types.ObjectId],
 	// 	required: true,

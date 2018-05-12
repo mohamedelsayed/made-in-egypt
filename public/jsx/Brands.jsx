@@ -44,6 +44,7 @@ export default class Brands extends Component {
 						<Table.Row>
 							<Table.HeaderCell textAlign='center'>English Name</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Arabic Name</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Logo</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Actions</Table.HeaderCell>
 						</Table.Row>
 					</Table.Header>
@@ -56,6 +57,7 @@ export default class Brands extends Component {
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, brandId, brandId, brandDetailsEn, brandDetailsAr, views, reviews */}
 									<Table.Cell width="1" collapsing>{/* <Icon name='folder' /> */} {brand.nameEn}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameAr}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={brand.logo} /> : null}</Table.Cell>
 									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle}>Edit</Button><Button style={actionBtnStyle}>Delete</Button></Table.Cell>
 								</Table.Row>
 								)
@@ -96,6 +98,10 @@ class BrandForm extends Component {
 					<Form.Field>
 						<label>Arabic Name</label>
 						<input type="text" onChange={(event)=>this.newCategory.nameAr = event.currentTarget.value} />
+					</Form.Field>
+					<Form.Field>
+						<label>Logo</label>
+						<input type="file" onChange={(event)=>this.newCategory.logo = event.currentTarget.files[0]} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
 				</Form>
