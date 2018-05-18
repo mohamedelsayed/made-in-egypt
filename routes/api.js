@@ -240,7 +240,6 @@ router.route('/admin/products')
 		}
 	])
 	.then((products)=>{
-		console.log("Products");
 		return res.send(products);
 	})
 	.catch((err)=>{
@@ -804,15 +803,22 @@ router.route('/favourites/:productId')
 		if(!product){
 			return res.sendStatus(404);
 		}
-		console.log("FIND FAV", product)
-		if(req.user.favourites.indexOf(product._id) > -1){
-			return User.updateOne({_id: req.user._id}, {
+		console.log(req.user.favourites)
+		if(req.user.favourites.findIndex(id => id.toString() === productId) === -1){
+			return User.findByIdAndUpdate(req.user._id, {
 				$push: {favourites: product._id}
+			}, {
+				new: true
 			})
 			.then((doc)=>{
-				console.log("FAV DOC",doc);
 				return res.sendStatus(201);
 			})
+			.catch((err)=>{
+				console.error(err);
+				res.sendStatus(500);
+			})
+		} else {
+			res.sendStatus(200);
 		}
 	})
 	.catch((err)=>{
@@ -821,7 +827,22 @@ router.route('/favourites/:productId')
 	})
 })
 .delete(authenticateUser, (req, res)=>{
-	res.sendStatus(501);
+	let { productId } = req.params;
+	User.findOneAndUpdate(req.user._id, {
+		$pull: {
+			favourites: productId
+		}
+	}, {
+		new: true
+	})
+	.then((updated)=>{
+		console.log(updated);
+		res.sendStatus(200)
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
 })
 
 
