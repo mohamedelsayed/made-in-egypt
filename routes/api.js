@@ -157,7 +157,20 @@ router.route('/admin/orders')
 .all(authenticateAdmin)
 .get((req, res)=>{
 	let { pageNumber=1 } = req.query;
-
+	Order.find()
+	.sort({createdAt: -1})
+	.skip(20* (pageNumber - 1))
+	.limit(20)
+	.populate('userId')
+	.populate('items.productId')
+	.lean()
+	.then((orders)=>{
+		res.send(orders)
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500)
+	})
 })
 
 router.get('/admin/orders/count', authenticateAdmin, (req, res)=>{
