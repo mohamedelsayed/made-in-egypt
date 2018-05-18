@@ -78,7 +78,7 @@ export default class Products extends Component {
 						{
 							this.state.products.map((product)=>{
 								return(
-								<Table.Row key={Math.random().toFixed(5)}>
+								<Table.Row key={Math.random().toFixed(5)} error={product.quantity < 6}>
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, categoryId, brandId, productDetailsEn, productDetailsAr, views, reviews */}
 									<Table.Cell collapsing>{/* <Icon name='folder' /> */} {product.nameEn}</Table.Cell>
 									<Table.Cell collapsing textAlign='center'>{product.nameAr}</Table.Cell>
@@ -89,8 +89,8 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{product.quantity}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.photos.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.ratingTotal/product.ratingCount || 0}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.brandId.name}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.categoryId.name}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.brand.name}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.category.name}</Table.Cell>
 									<Table.Cell textAlign='center'>{JSON.stringify(product.productDetails)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell>

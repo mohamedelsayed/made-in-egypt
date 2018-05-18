@@ -16,8 +16,9 @@ const users = require('./routes/users');
 
 mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost'}:${process.env.MONGO_PORT || '27017'}/${process.env.MONGO_DB_NAME || 'madeInEgypt'}`, function(err){
   if(err){
-    console.error(err);
+    return console.error(err);
   }
+  console.log("connected to mongodb")
 })
 
 const app = express();

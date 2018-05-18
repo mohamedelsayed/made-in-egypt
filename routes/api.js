@@ -171,6 +171,71 @@ router.get('/admin/orders/count', authenticateAdmin, (req, res)=>{
 	})
 })
 
+router.route('/admin/products')
+.get(authenticateAdmin, (req, res)=>{
+	// Product.find().populate('brandId').populate('categoryId')
+	Product.aggregate([
+		{
+			$lookup: {
+				from: 'brands',
+				localField: 'brandId',
+				foreignField: '_id',
+				as: 'brand'
+			}	
+		},
+		{
+			$lookup: {
+				from: 'categories',
+				localField: 'categoryId',
+				foreignField: '_id',
+				as: 'category'
+			}
+		},
+		{
+			$project: {
+				'nameEn': 1,
+				'nameAr': 1,
+				'descriptionEn': 1,
+				'descriptionAr': 1,
+				'price': 1,
+				'discount': 1,
+				'color': 1,
+				'details': 1,
+				'photos': 1,
+				'ratingTotal': 1,
+				'ratingCount': 1,
+				'views': 1,
+				'reviews': 1,
+				'featured': 1,
+				'createdBy': 1,
+				'createdAt': 1,
+				'updatedAt': 1,
+				'brand': {
+					$arrayElemAt: ['$brand', 0]
+				},
+				'category': {
+					$arrayElemAt: ['$category', 0]
+				},
+				'quantity': {
+					$sum: '$details.quantity'
+				}
+			}
+		}, {
+			$sort: {
+				'createdAt': -1
+			}
+		}
+	])
+	.then((products)=>{
+		console.log("Products");
+		return res.send(products);
+	})
+	.catch((err)=>{
+		console.error(err);
+		return res.sendStatus(500);
+	})
+})
+
 router.route('/admins')
 .post(authenticateAdmin, (req, res)=>{
 	let { username, password } = req.body;
@@ -460,18 +525,6 @@ router.route('/creditcard')
 	.catch(err=>{
 		console.error(err);
 		res.sendStatus(500);
-	})
-})
-
-router.route('/admin/products')
-.get(authenticateAdmin, (req, res)=>{
-	Product.find().populate('brandId').populate('categoryId')
-	.then((products)=>{
-		return res.send(products);
-	})
-	.catch((err)=>{
-		console.error(err);
-		return res.sendStatus(500);
 	})
 })
 
