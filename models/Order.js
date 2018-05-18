@@ -12,6 +12,21 @@ const OrderItemSchema = new Schema({
 		required: true,
 		ref: 'Product'
 	},
+	nameEn: {
+		type: String,
+		required: true
+	},
+	nameAr: {
+		type: String,
+		required: true
+	},
+	imageUrl: {
+		type: String
+	},
+	brand: {
+		type: String,
+		required: true
+	},
 	details: {
 		type: Schema.Types.Mixed,
 		required: true

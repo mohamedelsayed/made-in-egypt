@@ -140,6 +140,37 @@ router.route('/admin/brands')
 	})
 })
 
+router.route('/admin/users')
+.all(authenticateAdmin)
+.get((req, res)=>{
+	User.find({}, '-password').lean()
+	.then((users)=>{
+		res.send(users)
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500)
+	})
+})
+
+router.route('/admin/orders')
+.all(authenticateAdmin)
+.get((req, res)=>{
+	let { pageNumber=1 } = req.query;
+
+})
+
+router.get('/admin/orders/count', authenticateAdmin, (req, res)=>{
+	Order.count()
+	.then((count)=>{
+		res.send(count);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+
 router.route('/admins')
 .post(authenticateAdmin, (req, res)=>{
 	let { username, password } = req.body;
@@ -786,7 +817,11 @@ router.route('/orders')
 			processedProducts.push({
 				productId: products[index]._id,
 				price: products[index].details.quantity * element.price,
-				details: products[index].details
+				details: products[index].details,
+				nameEn: products[index].nameEn,
+				nameAr: products[index].nameAr,
+				brand: products[index].brandId.nameEn,
+				imageUrl: products[index].photos.length > 1? products[index].photos[0] : undefined
 			})
 			totalPrice += element.price * products[index].details.quantity
 		})

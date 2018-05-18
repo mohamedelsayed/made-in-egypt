@@ -1,5 +1,9 @@
 import React, { Component } from 'react'
 
+import { Icon, Table, Modal, Button, Form, Select, Radio, Loader } from 'semantic-ui-react'
+
+import axios from 'axios';
+
 export default class Users extends Component {
 	constructor(){
 		super();
@@ -26,7 +30,7 @@ export default class Users extends Component {
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
-							<Table.HeaderCell colSpan='3'>Brands ({this.state.brands.length})</Table.HeaderCell>
+							<Table.HeaderCell colSpan='5'>Users ({this.state.users.length})</Table.HeaderCell>
 						</Table.Row>
 						<Table.Row>
 							<Table.HeaderCell textAlign='center'>Name</Table.HeaderCell>
