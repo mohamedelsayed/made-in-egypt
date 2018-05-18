@@ -1329,6 +1329,41 @@ router.route('/notifications')
 	})
 })
 
+router.route('/config')
+.get((req, res)=>{
+	publicS3.getObject({
+		Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+		Key: "config/config.json"
+	}).promise()
+	.then((configFile)=>{
+		res.send(configFile);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500)
+	})
+})
+.put(authenticateAdmin, (req, res)=>{
+	let { cashOnDeliveryFees = 5, shippingFees = 15, freeShippingMinimumOrder = 250 } = req.body;
+	let file = Buffer.from(`
+	{
+		"cashOnDeliveryFees": ${cashOnDeliveryFees},
+		"shippingFees": ${shippingFees},
+		"freeShippingMinimumOrder: ${freeShippingMinimumOrder}
+	}
+	`);
+	publicS3.putObject({
+		Body: file,
+		Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+		Key: "config/config.json"
+	}).promise()
+	.then(upload => res.sendStatus(200))
+	.catch((err) => {
+		console.error(err)
+		res.sendStatus(500);
+	})
+})
+
 
 
 module.exports = router;
