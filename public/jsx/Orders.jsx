@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, Table, Modal, Button, Form, Select, Radio, Loader } from 'semantic-ui-react'
+import { Icon, Table, Modal, Button, Form, Select, Radio, Loader, Menu } from 'semantic-ui-react'
 
 import axios from 'axios';
 
@@ -29,7 +29,7 @@ export default class Orders extends Component {
 			margin: '3px'
 		}
 		return(
-			<div style={{padding: '15px'}}>
+			<div style={{padding: '15px', overflowX: 'scroll'}}>
 				<h1 style={{textAlign: 'center'}}>Orders</h1>
 				<Modal
 					trigger={<Button>Create New Order</Button>}
@@ -39,12 +39,18 @@ export default class Orders extends Component {
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
-							<Table.HeaderCell colSpan='3'>Orders ({this.state.orders.length})</Table.HeaderCell>
+							<Table.HeaderCell colSpan='12'>Orders ({this.state.orders.length})</Table.HeaderCell>
 						</Table.Row>
 						<Table.Row>
-							<Table.HeaderCell textAlign='center'>English Name</Table.HeaderCell>
-							<Table.HeaderCell textAlign='center'>Arabic Name</Table.HeaderCell>
-							<Table.HeaderCell textAlign='center'>Logo</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Buyer Email</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Buyer Phone</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Buyer Address</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Shipping Fee</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Payment Method</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>State</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Delivery Date</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Items</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Total Price</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Actions</Table.HeaderCell>
 						</Table.Row>
 					</Table.Header>
@@ -55,10 +61,21 @@ export default class Orders extends Component {
 								return(
 								<Table.Row key={Math.random().toFixed(5)}>
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, orderId, orderId, orderDetailsEn, orderDetailsAr, views, reviews */}
-									<Table.Cell width="1" collapsing>{/* <Icon name='folder' /> */} {order.nameEn}</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{order.nameAr}</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{order.logo? <img src={order.logo} /> : null}</Table.Cell>
-									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle}>Edit</Button><Button style={actionBtnStyle}>Delete</Button></Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.userId.email}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.userId.phone}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.userId.address}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.shippingFees}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.paymentMethod}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.state}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.deliveryDate}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>
+										{order.items.map(item => <div key={Math.random()} style={{border: '1px solid black', borderRadius: '1px', marginBottom: '1px'}}>
+											{item.productId.nameEn} - {item.productId.nameAr}: {item.quantity}<br />
+											{JSON.stringify(item.details)}
+										</div>)}
+									</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.totalPrice}</Table.Cell>
+									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle}>Confirm</Button><Button style={actionBtnStyle}>Cancel</Button></Table.Cell>
 								</Table.Row>
 								)
 							})
@@ -66,7 +83,7 @@ export default class Orders extends Component {
 					</Table.Body>
 					<Table.Footer>
 						<Table.Row>
-							<Table.HeaderCell colSpan='3'>
+							<Table.HeaderCell colSpan='15'>
 								<Menu floated='right' pagination>
 									<Menu.Item as='a' icon>
 										<Icon name='chevron left' />

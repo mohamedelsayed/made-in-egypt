@@ -9,6 +9,7 @@ import Products from './Products.jsx';
 import Categories from './Categories.jsx';
 import Brands from './Brands.jsx';
 import Users from './Users.jsx';
+import Orders from './Orders.jsx';
 
 export default class App extends Component {
 	constructor(){
@@ -28,6 +29,7 @@ export default class App extends Component {
 			case 'categories': componentShortCut(Categories); break;
 			case 'brands': componentShortCut(Brands); break;
 			case 'users': componentShortCut(Users); break;
+			case 'orders': componentShortCut(Orders); break;
 			default: <div />
 		}
 	}
@@ -65,7 +67,7 @@ export default class App extends Component {
 			<div>
 				<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
 					<Button style={navBarButtonStyle} onClick={()=>this.changeView('products')}>Products</Button>
-					<Button style={navBarButtonStyle}>Orders</Button>
+					<Button style={navBarButtonStyle} onClick={()=>this.changeView('orders')}>Orders</Button>
 					<Button style={navBarButtonStyle} onClick={()=>this.changeView('brands')}>Brands</Button>
 					<Button style={navBarButtonStyle} onClick={()=>this.changeView('categories')}>Categories</Button>
 					<Button style={navBarButtonStyle} onClick={()=>this.changeView('users')}>Users</Button>
