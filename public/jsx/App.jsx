@@ -65,13 +65,18 @@ export default class App extends Component {
 		}
 		return(
 			<div>
-				<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
-					<Button style={navBarButtonStyle} onClick={()=>this.changeView('products')}>Products</Button>
-					<Button style={navBarButtonStyle} onClick={()=>this.changeView('orders')}>Orders</Button>
-					<Button style={navBarButtonStyle} onClick={()=>this.changeView('brands')}>Brands</Button>
-					<Button style={navBarButtonStyle} onClick={()=>this.changeView('categories')}>Categories</Button>
-					<Button style={navBarButtonStyle} onClick={()=>this.changeView('users')}>Users</Button>
-				</div>
+				{
+					this.state.currentView.type.name !== undefined && this.state.currentView.type.name !== 'Login'?
+					<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
+						<Button style={navBarButtonStyle} onClick={()=>this.changeView('products')}>Products</Button>
+						<Button style={navBarButtonStyle} onClick={()=>this.changeView('orders')}>Orders</Button>
+						<Button style={navBarButtonStyle} onClick={()=>this.changeView('brands')}>Brands</Button>
+						<Button style={navBarButtonStyle} onClick={()=>this.changeView('categories')}>Categories</Button>
+						<Button style={navBarButtonStyle} onClick={()=>this.changeView('users')}>Users</Button>
+					</div>
+					:
+					null
+				}
 				{
 					this.state.currentView
 				}
