@@ -27,7 +27,8 @@ var jsx = {
             (
                 new uglifyPlugin(),
                 new webpack.DefinePlugin({
-                    'http://127.0.0.1:3000': JSON.stringify(`https://${ process.env.ROUTE || 'www.madeinegypt.com' }`)
+                    // 'http://127.0.0.1:3000': JSON.stringify(`http${process.env.SECURE? "s" : ""}://${ process.env.ROUTE || 'www.madeinegypt.com' }`),
+                    'http://localhost:3000': JSON.stringify(`http${process.env.SECURE? "s" : ""}://${ process.env.ROUTE || 'www.madeinegypt.ga' }`)
                 }) 
             ) : []
         )
