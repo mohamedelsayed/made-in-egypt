@@ -24,6 +24,7 @@ firebase.initializeApp({
 });
 
 const firebaseDB = firebase.database();
+const fcm = firebase.messaging()
 
 const mongoose = require('mongoose');
 const Admin = require('../models/Admin');
@@ -185,7 +186,8 @@ router.get('/admin/orders/count', authenticateAdmin, (req, res)=>{
 })
 
 router.route('/admin/products')
-.get(authenticateAdmin, (req, res)=>{
+.all(authenticateAdmin)
+.get((req, res)=>{
 	// Product.find().populate('brandId').populate('categoryId')
 	Product.aggregate([
 		{
@@ -246,6 +248,9 @@ router.route('/admin/products')
 		console.error(err);
 		return res.sendStatus(500);
 	})
+})
+.post((req, res)=>{
+	res.sendStatus(501)
 })
 
 router.route('/admins')
@@ -1326,6 +1331,23 @@ router.route('/notifications')
 			return res.status(500).send("Error occured will adding message to user's notifications");
 		}
 		res.status(201).send("Pushed");
+	})
+})
+
+router.put('/fcmtoken', authenticateUser, (req, res)=>{
+	let { token } = req.body;
+	User.findByIdAndUpdate(req.user._id, {
+		fcmToken: token
+	}, {
+		new: true
+	})
+	.then((updated)=>{
+		console.log("Updated FCM Token is", updated.fcmToken);
+		res.sendStatus(200);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
 	})
 })
 
