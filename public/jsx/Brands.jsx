@@ -9,6 +9,7 @@ export default class Brands extends Component {
 		super();
 		this.state = {
 			brands: [],
+			formOpen: false
 		}
 	}
 	componentDidMount(){
@@ -32,9 +33,11 @@ export default class Brands extends Component {
 			<div style={{padding: '15px'}}>
 				<h1 style={{textAlign: 'center'}}>Brands</h1>
 				<Modal
-					trigger={<Button>Create New Brand</Button>}
+					trigger={<Button onClick={()=>this.setState({formOpen: true})}>Create New Brand</Button>}
 					header="New Brand"
 					content={<BrandForm context={this} />}
+					open={this.state.formOpen}
+					onClose={()=>this.setState({formOpen: false})}
 				/>
 				<Table celled striped>
 					<Table.Header>
@@ -57,7 +60,7 @@ export default class Brands extends Component {
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, brandId, brandId, brandDetailsEn, brandDetailsAr, views, reviews */}
 									<Table.Cell width="1" collapsing>{/* <Icon name='folder' /> */} {brand.nameEn}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameAr}</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={brand.logo} /> : null}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={brand.logo} style={{width: 200}} /> : null}</Table.Cell>
 									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle}>Edit</Button><Button style={actionBtnStyle}>Delete</Button></Table.Cell>
 								</Table.Row>
 								)
@@ -74,34 +77,64 @@ class BrandForm extends Component {
 	constructor(){
 		super();
 		this.state = {
-			creating: false
+			creating: false,
+			error: null
 		}
-		this.newCategory = {
-
-		}
+		this.newBrand = {}
 	}
 	handleSubmit = ()=>{
-		console.log(this.newCategory);
+		console.log(this.newBrand);
 		this.setState({creating: true});
-		setTimeout(()=>{
-			this.setState({creating: false})
-		}, 1000)
+		// setTimeout(()=>{
+		// 	this.setState({creating: false})
+		// }, 1000)
+		let formData = new FormData();
+		formData.append('nameEn', this.newBrand.nameEn)
+		formData.append('nameAr', this.newBrand.nameAr)
+		formData.append('logo', this.newBrand.logo)
+		axios.post(`${process.env.URL || "http://localhost:3000"}/api/brands`, formData, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			validateStatus: function(status){
+				return status < 500
+			}
+		})
+		.then((response)=>{
+			if(response.status < 300){
+				return this.props.context.setState({formOpen: false}, ()=>{
+					this.props.context.componentDidMount();
+				})
+			}
+			this.setState({error: "Invalid Input"})
+		})
+		.catch((err)=>{
+			this.setState({error: "Something went wrong"})
+		})
 	}
 	render(){
 		return(
 			<div style={{padding: '20px'}}>
 				<Form>
+					{
+						this.state.error?
+						<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+							{this.state.error}
+						</div>
+						:
+						null
+					}
 					<Form.Field>
 						<label>English Name</label>
-						<input type="text" onChange={(event)=>this.newCategory.nameEn = event.currentTarget.value} />
+						<input type="text" onChange={(event)=>this.newBrand.nameEn = event.currentTarget.value} />
 					</Form.Field>
 					<Form.Field>
 						<label>Arabic Name</label>
-						<input type="text" onChange={(event)=>this.newCategory.nameAr = event.currentTarget.value} />
+						<input type="text" onChange={(event)=>this.newBrand.nameAr = event.currentTarget.value} />
 					</Form.Field>
 					<Form.Field>
 						<label>Logo</label>
-						<input type="file" onChange={(event)=>this.newCategory.logo = event.currentTarget.files[0]} />
+						<input type="file" onChange={(event)=>this.newBrand.logo = event.currentTarget.files[0]} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
 				</Form>

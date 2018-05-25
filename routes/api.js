@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
+const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const co = require('co');
 const randomstring = require('randomstring');
 const multer = require('multer');
-// const upload = multer({storage: multer.memoryStorage()});
-const upload = multer();
+const upload = multer({storage: multer.memoryStorage()});
+// const upload = multer();
+
 const _ = require('lodash');
 const moment = require('moment')
 const AWS = require('aws-sdk');
@@ -140,6 +142,21 @@ router.route('/admin/brands')
 		res.sendStatus(500);
 	})
 })
+/* .post(upload.single('logo'), (req, res)=>{
+	let { nameEn, nameAr } = req.body;
+	if(!nameEn || !nameAr){
+		return res.sendStatus(400);
+	}
+	let creationObject = { nameEn, nameAr }
+	if(logo){
+		let logo = randomstring.generate(20);
+		publicS3.putObject({
+			Body: req.file.buffer,
+			Key: logo,
+			Bucket: 
+		})
+	}
+}) */
 
 router.route('/admin/users')
 .all(authenticateAdmin)
@@ -857,7 +874,7 @@ async function _checkProductAndSendFCMIfNeeded(productId){
 			let concernedUsers = await User.find({
 				favourites: product._id
 			}).lean()
-			concernedUsers.forEach((user)=>{
+			concernedUsers.forEach(async (user)=>{
 				if(user.fcmToken){
 					let fcmMsg = await fcm.send({
 						token: user.fcmToken,
@@ -1249,18 +1266,17 @@ router.route('/brands')
 })
 .post(authenticateAdmin, upload.single('logo'), (req, res)=>{
 	let { nameEn, nameAr } = req.body;
-	let photoName = "brandImage-"+randomstring.generate();
+	let photoName = "brandImage-"+randomstring.generate()+((req.file)? "."+ path.extname(req.file.originalname) : "");
 	let createBrand = function(){
 		let params = { nameEn, nameAr };
-		console.log("PARAMS", params);
 		if(req.file){
 			Object.assign(params, {
-				logo: ('https://s3.amazonaws.com/'
-					+ (process.eventNames.BUCKET_NAME || 'madeinegypt-test') + '/'
-					+ photoName)
-				}
-			)
+				logo: ('https://s3.eu-west-2.amazonaws.com/'
+				+ (process.env.BUCKET_NAME || 'madeinegypt-test') + '/'
+				+ photoName)
+			})
 		}
+		console.log("PARAMS", params);
 		Brand.create(params)
 		.then((brand)=>{
 			return res.sendStatus(201);
