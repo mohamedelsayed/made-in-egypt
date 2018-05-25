@@ -35,7 +35,7 @@ const Category = require('../models/Category');
 const Brand = require('../models/Brand');
 const CardToken = require('../models/CardToken')
 
-const { jwtSecret, shippingFees } = require('./helpers/config');
+const { jwtSecret, /* shippingFees */ } = require('./helpers/config');
 const { removeEmptyObjectKeys } = require('./helpers/helpers');
 const paymob = require('./helpers/paymobPayment');
 
@@ -850,6 +850,35 @@ router.route('/favourites/:productId')
 	})
 })
 
+async function _checkProductAndSendFCMIfNeeded(productId){
+	try {
+		let product = await Product.findById(productId).lean()
+		if(product.details.find((detail)=>detail.quantity <= 5)){
+			let concernedUsers = await User.find({
+				favourites: product._id
+			}).lean()
+			concernedUsers.forEach((user)=>{
+				if(user.fcmToken){
+					let fcmMsg = await fcm.send({
+						token: user.fcmToken,
+						data: {
+							titleEn: "Product Running Out",
+							bodyEn: "An item you favourited is running out of stock",
+							titleAr: "المنتج على وشك ان ينفذ",
+							bodyAr: "احد المنتجات التي فضلتها على وشك ان ينفذ من عندنا"
+						}
+					})
+					console.log(fcmMsg);
+					return true;
+				}
+				return true;
+			})
+		}
+	} catch(err){
+		console.error(err);
+		return false;
+	}
+}
 
 router.route('/orders')
 .get((req, res)=>{
@@ -863,8 +892,8 @@ router.route('/orders')
 	})
 })
 .post(authenticateUser, async (req, res)=>{
-	let { products, paymentMethod, creditCard } = req.body;
-	if(!_.isArray(products) || products.length < 1){
+	let { products, paymentMethod, creditCard, shippingFees } = req.body;
+	if(!_.isArray(products) || products.length < 1 || !shippingFees){
 		return res.sendStatus(400);
 	}
 	let processedProducts = [];
@@ -906,6 +935,7 @@ router.route('/orders')
 				});
 				throw Error("Quantity conflict");
 			}
+			_checkProductAndSendFCMIfNeeded(products[index]._id)
 			processedProducts.push({
 				productId: products[index]._id,
 				price: products[index].details.quantity * element.price,
@@ -997,8 +1027,8 @@ router.route('/orders')
 })
 
 router.post('/orders/mock', authenticateUser, async (req, res)=>{
-	let { products } = req.body;
-	if(!_.isArray(products) || products.length < 1){
+	let { products, shippingFees } = req.body;
+	if(!_.isArray(products) || products.length < 1 || !shippingFees){
 		return res.sendStatus(400);
 	}
 	let processedProducts = [];
@@ -1320,18 +1350,19 @@ router.route('/brands/:id')
 
 router.route('/notifications')
 .post(authenticateAdmin, (req, res)=>{
-	let { targetAudience, message } = req.body;
-	if(!targetAudience || !message){
-		return res.sendStatus(400);
-	}
-	const ref = firebaseDB.ref(`/notifications/${targetAudience}`);
-	ref.push(message, (err)=>{
-		if(err){
-			console.error(err);
-			return res.status(500).send("Error occured will adding message to user's notifications");
-		}
-		res.status(201).send("Pushed");
-	})
+	// let { targetAudience, message } = req.body;
+	// if(!targetAudience || !message){
+	// 	return res.sendStatus(400);
+	// }
+	// const ref = firebaseDB.ref(`/notifications/${targetAudience}`);
+	// ref.push(message, (err)=>{
+	// 	if(err){
+	// 		console.error(err);
+	// 		return res.status(500).send("Error occured will adding message to user's notifications");
+	// 	}
+	// 	res.status(201).send("Pushed");
+	// })
+	res.sendStatus(501);
 })
 
 router.put('/fcmtoken', authenticateUser, (req, res)=>{
