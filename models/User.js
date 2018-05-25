@@ -37,6 +37,9 @@ const UserSchema = new Schema({
 		type: Boolean,
 		required: true
 	},
+	fcmToken: {
+		type: String
+	}
 	// orders: {
 	// 	type: [Schema.Types.ObjectId],
 	// 	required: true,
