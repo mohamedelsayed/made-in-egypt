@@ -12,7 +12,7 @@ export default class Brands extends Component {
 		}
 	}
 	componentDidMount(){
-		axios.get('http://localhost:3000/api/admin/brands', {
+		axios.get(`${process.env.URL || "http://localhost:3000"}/api/admin/brands`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			}

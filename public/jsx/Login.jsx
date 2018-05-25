@@ -13,7 +13,7 @@ export default class Login extends React.Component {
 
 	handleSubmit = (event)=>{
 		event.preventDefault();
-		axios.post('http://localhost:3000/api/admin/login', {
+		axios.post(`${process.env.URL || "http://localhost:3000"}/api/admin/login`, {
 			username: this.username,
 			password: this.password
 		},{

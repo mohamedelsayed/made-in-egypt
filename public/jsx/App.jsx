@@ -37,7 +37,7 @@ export default class App extends Component {
 	componentDidMount(){
 		let auth = localStorage.getItem('auth');
 		if(auth){
-			axios.get('http://localhost:3000/api/admin/auth', {
+			axios.get(`${process.env.URL || "http://localhost:3000"}/api/admin/auth`, {
 				headers: {
 					'x-auth-token': auth
 				}

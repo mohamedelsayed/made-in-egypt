@@ -12,7 +12,7 @@ export default class Orders extends Component {
 		}
 	}
 	componentDidMount(){
-		axios.get('http://localhost:3000/api/admin/orders', {
+		axios.get(`${process.env.URL || "http://localhost:3000"}/api/admin/orders`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			}

@@ -16,7 +16,7 @@ export default class Products extends Component {
 
 	componentDidMount(){
 		console.log(localStorage.getItem('auth'));
-		axios.get('http://localhost:3000/api/admin/products', {
+		axios.get(`${process.env.URL || "http://localhost:3000"}/api/admin/products`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			},
