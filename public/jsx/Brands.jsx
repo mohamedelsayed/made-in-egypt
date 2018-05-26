@@ -9,7 +9,10 @@ export default class Brands extends Component {
 		super();
 		this.state = {
 			brands: [],
-			formOpen: false
+			formOpen: false,
+			deleteOpen: false,
+			errorOpen: false,
+			targetBrandId: undefined
 		}
 	}
 	componentDidMount(){
@@ -20,6 +23,33 @@ export default class Brands extends Component {
 		})
 		.then((response)=>{
 			this.setState({brands: response.data});
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+	handleDelete = ()=>{
+		if(!this.state.targetBrandId){
+			return console.error("Brand ID undefined");
+		}
+		axios.delete(`${process.env.URL || "http://localhost:3000"}/api/brands/${this.state.targetBrandId}`, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			validateStatus: function(status){
+				return status < 500
+			}
+		})
+		.then((response)=>{
+			switch(response.status){
+				case 200: this.setState({deleteOpen: false, targetBrandId: undefined}, ()=>this.componentDidMount());
+					break;
+				case 409: this.setState({deleteOpen: false, targetBrandId: undefined, errorOpen: true});
+					break;
+				default:
+					this.setState({deleteOpen: false, targetBrandId: undefined});
+					console.error("Response code not handled. Code:", response.status);
+			}
 		})
 		.catch((err)=>{
 			console.error(err);
@@ -38,6 +68,22 @@ export default class Brands extends Component {
 					content={<BrandForm context={this} />}
 					open={this.state.formOpen}
 					onClose={()=>this.setState({formOpen: false})}
+				/>
+				<Modal
+					// trigger={<Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true})}>Delete</Button>}
+					header={"Delete Brand?"}
+					actions={[
+						<Button style={actionBtnStyle} key={"deleteBrandNo"} onClick={()=>this.setState({deleteOpen: false, targetBrandId: undefined})} >No</Button>,
+						<Button style={actionBtnStyle} key={"deleteBrandYes"} onClick={this.handleDelete}>Yes</Button>
+					]}
+					onClose={()=>this.setState({deleteOpen: false, targetBrandId: undefined})}
+					open={this.state.deleteOpen}
+				/>
+				<Modal
+					actions={[<Button style={actionBtnStyle} key={"deleteError"} onClick={()=>this.setState({errorOpen: false})} >Ok</Button>,]}
+					content={"Some orders are pending that contain products of this brand"}
+					open={this.state.errorOpen}
+					onClose={()=>this.setState({errorOpen: false})}
 				/>
 				<Table celled striped>
 					<Table.Header>
@@ -61,7 +107,10 @@ export default class Brands extends Component {
 									<Table.Cell width="1" collapsing>{/* <Icon name='folder' /> */} {brand.nameEn}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameAr}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={brand.logo} style={{width: 200}} /> : null}</Table.Cell>
-									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle}>Edit</Button><Button style={actionBtnStyle}>Delete</Button></Table.Cell>
+									<Table.Cell width="1" textAlign='center'>
+										<Button style={actionBtnStyle}>Edit</Button>
+										<Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true, targetBrandId: brand._id})} >Delete</Button>
+									</Table.Cell>
 								</Table.Row>
 								)
 							})

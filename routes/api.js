@@ -1264,7 +1264,8 @@ router.route('/brands')
 		res.sendStatus(500);
 	})
 })
-.post(authenticateAdmin, upload.single('logo'), (req, res)=>{
+.all(authenticateAdmin)
+.post(upload.single('logo'), (req, res)=>{
 	let { nameEn, nameAr } = req.body;
 	let photoName = "brandImage-"+randomstring.generate()+((req.file)? "."+ path.extname(req.file.originalname) : "");
 	let createBrand = function(){
@@ -1361,6 +1362,66 @@ router.route('/brands/:id')
 		} else {
 			res.sendStatus(404);
 		}
+	})
+})
+.all(authenticateAdmin)
+.put(upload.single('logo'), (req, res)=>{
+	let { nameEn, nameAr } = req.body;
+
+})
+.delete((req, res)=>{
+	const brandId = req.params['id']
+	// Order.aggregate([
+	// 	{
+	// 		$match: {state: 'Pending'}
+	// 	},
+	// 	{
+	// 		$lookup: {
+	// 			from: 'products',
+	// 			localField: 'items.productId',
+	// 			foreignField: '_id',
+	// 			as: 'orderProducts'
+	// 		}
+	// 	},
+	// 	{
+	// 		$count: {'orderProducts.brandId': brandId}
+	// 	}
+	// ])
+
+	// console.log("BRAND",brandId);
+	// Order.findOne({
+	// 	state: 'Pending',
+	// 	'items.brand': brandId
+	// }).lean()
+	// .then((orders)=>{
+	// 	console.log(orders);
+	// })
+	Order.findOne({
+		state: 'Pending',
+		'items.brand': brandId
+	}).count()
+	.then((count)=>{
+		if(count > 0){
+			return res.sendStatus(409)
+		}
+		// TODO: delete brand
+		return Product.remove({
+			brandId
+		})
+		.then((deletion)=>{
+			console.log(deletion);
+		})
+		.then(()=>{
+			return Brand.deleteOne({_id: brandId})
+		})
+		.then((deletion)=>{
+			console.log(deletion);
+			res.sendStatus(200)
+		})
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500)
 	})
 })
 
