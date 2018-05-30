@@ -1167,7 +1167,8 @@ router.route('/categories')
 		return res.sendStatus(500);
 	})
 })
-.post(authenticateAdmin, async (req, res)=>{
+.all(authenticateAdmin)
+.post(async (req, res)=>{
 	let { nameEn, nameAr, parentCategory } = req.body;
 	let attrs = {nameEn, nameAr};
 	if(nameEn || nameAr){
@@ -1251,6 +1252,45 @@ router.route('/categories/:id')
 		console.error(err);
 		res.sendStatus(500);
 	})
+})
+.all(authenticateAdmin)
+.put(async (req, res)=>{
+	try {
+		let { nameEn, nameAr, parentCategory } = req.body;
+		if(!nameEn || !nameAr){
+			return res.sendStatus(400);
+		}
+		let updateObject = {nameEn, nameAr};
+		let theCategory = await Category.findById(req.params['id']).lean()
+		if(parentCategory){
+			let theParent = await Category.findById(parentCategory).lean()
+			if(!theParent){
+				return res.sendStatus(404);
+			}
+			Object.assign(theParent, {parentCategory});
+		}
+		if(!theCategory){
+			return res.sendStatus(404);
+		}
+		await Category.findByIdAndUpdate(theCategory._id, updateObject);
+		res.sendStatus(200);
+	} catch(err){
+		console.error(err);
+		return res.sendStatus(500);
+	}
+})
+.delete(async (req, res)=>{
+	try {
+		let theCategory = await Category.findById(req.params['id']).lean()
+		if(!theCategory){
+			return res.sendStatus(404);
+		}
+		await Category.deleteOne({_id: theCategory._id});
+		return res.sendStatus(200);
+	} catch(err){
+		console.error(err);
+		return res.sendStatus(500);
+	}
 })
 
 router.route('/brands')
@@ -1365,8 +1405,34 @@ router.route('/brands/:id')
 	})
 })
 .all(authenticateAdmin)
-.put(upload.single('logo'), (req, res)=>{
-	let { nameEn, nameAr } = req.body;
+.put(upload.single('logo'), async (req, res)=>{
+	try {
+		let theBrand = await Brand.findById(req.params['id']).lean();
+		if(!theBrand){
+			return res.sendStatus(404);
+		}
+		let { nameEn, nameAr } = req.body;
+		if(!nameEn || !nameAr){
+			return res.sendStatus(400);
+		}
+		let updateObject = { nameEn, nameAr }
+		if(req.file){
+			let logo = randomstring.generate(20);
+			let uploaded = await publicS3.putObject({
+				Body: req.file.buffer,
+				Key: logo,
+				Bucket: process.env.BUCKET_NAME || 'madeinegypt-test'
+			}).promise()
+			Object.assign(updateObject, { logo: ('https://s3.eu-west-2.amazonaws.com/'
+			+ (process.env.BUCKET_NAME || 'madeinegypt-test') + '/'
+			+ logo) })
+		}
+		let update = await Brand.findByIdAndUpdate(theBrand._id, updateObject, {new: true});
+		return res.sendStatus(200);
+	} catch(err){
+		console.error(err);
+		return res.sendStatus(500);
+	}
 
 })
 .delete((req, res)=>{
