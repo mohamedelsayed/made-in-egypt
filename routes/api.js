@@ -1545,7 +1545,7 @@ router.route('/config')
 	{
 		"cashOnDeliveryFees": ${cashOnDeliveryFees},
 		"shippingFees": ${shippingFees},
-		"freeShippingMinimumOrder: ${freeShippingMinimumOrder}
+		"freeShippingMinimumOrder": ${freeShippingMinimumOrder}
 	}
 	`);
 	publicS3.putObject({

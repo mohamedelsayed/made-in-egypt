@@ -83,9 +83,21 @@ class CategoryForm extends Component {
 	handleSubmit = ()=>{
 		console.log(this.newCategory);
 		this.setState({creating: true});
-		setTimeout(()=>{
-			this.setState({creating: false})
-		}, 1000)
+		// setTimeout(()=>{
+		// 	this.setState({creating: false})
+		// }, 1000)
+		axios.put(`${process.env.URL || "http://localhost:3000"}/api/admin/orders`, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			}
+		}, this.newCategory)
+		.then((reponse)=>{
+			this.componentDidMount();
+		})
+		.catch((err)=>{
+			console.error(err);
+			// TODO: display error
+		})
 	}
 	render(){
 		return(
