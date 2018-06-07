@@ -1532,7 +1532,7 @@ router.route('/config')
 		Key: "config/config.json"
 	}).promise()
 	.then((configFile)=>{
-		res.send(configFile);
+		res.send(configFile.Body.buffer);
 	})
 	.catch((err)=>{
 		console.error(err);
