@@ -1442,7 +1442,7 @@ router.route('/brands/:id')
 			// + (process.env.BUCKET_NAME || 'madeinegypt-test') + '/'
 			// + logo) })
 		}
-		let update = await Brand.findByIdAndUpdate(theBrand._id, updateObject, {new: true});
+		await Brand.findByIdAndUpdate(theBrand._id, updateObject, {new: true});
 		return res.sendStatus(200);
 	} catch(err){
 		console.error(err);

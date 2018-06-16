@@ -112,7 +112,7 @@ export default class Brands extends Component {
 								return(
 								<Table.Row key={Math.random().toFixed(5)}>
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, brandId, brandId, brandDetailsEn, brandDetailsAr, views, reviews */}
-									<Table.Cell width="1" collapsing>{/* <Icon name='folder' /> */} {brand.nameEn}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameEn}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameAr}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={brand.logo} style={{width: 200}} /> : null}</Table.Cell>
 									<Table.Cell width="1" textAlign='center'>
@@ -249,7 +249,7 @@ class BrandFormEdit extends Component {
 		})
 		.then((response)=>{
 			if(response.status < 300){
-				return this.props.context.setState({formOpen: false}, ()=>{
+				return this.props.context.setState({editOpen: false}, ()=>{
 					this.props.context.componentDidMount();
 				})
 			}
@@ -273,18 +273,18 @@ class BrandFormEdit extends Component {
 					}
 					<Form.Field>
 						<label>English Name</label>
-						<input type="text" onChange={(event)=>this.state.nameEn = event.currentTarget.value} value={this.state.nameEn} />
+						<input type="text" onChange={(event)=>this.setState({nameEn: event.currentTarget.value})} value={this.state.nameEn} />
 					</Form.Field>
 					<Form.Field>
 						<label>Arabic Name</label>
-						<input type="text" onChange={(event)=>this.state.nameAr = event.currentTarget.value} value={this.state.nameAr} />
+						<input type="text" onChange={(event)=>this.setState({nameAr: event.currentTarget.value})} value={this.state.nameAr} />
 					</Form.Field>
 					<Form.Field>
 						<label>Logo</label>
 						<img src={`${process.env.URL || "http://localhost:3000"}/api/file?url=${this.state.logo}`} width="200px" height="200px" />
-						<input type="file" onChange={(event)=>this.state.newLogo = event.currentTarget.files[0]} />
+						<input type="file" onChange={(event)=>this.setState({newLogo: event.currentTarget.files[0]})} />
 					</Form.Field>
-					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
+					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.editing} /></Button>
 				</Form>
 			</div>
 		)
