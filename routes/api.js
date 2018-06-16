@@ -1418,14 +1418,15 @@ router.route('/brands/:id')
 		let updateObject = { nameEn, nameAr }
 		if(req.file){
 			let logo = randomstring.generate(20);
-			let uploaded = await publicS3.putObject({
+			let uploaded = await publicS3.upload({
 				Body: req.file.buffer,
 				Key: logo,
 				Bucket: process.env.BUCKET_NAME || 'madeinegypt-test'
 			}).promise()
-			Object.assign(updateObject, { logo: ('https://s3.eu-west-2.amazonaws.com/'
-			+ (process.env.BUCKET_NAME || 'madeinegypt-test') + '/'
-			+ logo) })
+			Object.assign(updateObject, { logo: uploaded.Location })
+			// Object.assign(updateObject, { logo: ('https://s3.eu-west-2.amazonaws.com/'
+			// + (process.env.BUCKET_NAME || 'madeinegypt-test') + '/'
+			// + logo) })
 		}
 		let update = await Brand.findByIdAndUpdate(theBrand._id, updateObject, {new: true});
 		return res.sendStatus(200);
