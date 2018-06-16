@@ -1296,6 +1296,10 @@ router.route('/categories/:id')
 .delete(async (req, res)=>{
 	try {
 		let theCategory = await Category.findById(req.params['id']).lean()
+		let children = await Category.find({parentCategory: req.params['id']}).lean()
+		if(!children || children.length === 0){
+			return res.sendStatus(409);
+		}
 		if(!theCategory){
 			return res.sendStatus(404);
 		}
