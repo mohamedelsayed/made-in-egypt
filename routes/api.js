@@ -428,9 +428,13 @@ router.get('/users/:id', (req, res)=>{
 
 router.get('/file', (req, res)=>{
 	const { url } = req.query;
+	if(!url){
+		res.sendStatus(500);
+	}
+	let parsed = new URL(url);
 	publicS3.getObject({
 		Bucket: process.env.BUCKET_NAME,
-		Key: url
+		Key: parsed.pathname
 	}).createReadStream()
 	.pipe(res);
 })
