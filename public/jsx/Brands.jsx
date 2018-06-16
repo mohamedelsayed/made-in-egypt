@@ -11,8 +11,10 @@ export default class Brands extends Component {
 			brands: [],
 			formOpen: false,
 			deleteOpen: false,
+			editOpen: false,
 			errorOpen: false,
-			targetBrandId: undefined
+			targetBrandId: undefined,
+			targetBrand: undefined
 		}
 	}
 	componentDidMount(){
@@ -70,6 +72,12 @@ export default class Brands extends Component {
 					onClose={()=>this.setState({formOpen: false})}
 				/>
 				<Modal
+					header="Edit Brand"
+					content={<BrandFormEdit context={this} brand={this.state.targetBrand} />}
+					open={this.state.editOpen}
+					onClose={()=>this.setState({editOpen: false})}
+				/>
+				<Modal
 					// trigger={<Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true})}>Delete</Button>}
 					header={"Delete Brand?"}
 					actions={[
@@ -88,7 +96,7 @@ export default class Brands extends Component {
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
-							<Table.HeaderCell colSpan='3'>Brands ({this.state.brands.length})</Table.HeaderCell>
+							<Table.HeaderCell colSpan='4'>Brands ({this.state.brands.length})</Table.HeaderCell>
 						</Table.Row>
 						<Table.Row>
 							<Table.HeaderCell textAlign='center'>English Name</Table.HeaderCell>
@@ -108,7 +116,7 @@ export default class Brands extends Component {
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameAr}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={brand.logo} style={{width: 200}} /> : null}</Table.Cell>
 									<Table.Cell width="1" textAlign='center'>
-										<Button style={actionBtnStyle}>Edit</Button>
+										<Button style={actionBtnStyle} onClick={()=>this.setState({editOpen: true, targetBrand: brand})}>Edit</Button>
 										<Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true, targetBrandId: brand._id})} >Delete</Button>
 									</Table.Cell>
 								</Table.Row>
@@ -184,6 +192,97 @@ class BrandForm extends Component {
 					<Form.Field>
 						<label>Logo</label>
 						<input type="file" onChange={(event)=>this.newBrand.logo = event.currentTarget.files[0]} />
+					</Form.Field>
+					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
+				</Form>
+			</div>
+		)
+	}
+}
+
+class BrandFormEdit extends Component {
+	constructor(){
+		super();
+		this.state = {
+			editing: false,
+			error: null,
+			nameEn: null,
+			nameAr: null,
+			logo: null,
+			newLogo: null
+		}
+	}
+
+	componentDidMount(){
+		if(!this.props.brand._id){
+			console.error("No brand Id found");
+			this.setState({error: "Brand ID not found"});
+			return;
+		}
+		let { nameEn, nameAr, logo } = this.props.brand;
+		this.setState({
+			nameEn,
+			nameAr,
+			logo
+		})
+	}
+
+	handleSubmit = ()=>{
+		console.log(this.state);
+		this.setState({editing: true});
+		// setTimeout(()=>{
+		// 	this.setState({creating: false})
+		// }, 1000)
+		let formData = new FormData();
+		formData.append('nameEn', this.state.nameEn)
+		formData.append('nameAr', this.state.nameAr)
+		if(this.state.newLogo){
+			formData.append('logo', this.state.newLogo)
+		}
+		axios.put(`${process.env.URL || "http://localhost:3000"}/api/brands/${this.props.brand._id}`, formData, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			validateStatus: function(status){
+				return status < 500
+			}
+		})
+		.then((response)=>{
+			if(response.status < 300){
+				return this.props.context.setState({formOpen: false}, ()=>{
+					this.props.context.componentDidMount();
+				})
+			}
+			this.setState({error: "Invalid Input"})
+		})
+		.catch((err)=>{
+			this.setState({error: "Something went wrong"})
+		})
+	}
+	render(){
+		return(
+			<div style={{padding: '20px'}}>
+				<Form>
+					{
+						this.state.error?
+						<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+							{this.state.error}
+						</div>
+						:
+						null
+					}
+					<Form.Field>
+						<label>English Name</label>
+						<input type="text" onChange={(event)=>this.state.nameEn = event.currentTarget.value} value={this.state.nameEn} />
+					</Form.Field>
+					<Form.Field>
+						<label>Arabic Name</label>
+						<input type="text" onChange={(event)=>this.state.nameAr = event.currentTarget.value} value={this.state.nameAr} />
+					</Form.Field>
+					<Form.Field>
+						<label>Logo</label>
+						<img src={`${process.env.URL || "http://localhost:3000"}/api/file?url=${this.state.logo}`} width="200px" height="200px" />
+						<input type="file" onChange={(event)=>this.state.newLogo = event.currentTarget.files[0]} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
 				</Form>
