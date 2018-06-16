@@ -426,6 +426,15 @@ router.get('/users/:id', (req, res)=>{
 	})
 })
 
+router.get('/file', (req, res)=>{
+	const { url } = req.query;
+	publicS3.getObject({
+		Bucket: process.env.BUCKET_NAME,
+		Key: url
+	}).createReadStream()
+	.pipe(res);
+})
+
 router.route('/products')
 .get((req, res)=>{
 
