@@ -29,9 +29,11 @@ const UserSchema = new Schema({
 		required: true
 	},
 	favourites: {
-		type: [Schema.Types.ObjectId],
-		required: true,
-		ref: 'Product'
+		type: [{
+			type: Schema.Types.ObjectId,
+			ref: 'Product'
+		}],
+		required: true
 	},
 	verified: {
 		type: Boolean,
