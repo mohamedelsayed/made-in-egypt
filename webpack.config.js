@@ -24,7 +24,7 @@ var jsx = env => {
 		]
     },
     plugins: [
-        (env.NODE_ENV === 'production')?
+        (env && env.NODE_ENV === 'production')?
         (
             new uglifyPlugin(),
             new webpack.DefinePlugin({
@@ -32,7 +32,7 @@ var jsx = env => {
                 // 'http://localhost:3000': JSON.stringify(`http${process.env.SECURE? "s" : ""}://${ process.env.ROUTE || 'www.madeinegypt.ga' }`)
             }) 
         ) : null,
-        (env.STAGING)?
+        (env && env.STAGING)?
         (
             new webpack.DefinePlugin({
                 'process.env.URL': JSON.stringify("http://madeinegypt.ga")
