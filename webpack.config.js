@@ -4,7 +4,9 @@ const uglifyPlugin = require('uglifyjs-webpack-plugin');
 const copyWebpackPlugin = require('copy-webpack-plugin');
 // const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-var jsx = {
+var jsx = env => {
+
+    return {
     entry: path.join(__dirname,"public/jsx/App.jsx"),
     output: {
         filename: "bundle.js",
@@ -21,8 +23,27 @@ var jsx = {
 			} } 
 		]
     },
-    plugins: []
-        // .concat(new ExtractTextPlugin("styles.css"))
+    plugins: [
+        (env.NODE_ENV === 'production')?
+        (
+            new uglifyPlugin(),
+            new webpack.DefinePlugin({
+                // 'http://127.0.0.1:3000': JSON.stringify(`http${process.env.SECURE? "s" : ""}://${ process.env.ROUTE || 'www.madeinegypt.com' }`),
+                // 'http://localhost:3000': JSON.stringify(`http${process.env.SECURE? "s" : ""}://${ process.env.ROUTE || 'www.madeinegypt.ga' }`)
+            }) 
+        ) : null,
+        (env.STAGING)?
+        (
+            new webpack.DefinePlugin({
+                'process.env.URL': JSON.stringify("http://www.madeinegypt.ga")
+            })
+        ) : null
+        
+    ].filter((value)=>{
+        console.log("VALUE", value)
+        return value
+    })
+        /* // .concat(new ExtractTextPlugin("styles.css"))
         .concat((process.env.NODE_ENV === 'production')?
             (
                 new uglifyPlugin(),
@@ -35,10 +56,11 @@ var jsx = {
         .concat((process.env.STAGING)?
             [
                 new webpack.DefinePlugin({
-                    'process.env.URL': JSON.stringify(`http://${ process.env.ROUTE || 'www.madeinegypt.ga' }`)
+                    'process.env.URL': JSON.stringify("http://www.madeinegypt.ga")
                 })
             ] : []
-        )
+        ) */
+    }
 }
 
 module.exports = [jsx];
