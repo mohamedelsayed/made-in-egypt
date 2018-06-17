@@ -74,7 +74,8 @@ class CategoryForm extends Component {
 	constructor(){
 		super();
 		this.state = {
-			creating: false
+			creating: false,
+			error: null
 		}
 		this.newCategory = {
 
@@ -86,13 +87,21 @@ class CategoryForm extends Component {
 		// setTimeout(()=>{
 		// 	this.setState({creating: false})
 		// }, 1000)
-		axios.put(`${process.env.URL || "http://localhost:3000"}/api/admin/orders`, {
+		axios.post(`${process.env.URL || "http://localhost:3000"}/api/categories`, this.newCategory, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
+			},
+			validateStatus: function(status){
+				return status < 500
 			}
-		}, this.newCategory)
+		})
 		.then((reponse)=>{
-			this.componentDidMount();
+			if(response.status < 300){
+				this.props.context.componentDidMount();
+			} else {
+				// response code 409 with a conflict
+				this.setState({error: "This category has children. Delete the children before deleting this category"})
+			}
 		})
 		.catch((err)=>{
 			console.error(err);

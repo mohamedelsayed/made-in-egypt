@@ -25,12 +25,19 @@ var jsx = {
         // .concat(new ExtractTextPlugin("styles.css"))
         .concat((process.env.NODE_ENV === 'production')?
             (
-                new uglifyPlugin()
-                // new webpack.DefinePlugin({
+                new uglifyPlugin(),
+                new webpack.DefinePlugin({
                     // 'http://127.0.0.1:3000': JSON.stringify(`http${process.env.SECURE? "s" : ""}://${ process.env.ROUTE || 'www.madeinegypt.com' }`),
                     // 'http://localhost:3000': JSON.stringify(`http${process.env.SECURE? "s" : ""}://${ process.env.ROUTE || 'www.madeinegypt.ga' }`)
-                // }) 
+                }) 
             ) : []
+        )
+        .concat((process.env.STAGING)?
+            [
+                new webpack.DefinePlugin({
+                    'process.env.URL': JSON.stringify(`http://${ process.env.ROUTE || 'www.madeinegypt.ga' }`)
+                })
+            ] : []
         )
 }
 
