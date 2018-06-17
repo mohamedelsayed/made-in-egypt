@@ -35,7 +35,7 @@ var jsx = env => {
         (env.STAGING)?
         (
             new webpack.DefinePlugin({
-                'process.env.URL': JSON.stringify("http://www.madeinegypt.ga")
+                'process.env.URL': JSON.stringify("http://madeinegypt.ga")
             })
         ) : null
         
