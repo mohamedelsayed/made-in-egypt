@@ -1281,7 +1281,7 @@ router.route('/categories/:id')
 			if(!theParent){
 				return res.sendStatus(404);
 			}
-			Object.assign(theParent, {parentCategory});
+			Object.assign(updateObject, {parentCategory});
 		}
 		if(!theCategory){
 			return res.sendStatus(404);
@@ -1297,7 +1297,7 @@ router.route('/categories/:id')
 	try {
 		let theCategory = await Category.findById(req.params['id']).lean()
 		let children = await Category.find({parentCategory: req.params['id']}).lean()
-		if(!children || children.length === 0){
+		if(children && children.length > 0){
 			return res.sendStatus(409);
 		}
 		if(!theCategory){
