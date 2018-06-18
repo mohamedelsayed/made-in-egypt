@@ -18,7 +18,7 @@ export default class Brands extends Component {
 		}
 	}
 	componentDidMount(){
-		axios.get(`${process.env.URL || "http://localhost:3000"}/api/admin/brands`, {
+		axios.get(`/api/admin/brands`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			}
@@ -34,7 +34,7 @@ export default class Brands extends Component {
 		if(!this.state.targetBrandId){
 			return console.error("Brand ID undefined");
 		}
-		axios.delete(`${process.env.URL || "http://localhost:3000"}/api/brands/${this.state.targetBrandId}`, {
+		axios.delete(`/api/brands/${this.state.targetBrandId}`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			},
@@ -149,7 +149,7 @@ class BrandForm extends Component {
 		formData.append('nameEn', this.newBrand.nameEn)
 		formData.append('nameAr', this.newBrand.nameAr)
 		formData.append('logo', this.newBrand.logo)
-		axios.post(`${process.env.URL || "http://localhost:3000"}/api/brands`, formData, {
+		axios.post(`/api/brands`, formData, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			},
@@ -239,7 +239,7 @@ class BrandFormEdit extends Component {
 		if(this.state.newLogo){
 			formData.append('logo', this.state.newLogo)
 		}
-		axios.put(`${process.env.URL || "http://localhost:3000"}/api/brands/${this.props.brand._id}`, formData, {
+		axios.put(`/api/brands/${this.props.brand._id}`, formData, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			},
@@ -281,7 +281,7 @@ class BrandFormEdit extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Logo</label>
-						<img src={`${process.env.URL || "http://localhost:3000"}/api/file?url=${this.state.logo}`} width="200px" height="200px" />
+						<img src={`/api/file?url=${this.state.logo}`} width="200px" height="200px" />
 						<input type="file" onChange={(event)=>this.setState({newLogo: event.currentTarget.files[0]})} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.editing} /></Button>

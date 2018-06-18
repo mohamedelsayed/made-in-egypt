@@ -12,7 +12,7 @@ export default class Users extends Component {
 		}
 	}
 	componentDidMount(){
-		axios.get(`${process.env.URL || "http://localhost:3000"}/api/admin/users`, {
+		axios.get(`/api/admin/users`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			}

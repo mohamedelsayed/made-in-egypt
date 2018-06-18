@@ -12,7 +12,7 @@ export default class Categories extends Component {
 		}
 	}
 	componentDidMount(){
-		axios.get(`${process.env.URL || "http://localhost:3000"}/api/admin/categories`, {
+		axios.get(`/api/admin/categories`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			}
@@ -87,7 +87,7 @@ class CategoryForm extends Component {
 		// setTimeout(()=>{
 		// 	this.setState({creating: false})
 		// }, 1000)
-		axios.post(`${process.env.URL || "http://localhost:3000"}/api/categories`, this.newCategory, {
+		axios.post(`/api/categories`, this.newCategory, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			},
