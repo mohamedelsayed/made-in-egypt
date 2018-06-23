@@ -136,7 +136,9 @@ const ProductSchema = new Schema({
 
 ProductSchema.index({
 	nameEn: "text",
-	nameAr: "text"
+	nameAr: "text",
+	descriptionEn: "text",
+	descriptionAr: "text"
 })
 
 module.exports = mongoose.model('Product', ProductSchema);
