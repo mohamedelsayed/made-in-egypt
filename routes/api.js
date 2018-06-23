@@ -102,6 +102,8 @@ router.post('/admin/login', (req, res)=>{
 					return res.sendStatus(401);
 				}
 			})
+		} else {
+			return res.sendStatus(401)
 		}
 	})
 	.catch((err)=>{
