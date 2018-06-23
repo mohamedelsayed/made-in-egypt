@@ -22,9 +22,14 @@ const View = new Schema({
 		type: Schema.Types.ObjectId,
 		required: true,
 		ref: 'User'
+	},
+	createdAt: {
+		type: Date,
+		required: true,
+		default: Date.now
 	}
 }, {
-	timestamps: true
+	_id: false
 })
 
 const Rating = new Schema({
