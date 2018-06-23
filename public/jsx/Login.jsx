@@ -6,6 +6,9 @@ import axios from 'axios';
 export default class Login extends React.Component {
 	constructor(){
 		super();
+		this.state = {
+			error: ""
+		}
 
 		let username = "";
 		let password = "";
@@ -26,8 +29,10 @@ export default class Login extends React.Component {
 			console.log(response.status, response.data);
 			if(response.status === 200){
 				localStorage.setItem('auth', response.data.token);
+				this.props.changeView('products');
+			} else {
+				this.setState({error: "Incorrect username or password"})
 			}
-			this.props.changeView('products');
 		})
 		.catch((err)=>{
 			console.error(err);
@@ -59,6 +64,14 @@ export default class Login extends React.Component {
 							<Image src='/logo.png' />
 							{' '}Log-in to your account
 						</Header>
+						{
+							(this.state.error)?
+							<Header as='h2' color='teal' textAlign='center'>
+								{this.state.error}
+							</Header>
+							:
+							null
+						}
 						<Form size='large'>
 							<Segment stacked>
 								<Form.Input
