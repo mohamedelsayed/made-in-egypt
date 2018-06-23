@@ -447,10 +447,32 @@ router.route('/products')
 	 * Finds all products and filters them and sort them according to the query sent
 	*/
 
-	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo, pageNumber = 1 } = req.query;
+	let { query, sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo, pageNumber = 1 } = req.query;
 
 	let filter = {};
 	let sort = {};
+
+	if(query && query !== " "){
+		// filter["$text"] = {
+		// 	"$search": query
+		// }
+		// let rx = {$regex: /.*${query}.*/i}
+		let rx = { '$regex' : `.*${query}.*`, '$options' : 'i' }
+		filter["$or"] = [
+			{
+				nameEn: rx
+			},
+			{
+				nameAr: rx
+			},
+			{
+				descriptionEn: rx
+			},
+			{
+				descriptionAr: rx
+			},
+		]
+	}
 
 	if(filterByBrand){
 		try {
