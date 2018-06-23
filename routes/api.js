@@ -614,7 +614,27 @@ router.get('/latest', (req, res)=>{
 })
 
 router.get('/mostpopular', (req, res)=>{
-	return res.sendStatus(501);
+	Product.aggregate([
+		{
+			"$project": {
+				_id: 1,
+				viewCount: {"$size": "$views"}
+			}
+		},
+		{
+			"$sort": {viewCount: -1}
+		},
+		{
+			"$limit": 10
+		}
+	])
+	.then((products)=>{
+		res.send(products)
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500)
+	})
 })
 
 router.route('/products/:id')
