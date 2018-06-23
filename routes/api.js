@@ -84,12 +84,14 @@ router.post('/login', (req, res)=>{
 router.post('/admin/login', (req, res)=>{
 	let {username, password} = req.body;
 	Admin.findOne({
-		username: req.body.username
+		username
 	}).lean()
 	.then((admin)=>{
 		if(admin){
+			console.log("Admin found")
 			bcrypt.compare(password, admin.password, (err, correct)=>{
 				if(err){
+					console.log("Admin password error")
 					console.error(err);
 				}
 				if(correct){
@@ -99,10 +101,12 @@ router.post('/admin/login', (req, res)=>{
 						}, jwtSecret)
 					})
 				} else {
+					console.log("Admin password incorrect")
 					return res.sendStatus(401);
 				}
 			})
 		} else {
+			console.log("No admin found")
 			return res.sendStatus(401)
 		}
 	})
