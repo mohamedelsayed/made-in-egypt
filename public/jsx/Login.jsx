@@ -13,6 +13,7 @@ export default class Login extends React.Component {
 
 	handleSubmit = (event)=>{
 		event.preventDefault();
+		console.log("LOGGING IN")
 		axios.post(`/api/admin/login`, {
 			username: this.username,
 			password: this.password
