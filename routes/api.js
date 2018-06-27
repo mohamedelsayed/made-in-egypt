@@ -988,18 +988,18 @@ router.route('/orders')
 				res.sendStatus(500);
 				throw Error("Element unknown:", element);
 			}
-			if(!products[index].details){
+			if(!products[index].details || !_.isArray(products[index].details) || products[index].details.length === 0){
 				res.status(400).json({
-					error: "Product details not provided"
+					error: "Product details not provided or malformed"
 				})
 				throw Error("Product at index "+index+" has no details")
 			}
 			let detailIndex;
-			if(!products[index].details.size){
+			if(!products[index].details[0].size){
 				detailIndex = 0
 			} else {
 				detailIndex = _.findIndex(element.details, (entry)=>{
-					return entry.size === products[index].details.size
+					return entry.size === products[index].details[0].size
 				})
 			}
 			if(detailIndex < 0){
@@ -1008,23 +1008,24 @@ router.route('/orders')
 				})
 				throw Error("Size not found");
 			}
-			if(!products[index].details.quantity || products[index].details.quantity > element.details[detailIndex].quantity){
+			if(!products[index].details[0].quantity || products[index].details[0].quantity > element.details[detailIndex].quantity){
 				res.status(400).json({
 					error: "Quantity of product not sent or quatity is less than product quantity"
 				});
 				throw Error("Quantity conflict");
 			}
 			_checkProductAndSendFCMIfNeeded(products[index]._id)
+			console.log(products[index], element)
 			processedProducts.push({
 				productId: products[index]._id,
-				price: products[index].details.quantity * element.price,
-				details: products[index].details,
-				nameEn: products[index].nameEn,
-				nameAr: products[index].nameAr,
-				brand: products[index].brandId.nameEn,
-				imageUrl: products[index].photos.length > 1? products[index].photos[0] : undefined
+				price: products[index].details[0].quantity * element.price,
+				details: products[index].details[0],
+				nameEn: element.nameEn,
+				nameAr: element.nameAr,
+				brand: element.brandId.nameEn,
+				imageUrl: element.photos.length > 1? element.photos[0] : undefined
 			})
-			totalPrice += element.price * products[index].details.quantity
+			totalPrice += element.price * products[index].details[0].quantity
 		})
 		console.log("TOTAL", totalPrice, "SF", shippingFees)
 		totalPrice += shippingFees;
@@ -1123,34 +1124,34 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 				res.sendStatus(500);
 				throw Error("Element unknown:", element);
 			}
-			if(!products[index].details){
+			if(!products[index].details[0]){
 				res.status(400).json({
 					error: "Product details not provided"
 				})
 				throw Error("Product at index "+index+" has no details")
 			}
 			let detailIndex;
-			if(!products[index].details.size){
+			if(!products[index].details[0].size){
 				detailIndex = 0
 			} else {
 				console.log("Element details", element.details)
 				detailIndex = _.findIndex(element.details, (entry)=>{
-					return entry.size === products[index].details.size
+					return entry.size === products[index].details[0].size
 				})
 			}
 			if(detailIndex < 0){
 				res.status(400).json({
-					error: "Specified size for product " + products[index]._id + " not found. Allowed "+JSON.stringify(products[index].details)
+					error: "Specified size for product " + products[index]._id + " not found. Allowed "+JSON.stringify(products[index].details[0])
 				})
 				throw Error("Size not found");
 			}
-			if(!products[index].details.quantity || products[index].details.quantity > element.details[detailIndex].quantity){
+			if(!products[index].details[0].quantity || products[index].details[0].quantity > element.details[detailIndex].quantity){
 				res.status(400).json({
 					error: "Quantity of product not sent or quatity is less than product quantity"
 				});
 				throw Error("Quantity conflict");
 			}
-			totalPrice += element.price * products[index].details.quantity
+			totalPrice += element.price * products[index].details[0].quantity
 		})
 		let balanceToUse = 0;
 		if(req.user.balance > 0){
