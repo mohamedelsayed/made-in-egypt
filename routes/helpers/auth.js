@@ -11,6 +11,9 @@ module.exports = {
 			}
 			User.findById(decoded.id).lean()
 			.then((user)=>{
+				if(!user){
+					return res.status(401).send("No user found")
+				}
 				req.user = user;
 				next();
 			})
