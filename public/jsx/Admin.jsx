@@ -15,8 +15,24 @@ export default class Admin extends React.Component {
 			newAdminPassword: "",
 			newAdminPasswordRepeat: "",
 			newAdminError: "",
-			newAdminMessage: ""
+			newAdminMessage: "",
+			cashOnDeliveryFees: 0,
+			shippingFees: 0,
+			freeShippingMinimumOrder: 0,
+			configError: "",
+			configDisabled: true
 		}
+	}
+
+	componentDidMount(){
+		axios.get('/api/config')
+		.then((response)=>{
+			let { cashOnDeliveryFees, shippingFees, freeShippingMinimumOrder } = response.data
+			this.setState({cashOnDeliveryFees, shippingFees, freeShippingMinimumOrder, configDisabled: false})
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
 	}
 
 	handleChangePassword = ()=>{
@@ -95,6 +111,29 @@ export default class Admin extends React.Component {
 		}
 	}
 
+	handleEditConfig = ()=>{
+		this.setState({configDisabled: true})
+		axios.put('/api/config', {
+			cashOnDeliveryFees: this.state.cashOnDeliveryFees,
+			shippingFees: this.state.shippingFees,
+			freeShippingMinimumOrder: this.state.freeShippingMinimumOrder
+		}, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			}
+		})
+		.then((response)=>{
+			this.componentDidMount();
+		})
+		.catch((err)=>{
+			this.setState({configError: "Something went wrong"})
+			console.error(err);
+		})
+		.then(()=>{
+			this.setState({configDisabled: false});
+		})
+	}
+
 	render(){
 		const inputFieldStyle = {
 			borderWidth: 1,
@@ -150,6 +189,22 @@ export default class Admin extends React.Component {
 					<input type="password" value={this.state.newAdminPassword} placeholder="New Password" onChange={(event)=>this.setState({newAdminPassword: event.currentTarget.value})} style={inputFieldStyle} /><br/>
 					<input type="password" value={this.state.newAdminPasswordRepeat} placeholder="New Password Repeat" onChange={(event)=>this.setState({newAdminPasswordRepeat: event.currentTarget.value})} style={inputFieldStyle} /><br/>
 					<Button onClick={this.handleNewAdmin}>Create</Button>
+				</div>
+				<div>
+					{/* TODO: Edit configs */}
+					<h2>Edit Configuration</h2>
+					{
+						this.state.configError?
+						<div style={{color: 'red', padding: '20px'}}>
+							{this.state.configError}
+						</div>
+						:
+						null
+					}
+					Cash On Delivery Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.cashOnDeliveryFees} min="0" onChange={(event)=>this.setState({cashOnDeliveryFees: event.currentTarget.valueAsNumber})} /><br/>
+					Shipping Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.shippingFees} min="0" onChange={(event)=>this.setState({shippingFees: event.currentTarget.valueAsNumber})} /><br/>
+					Free Shipping Minimum Order: <input disabled={this.state.configDisabled} type="number" value={this.state.freeShippingMinimumOrder} min="0" onChange={(event)=>this.setState({freeShippingMinimumOrder: event.currentTarget.valueAsNumber})} /><br/>
+					<Button onClick={this.handleEditConfig}>Edit</Button>
 				</div>
 				<div>
 					{/* TODO: Generate reports */}
