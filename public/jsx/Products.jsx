@@ -9,7 +9,8 @@ export default class Products extends Component {
 		super();
 		this.state  = {
 			products: [],
-
+			brands: [],
+			categories: [],
 			featured: "no"
 		}
 	}
@@ -24,7 +25,7 @@ export default class Products extends Component {
 		})
 		.then((response)=>{
 			if(response.status == 200){
-				this.setState({products: response.data});
+				this.setState({products: response.data.products, brands: response.data.brands, categories: response.data.categories});
 			} else {
 				if(response.status == 401){
 					localStorage.removeItem('auth');
@@ -109,7 +110,15 @@ export default class Products extends Component {
 class ProductForm extends Component {
 	constructor(){
 		super();
-		this.state = {}
+		this.state = {
+			brands: [],
+			categories: []
+		}
+	}
+
+	componentDidMount(){
+		this.setState({brands: this.props.context.state.brands.map((brand)=>Object.assign({},{key: brand._id, value: brand._id, text: brand.nameEn+" - "+brand.nameAr})),
+									categories: this.props.context.state.categories.map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))})
 	}
 
 	render(){
@@ -118,52 +127,52 @@ class ProductForm extends Component {
 				<Form>
 					<Form.Field>
 						<label>English Name</label>
-						<input />
+						<input type="text" onChange={(event)=>this.setState({ nameEn: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Arabic Name</label>
-						<input />
+						<input type="text" onChange={(event)=>this.setState({ nameAr: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>English Description</label>
-						<input />
+						<input type="text" onChange={(event)=>this.setState({ descriptionEn: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Arabic Description</label>
-						<input />
+						<input type="text" onChange={(event)=>this.setState({ descriptionAr: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Price</label>
-						<input />
+						<input type="text" onChange={(event)=>this.setState({ price: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Discount</label>
-						<input />
+						<input type="text" onChange={(event)=>this.setState({ discount: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Color</label>
-						<input />
+						<input type="text" onChange={(event)=>this.setState({ color: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Details</label>
 						<div>
 							<label>Quantity</label>
-							<input />
+							<input type="text" onChange={(event)=>this.setState({ quantity: event.currentTarget.value})} />
 							<label>Size</label>
-							<input />
+							<input type="text" onChange={(event)=>this.setState({ size: event.currentTarget.value})} />
 						</div>
 					</Form.Field>
 					<Form.Field>
 						<label>Photos</label>
-						<input />
+						<input type="file" multiple onChange={(event)=>this.setState({photos: event.currentTarget.files})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Brand</label>
-						<Select />
+						<Select options={this.state.brands} />
 					</Form.Field>
 					<Form.Field>
 						<label>Category</label>
-						<Select />
+						<Select options={this.state.categories} />
 					</Form.Field>
 					<Form.Field>
 						<label>Featured</label>

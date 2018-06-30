@@ -213,6 +213,8 @@ router.route('/admin/products')
 .all(authenticateAdmin)
 .get((req, res)=>{
 	// Product.find().populate('brandId').populate('categoryId')
+	let theProducts, theBrands, theCategories;
+
 	Product.aggregate([
 		{
 			$lookup: {
@@ -266,7 +268,16 @@ router.route('/admin/products')
 		}
 	])
 	.then((products)=>{
-		return res.send(products);
+		theProducts = products;
+		return Category.find().lean()
+	})
+	.then((categories)=>{
+		theCategories = categories;
+		return Brand.find().lean()
+	})
+	.then((brands)=>{
+		theBrands = brands;
+		return res.send({products: theProducts, brands: theBrands, categories: theCategories});
 	})
 	.catch((err)=>{
 		console.error(err);
