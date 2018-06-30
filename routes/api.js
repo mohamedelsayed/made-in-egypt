@@ -309,8 +309,27 @@ router.route('/admins')
 		})
 	})
 })
-.put(authenticateAdmin, (req, res)=>{
-	res.sendStatus(501);
+.put(authenticateAdmin, async (req, res)=>{
+	// res.sendStatus(501);
+	let { oldPassword, newPassword } = req.body;
+	try {
+		let match = await bcrypt.compare(oldPassword, req.admin.password)
+		if(match){
+			let encPassword = await bcrypt.hash(newPassword, 10)
+			await Admin.findByIdAndUpdate(req.admin._id, {
+				password: encPassword
+			}, {
+				new: true
+			})
+			return res.sendStatus(200);
+		}
+		return res.status(400).json({
+			error: "Old password is incorrect"
+		})
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
+	}
 })
 
 // TODO: add authenticateAdmin for fetching all users route
