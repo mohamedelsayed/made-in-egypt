@@ -1010,7 +1010,7 @@ router.route('/orders')
 				detailIndex = 0
 			} else {
 				detailIndex = _.findIndex(element.details, (entry)=>{
-					return entry.size === products[index].details[0].size
+					return entry.size == products[index].details[0].size
 				})
 			}
 			if(detailIndex < 0){
