@@ -1147,7 +1147,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 			} else {
 				console.log("Element details", element.details, ". Sent details:", products[index].details)
 				detailIndex = _.findIndex(element.details, (entry)=>{
-					return entry.size === products[index].details[0].size
+					return entry.size == products[index].details[0].size
 				})
 			}
 			if(detailIndex < 0){
