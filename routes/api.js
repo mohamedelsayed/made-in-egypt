@@ -276,7 +276,7 @@ router.route('/admin/products')
 		return Brand.find().lean()
 	})
 	.then((brands)=>{
-		theBrands = brands;
+		theBrands = brands;																																																																																																		
 		return res.send({products: theProducts, brands: theBrands, categories: theCategories});
 	})
 	.catch((err)=>{
@@ -1145,7 +1145,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 			if(!products[index].details[0].size){
 				detailIndex = 0
 			} else {
-				console.log("Element details", element.details)
+				console.log("Element details", element.details, ". Sent details:", products[index].details)
 				detailIndex = _.findIndex(element.details, (entry)=>{
 					return entry.size === products[index].details[0].size
 				})
