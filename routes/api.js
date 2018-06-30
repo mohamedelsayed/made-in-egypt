@@ -291,21 +291,31 @@ router.route('/admin/products')
 router.route('/admins')
 .post(authenticateAdmin, (req, res)=>{
 	let { username, password } = req.body;
-	bcrypt.hash(password, 10, (err, hash)=>{
-		if(err){
-			console.error(err);
-			return res.sendStatus(500);
+	Admin.find({
+		username
+	}).lean()
+	.then((admin)=>{
+		if(admin.length > 0){
+			return res.status(400).json({
+				error: "Admin with same username already exists"
+			})
 		}
-		Admin.create({
-			username,
-			password: hash
-		})
-		.then((created)=>{
-			res.sendStatus(201);
-		})
-		.catch((err)=>{
-			console.error(err);
-			res.sendStatus(500);
+		bcrypt.hash(password, 10, (err, hash)=>{
+			if(err){
+				console.error(err);
+				return res.sendStatus(500);
+			}
+			Admin.create({
+				username,
+				password: hash
+			})
+			.then((created)=>{
+				res.sendStatus(201);
+			})
+			.catch((err)=>{
+				console.error(err);
+				res.sendStatus(500);
+			})
 		})
 	})
 })
