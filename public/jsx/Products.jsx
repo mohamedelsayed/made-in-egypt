@@ -186,6 +186,7 @@ class ProductForm extends Component {
 			}
 		})
 		.then((response)=>{
+			return console.log(response.status, response.data)
 			if(response.status < 300){
 				this.props.context.componentDidMount();
 				return this.props.context.setState({createOpen: false});

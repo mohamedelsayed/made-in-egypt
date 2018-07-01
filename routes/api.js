@@ -560,12 +560,15 @@ router.route('/products')
 .post(upload.array('photos'), (req, res)=>{
 	let { nameEn, nameAr, descriptionEn, descriptionAr, price, details, category, brand, color, featured } = req.body;
 	details = JSON.parse(details);
-	console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, category, brand, color, featured)
-	console.log(details);
 	if(!_.isArray(details) || _.isUndefined(details)){
 		return res.status(400).json({
 			error: "Details is not an array or undefined"
 		});
+	}
+	if(details.length < 1){
+		return res.status(400).json({
+			error: "Details are missing"
+		})
 	}
 	co(function*(){
 		let theCategory = yield Category.findOne({_id: category}).lean();
@@ -575,8 +578,25 @@ router.route('/products')
 				error: "Brand and/or category not found"
 			})
 		}
+		let uploadArray = [];
+		let photos = []
+		console.log(req);
+		if(req.files && req.files.length > 0){
+			uploadArray = req.files.map((file)=>{
+				let photoName = randomstring.generate(15)+"."+path.extname(file)
+				return publicS3.putObject({
+					Body: file.buffer,
+					Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+					Key: photoName
+				}).promise()
+			})
+			yield uploadArray;
+			photos = uploadArray.map((uploaded)=>{
+				return uploaded.Location
+			})
+		}
 		yield Product.create({
-			nameEn, nameAr, descriptionEn, descriptionAr, price, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"),
+			nameEn, nameAr, descriptionEn, descriptionAr, price, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
 			ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 		})
 		return res.sendStatus(201);
