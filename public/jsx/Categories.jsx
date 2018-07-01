@@ -10,7 +10,8 @@ export default class Categories extends Component {
 		this.state = {
 			categories: [],
 			editOpen: false,
-			deleteOpen: false
+			deleteOpen: false,
+			createOpen: false
 		}
 	}
 	componentDidMount(){
@@ -52,6 +53,7 @@ export default class Categories extends Component {
 					trigger={<Button>Create New Category</Button>}
 					header="New Category"
 					content={<CategoryForm context={this} />}
+					open={this.state.createOpen}
 				/>
 				<Modal
 					header="Edit Category"
@@ -130,6 +132,7 @@ class CategoryForm extends Component {
 		.then((response)=>{
 			if(response.status < 300){
 				this.props.context.componentDidMount();
+				this.props.context.setState({createOpen: false});
 			} else {
 				// response code 409 with a conflict
 				this.setState({error: "This category has children. Delete the children before deleting this category"})
@@ -137,12 +140,20 @@ class CategoryForm extends Component {
 		})
 		.catch((err)=>{
 			console.error(err);
-			// TODO: display error
+			this.setState({error: "Something went wrong"});
 		})
 	}
 	render(){
 		return(
 			<div style={{padding: '20px'}}>
+				{
+					this.state.error?
+					<div>
+						{this.state.error}
+					</div>
+					:
+					null
+				}
 				<Form>
 					<Form.Field>
 						<label>English Name</label>
