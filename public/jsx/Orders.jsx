@@ -74,7 +74,13 @@ export default class Orders extends Component {
 											{JSON.stringify(item.details)}
 										</div>)}
 									</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{order.totalPrice}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>
+									{
+										order.items.reduce((accumilator, item)=>{
+											return accumilator + (item.price * item.details.quantity)
+										}, 0)
+									}
+									</Table.Cell>
 									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle}>Confirm</Button><Button style={actionBtnStyle}>Cancel</Button></Table.Cell>
 								</Table.Row>
 								)
