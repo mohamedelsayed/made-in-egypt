@@ -1171,7 +1171,7 @@ router.route('/orders')
 					shippingFees: shippingFees,
 					paymentMethod,
 					state: 'Pending',
-					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY'),
+					deliveryDate: moment().add(14, 'd').valueOf(),
 					items: processedProducts
 				})
 				return res.sendStatus(201);
