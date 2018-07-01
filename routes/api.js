@@ -557,21 +557,26 @@ router.route('/products')
 	})
 })
 .all(authenticateAdmin)
-.post((req, res)=>{
-	let { nameEn, nameAr, descriptionEn, descriptionAr, price, details, category, brand, color } = req.body;
-	if(!_.isArray(details) && !_.isUndefined(details)){
-		return res.sendStatus(400);
+.post(upload.array('photos'), (req, res)=>{
+	let { nameEn, nameAr, descriptionEn, descriptionAr, price, details, category, brand, color, featured } = req.body;
+	details = JSON.parse(details);
+	console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, category, brand, color, featured)
+	console.log(details);
+	if(!_.isArray(details) || _.isUndefined(details)){
+		return res.status(400).json({
+			error: "Details is not an array or undefined"
+		});
 	}
 	co(function*(){
 		let theCategory = yield Category.findOne({_id: category}).lean();
 		let theBrand = yield Brand.findOne({_id: brand}).lean();
 		if(!theBrand || !theCategory){
-			return res.json({
-				failure: "Brand and/or category not found"
+			return res.status(400).json({
+				error: "Brand and/or category not found"
 			})
 		}
 		yield Product.create({
-			nameEn, nameAr, descriptionEn, descriptionAr, price, details, categoryId: theCategory._id, brandId: theBrand._id, color,
+			nameEn, nameAr, descriptionEn, descriptionAr, price, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"),
 			ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 		})
 		return res.sendStatus(201);

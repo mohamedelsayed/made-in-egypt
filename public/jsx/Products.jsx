@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, Table, Modal, Button, Form, Select, Radio } from 'semantic-ui-react'
+import { Icon, Table, Modal, Button, Form, Select, Radio, Dropdown } from 'semantic-ui-react'
 
 import axios from 'axios';
 
@@ -66,9 +66,11 @@ export default class Products extends Component {
 			<div style={{padding: '15px', overflowX: 'scroll'}}>
 				<h1 style={{textAlign: 'center'}}>Products</h1>
 				<Modal
-					trigger={<Button>Create New Product</Button>}
+					trigger={<Button onClick={()=>this.setState({createOpen: true})}>Create New Product</Button>}
 					header="New Product"
 					content={<ProductForm context={this} />}
+					open={this.state.createOpen}
+					onClose={()=>this.setState({createOpen: false})}
 				/>
 				<Modal
 					// trigger={<Button>Create New Product</Button>}
@@ -140,8 +142,10 @@ class ProductForm extends Component {
 	constructor(){
 		super();
 		this.state = {
+			error: "",
 			brands: [],
-			categories: []
+			categories: [],
+			details: [{}]
 		}
 	}
 
@@ -150,10 +154,62 @@ class ProductForm extends Component {
 									categories: this.props.context.state.categories.map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))})
 	}
 
+	handleSubmit = ()=>{
+		this.setState({error: ""})
+		let { nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured } = this.state;
+		details = details.filter((entry)=>{
+			return entry.quantity
+		})
+		if(!(nameEn || nameAr || descriptionEn || descriptionAr || price || discount || color || details.length > 0 || photos || brand || category || featured)){
+			return this.setState({error: "Form is incomplete"})
+		}
+		console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured);
+		let data = new FormData();
+		data.append('nameEn', nameEn)
+		data.append('nameAr', nameAr)
+		data.append('descriptionEn', descriptionEn)
+		data.append('descriptionAr', descriptionAr)
+		data.append('price', price)
+		data.append('discount', discount)
+		data.append('color', color)
+		data.append('details', JSON.stringify(details))
+		data.append('photos', photos)
+		data.append('brand', brand)
+		data.append('category', category)
+		data.append('featured', featured)
+		axios.post('/api/products', data, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			validateStatus: function(status){
+				return status < 500
+			}
+		})
+		.then((response)=>{
+			if(response.status < 300){
+				this.props.context.componentDidMount();
+				return this.props.context.setState({createOpen: false});
+			}
+			this.setState({error: response.data.error});
+		})
+		.catch((err)=>{
+			console.error(err);
+			this.setState({error: "Something went wrong"});
+		})
+	}
+
 	render(){
 		return(
 			<div style={{padding: '20px'}}>
 				<Form>
+					{
+						this.state.error?
+						<div style={{color: 'red'}}>
+							{this.state.error}
+						</div>
+						:
+						null
+					}
 					<Form.Field>
 						<label>English Name</label>
 						<input type="text" onChange={(event)=>this.setState({ nameEn: event.currentTarget.value})} />
@@ -172,11 +228,11 @@ class ProductForm extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Price</label>
-						<input type="text" onChange={(event)=>this.setState({ price: event.currentTarget.value})} />
+						<input type="number" min="0" onChange={(event)=>this.setState({ price: event.currentTarget.valueAsNumber})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Discount</label>
-						<input type="text" onChange={(event)=>this.setState({ discount: event.currentTarget.value})} />
+						<input type="number" min="0" max="100" onChange={(event)=>this.setState({ discount: event.currentTarget.valueAsNumber})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Color</label>
@@ -184,12 +240,27 @@ class ProductForm extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Details</label>
-						<div>
-							<label>Quantity</label>
-							<input type="text" onChange={(event)=>this.setState({ quantity: event.currentTarget.value})} />
-							<label>Size</label>
-							<input type="text" onChange={(event)=>this.setState({ size: event.currentTarget.value})} />
-						</div>
+						{
+							this.state.details.map((d, index)=>{
+								return(
+									<div>
+										<label>Quantity</label>
+										<input type="number" min="0" onChange={(event)=>{
+											let detailsUpdate = this.state.details;
+											detailsUpdate[index].quantity = event.currentTarget.value
+											this.setState({ details: detailsUpdate })
+										}} />
+										<label>Size</label>
+										<input type="text" onChange={(event)=>{
+											let detailsUpdate = this.state.details;
+											detailsUpdate[index].size = event.currentTarget.value
+											this.setState({ details: detailsUpdate })
+										}} />
+									</div>
+								)
+							})
+						}
+						<Button onClick={()=>this.setState({details: this.state.details.concat([{}])})}>Add Detail</Button>
 					</Form.Field>
 					<Form.Field>
 						<label>Photos</label>
@@ -197,17 +268,18 @@ class ProductForm extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Brand</label>
-						<Select options={this.state.brands} />
+						<Dropdown placeholder="Select Brand" options={this.state.brands} onChange={(event, data)=>this.setState({brand: data.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Category</label>
-						<Select options={this.state.categories} />
+						<Dropdown placeholder="Select Category" options={this.state.categories} onChange={(event, data)=>this.setState({category: data.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Featured</label>
 						<Radio label="Yes" checked={this.state.featured === 'yes'} value="yes" onChange={(e, {value})=>this.setState({featured: value})} />
 						<Radio label="No" checked={this.state.featured === 'no'} value="no" onChange={(e, {value})=>this.setState({featured: value})} />
 					</Form.Field>
+					<Button onClick={this.handleSubmit}>Create Product</Button>
 				</Form>
 			</div>
 		)
