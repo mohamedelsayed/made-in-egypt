@@ -11,7 +11,11 @@ export default class Products extends Component {
 			products: [],
 			brands: [],
 			categories: [],
-			featured: "no"
+			featured: "no",
+			deleteOpen: false,
+			editOpen: false,
+			createOpen: false,
+			targetProductId: undefined
 		}
 	}
 
@@ -39,6 +43,21 @@ export default class Products extends Component {
 		})
 	}
 
+	handleDelete = ()=>{
+		axios.delete(`/api/products/${this.state.targetProductId}`, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			}
+		})
+		.then((response)=>{
+			this.componentDidMount();
+			this.setState({deleteOpen: false, targetProductId: undefined});
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+
 	render(){
 		const actionBtnStyle = {
 			margin: '3px auto'
@@ -50,6 +69,16 @@ export default class Products extends Component {
 					trigger={<Button>Create New Product</Button>}
 					header="New Product"
 					content={<ProductForm context={this} />}
+				/>
+				<Modal
+					// trigger={<Button>Create New Product</Button>}
+					header="Delete Product?"
+					actions={[
+						<Button style={actionBtnStyle} key={"deleteProductNo"} onClick={()=>this.setState({deleteOpen: false, targetProductId: undefined})} >No</Button>,
+						<Button style={actionBtnStyle} key={"deleteProductYes"} onClick={this.handleDelete}>Yes</Button>
+					]}
+					onClose={()=>this.setState({deleteOpen: false, targetProductId: undefined})}
+					open={this.state.deleteOpen}
 				/>
 				<Table celled striped>
 					<Table.Header>
@@ -95,7 +124,7 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{JSON.stringify(product.productDetails)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell>
-									<Table.Cell textAlign='center'><Button style={actionBtnStyle}>Edit</Button><Button style={actionBtnStyle}>Delete</Button></Table.Cell>
+									<Table.Cell textAlign='center'><Button style={actionBtnStyle}>Edit</Button><Button style={actionBtnStyle} onClick={()=>this.setState({targetProductId: product._id, deleteOpen: true})}>Delete</Button></Table.Cell>
 								</Table.Row>
 								)
 							})

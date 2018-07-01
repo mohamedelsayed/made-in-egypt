@@ -556,7 +556,8 @@ router.route('/products')
 		res.sendStatus(500);
 	})
 })
-.post(authenticateAdmin, (req, res)=>{
+.all(authenticateAdmin)
+.post((req, res)=>{
 	let { nameEn, nameAr, descriptionEn, descriptionAr, price, details, category, brand, color } = req.body;
 	if(!_.isArray(details) && !_.isUndefined(details)){
 		return res.sendStatus(400);
@@ -732,7 +733,8 @@ router.route('/products/:id')
 		console.error(err);
 	})
 })
-.put(authenticateAdmin, (req, res)=>{
+.all(authenticateAdmin)
+.put((req, res)=>{
 	let { nameEn,	nameAr,	description, price,	quantity,
 				ratingTotal, categoryId, brandId,	productDetailsEn,
 				productDetailsAr } = req.body;
@@ -774,6 +776,17 @@ router.route('/products/:id')
 	.catch((err)=>{
 		console.error(err);
 		res.sendStatus(500);
+	})
+})
+.delete((req, res)=>{
+	let productId = req.params.id;
+	Product.findByIdAndRemove(productId).lean()
+	.then(()=>{
+		res.sendStatus(204);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500)
 	})
 })
 
