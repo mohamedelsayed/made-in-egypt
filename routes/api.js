@@ -1094,7 +1094,7 @@ router.route('/orders')
 					shippingFees: shippingFees,
 					paymentMethod,
 					state: 'Pending',
-					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY'),
+					deliveryDate: moment().add(14, 'd').valueOf(),
 					items:processedProducts,
 					address,
 					phone
@@ -1103,6 +1103,7 @@ router.route('/orders')
 					res.status(500).json({
 						error: "Order failed"
 					})
+					throw Error("Order failed. No order")
 				}
 
 				let theToken = (Object.keys(creditCard).length < 2)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.cardHolderName, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>{console.error(err); res.status(400).json({error: "Credit card info provided are not correct or incomplete"})})
