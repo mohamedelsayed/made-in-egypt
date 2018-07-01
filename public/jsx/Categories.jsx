@@ -50,7 +50,7 @@ export default class Categories extends Component {
 			<div style={{padding: '15px'}}>
 				<h1 style={{textAlign: 'center'}}>Categories</h1>
 				<Modal
-					trigger={<Button>Create New Category</Button>}
+					trigger={<Button onClick={()=>this.setState({createOpen: true})}>Create New Category</Button>}
 					header="New Category"
 					content={<CategoryForm context={this} />}
 					open={this.state.createOpen}
