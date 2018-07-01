@@ -580,18 +580,17 @@ router.route('/products')
 		}
 		let uploadArray = [];
 		let photos = []
-		console.log(req);
 		if(req.files && req.files.length > 0){
 			uploadArray = req.files.map((file)=>{
-				let photoName = randomstring.generate(15)+"."+path.extname(file)
-				return publicS3.putObject({
+				let photoName = randomstring.generate(15)+path.extname(file.originalname)
+				return publicS3.upload({
 					Body: file.buffer,
 					Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
 					Key: photoName
 				}).promise()
 			})
-			yield uploadArray;
-			photos = uploadArray.map((uploaded)=>{
+			let doneUpload = yield uploadArray;
+			photos = doneUpload.map((uploaded)=>{
 				return uploaded.Location
 			})
 		}

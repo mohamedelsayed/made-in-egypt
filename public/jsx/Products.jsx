@@ -170,9 +170,15 @@ class ProductForm extends Component {
 		data.append('descriptionEn', descriptionEn)
 		data.append('descriptionAr', descriptionAr)
 		data.append('price', price)
-		data.append('discount', discount)
+		if(discount){
+			data.append('discount', discount)
+		}
 		data.append('color', color)
 		data.append('details', JSON.stringify(details))
+		console.log(typeof photos);
+		Object.keys(photos).forEach((photoKey)=>{
+			data.append('photos', photos[photoKey], photos[photoKey].name);
+		})
 		data.append('photos', photos)
 		data.append('brand', brand)
 		data.append('category', category)
@@ -186,7 +192,6 @@ class ProductForm extends Component {
 			}
 		})
 		.then((response)=>{
-			return console.log(response.status, response.data)
 			if(response.status < 300){
 				this.props.context.componentDidMount();
 				return this.props.context.setState({createOpen: false});
