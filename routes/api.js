@@ -1160,6 +1160,7 @@ router.route('/orders')
 						})
 					}
 				} else {
+					await Order.findByIdAndRemove(theOrder._id).catch((err)=>console.error(err));
 					res.status(400).send("Incorrect credit card info")
 					throw Error("Incorrect credit card info")
 				}
