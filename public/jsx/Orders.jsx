@@ -31,11 +31,11 @@ export default class Orders extends Component {
 		return(
 			<div style={{padding: '15px', overflowX: 'scroll'}}>
 				<h1 style={{textAlign: 'center'}}>Orders</h1>
-				<Modal
+				{/* <Modal
 					trigger={<Button>Create New Order</Button>}
 					header="New Order"
 					content={<OrderForm context={this} />}
-				/>
+				/> */}
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
@@ -105,42 +105,42 @@ export default class Orders extends Component {
 	}
 }
 
-class OrderForm extends Component {
-	constructor(){
-		super();
-		this.state = {
-			creating: false
-		}
-		this.newCategory = {
+// class OrderForm extends Component {
+// 	constructor(){
+// 		super();
+// 		this.state = {
+// 			creating: false
+// 		}
+// 		this.newCategory = {
 
-		}
-	}
-	handleSubmit = ()=>{
-		console.log(this.newCategory);
-		this.setState({creating: true});
-		setTimeout(()=>{
-			this.setState({creating: false})
-		}, 1000)
-	}
-	render(){
-		return(
-			<div style={{padding: '20px'}}>
-				<Form>
-					<Form.Field>
-						<label>English Name</label>
-						<input type="text" onChange={(event)=>this.newCategory.nameEn = event.currentTarget.value} />
-					</Form.Field>
-					<Form.Field>
-						<label>Arabic Name</label>
-						<input type="text" onChange={(event)=>this.newCategory.nameAr = event.currentTarget.value} />
-					</Form.Field>
-					<Form.Field>
-						<label>Logo</label>
-						<input type="file" onChange={(event)=>this.newCategory.logo = event.currentTarget.files[0]} />
-					</Form.Field>
-					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
-				</Form>
-			</div>
-		)
-	}
-}
+// 		}
+// 	}
+// 	handleSubmit = ()=>{
+// 		console.log(this.newCategory);
+// 		this.setState({creating: true});
+// 		setTimeout(()=>{
+// 			this.setState({creating: false})
+// 		}, 1000)
+// 	}
+// 	render(){
+// 		return(
+// 			<div style={{padding: '20px'}}>
+// 				<Form>
+// 					<Form.Field>
+// 						<label>English Name</label>
+// 						<input type="text" onChange={(event)=>this.newCategory.nameEn = event.currentTarget.value} />
+// 					</Form.Field>
+// 					<Form.Field>
+// 						<label>Arabic Name</label>
+// 						<input type="text" onChange={(event)=>this.newCategory.nameAr = event.currentTarget.value} />
+// 					</Form.Field>
+// 					<Form.Field>
+// 						<label>Logo</label>
+// 						<input type="file" onChange={(event)=>this.newCategory.logo = event.currentTarget.files[0]} />
+// 					</Form.Field>
+// 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
+// 				</Form>
+// 			</div>
+// 		)
+// 	}
+// }
