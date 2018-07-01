@@ -62,8 +62,8 @@ export default class Orders extends Component {
 								<Table.Row key={Math.random().toFixed(5)}>
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, orderId, orderId, orderDetailsEn, orderDetailsAr, views, reviews */}
 									<Table.Cell width="1" collapsing textAlign='center'>{order.userId.email}</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{order.userId.phone}</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{order.userId.address}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.phone || order.userId.phone}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.address || order.userId.address}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.shippingFees}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.paymentMethod}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.state}</Table.Cell>

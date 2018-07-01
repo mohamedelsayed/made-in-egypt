@@ -1011,7 +1011,7 @@ router.route('/orders')
 	})
 })
 .post(authenticateUser, async (req, res)=>{
-	let { products, paymentMethod, creditCard, shippingFees } = req.body;
+	let { products, paymentMethod, creditCard, shippingFees, address, phone } = req.body;
 	if(!_.isArray(products) || products.length < 1 || !shippingFees){
 		return res.sendStatus(400);
 	}
@@ -1095,7 +1095,9 @@ router.route('/orders')
 					paymentMethod,
 					state: 'Pending',
 					deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY'),
-					items:processedProducts
+					items:processedProducts,
+					address,
+					phone
 				}).catch((err)=>console.log("Order failed to create created", err))
 				if(!theOrder){
 					res.status(500).json({
@@ -1147,7 +1149,7 @@ router.route('/orders')
 })
 
 router.post('/orders/mock', authenticateUser, async (req, res)=>{
-	let { products, shippingFees } = req.body;
+	let { products, shippingFees, address, phone } = req.body;
 	if(!_.isArray(products) || products.length < 1 || !shippingFees){
 		return res.sendStatus(400);
 	}
@@ -1206,6 +1208,8 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 			balanceToBeUsed: balanceToUse,
 			shippingFees: shippingFees,
 			totalPrice,
+			address,
+			phone,
 			deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')
 		});
 	} catch(err) {

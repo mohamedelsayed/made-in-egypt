@@ -74,6 +74,12 @@ const OrderSchema = new Schema({
 		type: Date,
 		required: true
 	},
+	address: {
+		type: String
+	},
+	phone: {
+		type: String
+	}
 }, {
 	timestamps: true
 })
