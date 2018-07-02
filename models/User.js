@@ -37,7 +37,8 @@ const UserSchema = new Schema({
 	},
 	verified: {
 		type: Boolean,
-		required: true
+		required: true,
+		default: false
 	},
 	fcmToken: {
 		type: String
