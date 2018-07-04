@@ -1095,14 +1095,14 @@ router.route('/orders')
 			console.log(products[index], element)
 			processedProducts.push({
 				productId: products[index]._id,
-				price: products[index].details[0].quantity * element.price,
+				price: products[index].details[0].quantity * element.price * (element.discount? 1 - (element.discount/100) : 1),
 				details: products[index].details[0],
 				nameEn: element.nameEn,
 				nameAr: element.nameAr,
 				brand: element.brandId.nameEn,
 				imageUrl: element.photos.length > 1? element.photos[0] : undefined
 			})
-			totalPrice += element.price * products[index].details[0].quantity
+			totalPrice += element.price * products[index].details[0].quantity * (element.discount? 1 - (element.discount/100) : 1)
 		})
 		console.log("TOTAL", totalPrice, "SF", shippingFees)
 		totalPrice += shippingFees;
@@ -1232,7 +1232,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 				});
 				throw Error("Quantity conflict");
 			}
-			totalPrice += element.price * products[index].details[0].quantity
+			totalPrice += element.price * products[index].details[0].quantity * (element.discount? 1 - (element.discount/100) : 1)
 		})
 		let balanceToUse = 0;
 		if(req.user.balance > 0){

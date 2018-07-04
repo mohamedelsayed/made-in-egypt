@@ -77,7 +77,7 @@ export default class Orders extends Component {
 									<Table.Cell width="1" collapsing textAlign='center'>
 									{
 										order.items.reduce((accumilator, item)=>{
-											return accumilator + (item.price * item.details.quantity)
+											return accumilator + item.price
 										}, 0)
 									}
 									</Table.Cell>
