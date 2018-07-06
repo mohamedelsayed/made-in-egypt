@@ -558,7 +558,7 @@ router.route('/products')
 })
 .all(authenticateAdmin)
 .post(upload.array('photos'), (req, res)=>{
-	let { nameEn, nameAr, descriptionEn, descriptionAr, price, details, category, brand, color, featured } = req.body;
+	let { nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, category, brand, color, featured } = req.body;
 	details = JSON.parse(details);
 	if(!_.isArray(details) || _.isUndefined(details)){
 		return res.status(400).json({
@@ -595,9 +595,67 @@ router.route('/products')
 			})
 		}
 		yield Product.create({
-			nameEn, nameAr, descriptionEn, descriptionAr, price, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
+			nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
 			ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 		})
+		return res.sendStatus(201);
+	})
+	.catch(err =>{
+		console.error(err);
+		res.sendStatus(500);
+	});
+})
+.put(upload.array('photos'), (req, res)=>{
+	let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, category, brand, color, featured } = req.body;
+	if(!_id){
+		return res.status(400).json({
+			error: "Product ID not provided"
+		})
+	}
+	details = JSON.parse(details);
+	if(!_.isArray(details) || _.isUndefined(details)){
+		return res.status(400).json({
+			error: "Details is not an array or undefined"
+		});
+	}
+	if(details.length < 1){
+		return res.status(400).json({
+			error: "Details are missing"
+		})
+	}
+	co(function*(){
+		let theProduct = yield Product.findById(_id).lean();
+		let theCategory = yield Category.findOne({_id: category}).lean();
+		let theBrand = yield Brand.findOne({_id: brand}).lean();
+		if(!theProduct){
+			return res.status(404).json({
+				error: "Product not found"
+			})
+		}
+		if(!theBrand || !theCategory){
+			return res.status(400).json({
+				error: "Brand and/or category not found"
+			})
+		}
+		let uploadArray = [];
+		let photos = []
+		if(req.files && req.files.length > 0){
+			uploadArray = req.files.map((file)=>{
+				let photoName = randomstring.generate(15)+path.extname(file.originalname)
+				return publicS3.upload({
+					Body: file.buffer,
+					Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+					Key: photoName
+				}).promise()
+			})
+			let doneUpload = yield uploadArray;
+			photos = doneUpload.map((uploaded)=>{
+				return uploaded.Location
+			})
+		}
+		yield Product.findByIdAndUpdate(_id, Object.assign({},{
+			nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured
+		}, (photos.length > 0)? photos: {}), {new: true})
 		return res.sendStatus(201);
 	})
 	.catch(err =>{
