@@ -45,11 +45,12 @@ export default class Orders extends Component {
 		return(
 			<div style={{padding: '15px', overflowX: 'scroll'}}>
 				<div>
+					<h2>Filter</h2>
 					<div>
-						Payment Method: <Dropdown options={[{text: "Cash", value: "Cash On Delivery"}, {text: "Credit Card", value: "Credit Card"}]} />
+						<Dropdown placeholder="Payment Method" options={[{text: "Cash", value: "Cash On Delivery"}, {text: "Credit Card", value: "Credit Card"}]} />
 					</div>
 					<div>
-						Status: <Dropdown options={[{text: "Pending", value: "Pending"}, {text: "Cancelled", value: "Cancelled"}, {text: "Accepted", value: "Accepted"}]} />
+						<Dropdown placeholder="Status" options={[{text: "Pending", value: "Pending"}, {text: "Cancelled", value: "Cancelled"}, {text: "Accepted", value: "Accepted"}]} />
 					</div>
 					<Button>Filter</Button>
 				</div>

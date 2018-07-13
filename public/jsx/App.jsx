@@ -16,13 +16,14 @@ export default class App extends Component {
 	constructor(){
 		super();
 		this.state = {
-			currentView: <div></div>
+			currentView: <div></div>,
+			master: undefined
 		}
 	}
 
 	changeView = (view)=>{
 		let componentShortCut = (ViewComponent)=>{
-			return this.setState({currentView: <ViewComponent changeView={this.changeView} />})
+			return this.setState({currentView: <ViewComponent changeView={this.changeView} context={this} />})
 		}
 		switch(view){
 			case 'login': componentShortCut(Login); break;
@@ -46,7 +47,12 @@ export default class App extends Component {
 			})
 			.then((response)=>{
 				if(response.status == 200){
-					this.changeView('products');
+					this.setState({master: response.data.master});
+					if(response.data.master){
+						this.changeView('products');
+					} else {
+						this.changeView('orders');
+					}
 				} else {
 					console.warn('Something is wrong');
 					this.changeView('login');
@@ -69,13 +75,32 @@ export default class App extends Component {
 			<div>
 				{
 					this.state.currentView.type.name !== undefined && this.state.currentView.type.name !== 'Login'?
-					<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
-						<Button style={navBarButtonStyle} onClick={()=>this.changeView('products')}>Products</Button>
-						<Button style={navBarButtonStyle} onClick={()=>this.changeView('orders')}>Orders</Button>
-						<Button style={navBarButtonStyle} onClick={()=>this.changeView('brands')}>Brands</Button>
-						<Button style={navBarButtonStyle} onClick={()=>this.changeView('categories')}>Categories</Button>
-						<Button style={navBarButtonStyle} onClick={()=>this.changeView('users')}>Users</Button>
-						<Button style={navBarButtonStyle} onClick={()=>this.changeView('admins')}>Admins</Button>
+					<div>
+						{
+							this.state.master?
+							<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
+								<Button style={navBarButtonStyle} onClick={()=>this.changeView('products')}>Products</Button>
+								<Button style={navBarButtonStyle} onClick={()=>this.changeView('orders')}>Orders</Button>
+								<Button style={navBarButtonStyle} onClick={()=>this.changeView('brands')}>Brands</Button>
+								<Button style={navBarButtonStyle} onClick={()=>this.changeView('categories')}>Categories</Button>
+								<Button style={navBarButtonStyle} onClick={()=>this.changeView('users')}>Users</Button>
+								<Button style={navBarButtonStyle} onClick={()=>this.changeView('admins')}>Admins</Button>
+								<Button style={navBarButtonStyle} onClick={()=>{
+									localStorage.removeItem('auth');
+									this.setState({master: undefined})
+									this.componentDidMount();
+								}}>Log Out</Button>
+							</div>
+							:
+							<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
+								<Button style={navBarButtonStyle} onClick={()=>this.changeView('orders')}>Orders</Button>
+								<Button style={navBarButtonStyle} onClick={()=>{
+									localStorage.removeItem('auth');
+									this.setState({master: undefined})
+									this.componentDidMount();
+								}}>Log Out</Button>
+							</div>
+						}
 					</div>
 					:
 					null

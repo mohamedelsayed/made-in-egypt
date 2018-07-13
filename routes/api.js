@@ -88,7 +88,7 @@ router.post('/admin/login', (req, res)=>{
 	}).lean()
 	.then((admin)=>{
 		if(admin){
-			console.log("Admin found")
+			console.log("Admin found", admin)
 			bcrypt.compare(password, admin.password, (err, correct)=>{
 				if(err){
 					console.log("Admin password error")
@@ -98,7 +98,8 @@ router.post('/admin/login', (req, res)=>{
 					return res.json({
 						token: jwt.sign({
 							id: admin._id
-						}, jwtSecret)
+						}, jwtSecret),
+						master: admin.master
 					})
 				} else {
 					console.log("Admin password incorrect")
@@ -121,7 +122,8 @@ router.get('/auth', authenticateUser, (req, res, next)=>{
 })
 
 router.get('/admin/auth', authenticateAdmin, (req, res, next)=>{
-	res.sendStatus(200);
+	console.log(req.admin);
+	res.status(200).send({master: req.admin.master});
 })
 
 router.route('/admin/categories')
