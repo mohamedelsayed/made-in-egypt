@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, Table, Modal, Button, Form, Select, Radio, Loader, Menu } from 'semantic-ui-react'
+import { Icon, Table, Modal, Button, Form, Dropdown, Radio, Loader, Menu } from 'semantic-ui-react'
 
 import axios from 'axios';
 
@@ -44,6 +44,15 @@ export default class Orders extends Component {
 		}
 		return(
 			<div style={{padding: '15px', overflowX: 'scroll'}}>
+				<div>
+					<div>
+						Payment Method: <Dropdown options={[{text: "Cash", value: "Cash On Delivery"}, {text: "Credit Card", value: "Credit Card"}]} />
+					</div>
+					<div>
+						Status: <Dropdown options={[{text: "Pending", value: "Pending"}, {text: "Cancelled", value: "Cancelled"}, {text: "Accepted", value: "Accepted"}]} />
+					</div>
+					<Button>Filter</Button>
+				</div>
 				<h1 style={{textAlign: 'center'}}>Orders</h1>
 				{/* <Modal
 					trigger={<Button>Create New Order</Button>}

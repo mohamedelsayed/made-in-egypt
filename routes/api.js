@@ -198,6 +198,36 @@ router.route('/admin/orders')
 	})
 })
 
+router.route('/admin/orders/:orderId')
+.all(authenticateAdmin)
+.put((req, res)=>{
+	let { orderId } = req.params
+	let { status } = req.body;
+	let responseSent = false;
+	Order.findById(orderId).lean()
+	.then((order)=>{
+		if(!order){
+			res.sendStatus(404);
+			responseSent = true;
+			throw Error("Order not found");
+		}
+		return Order.findByIdAndUpdate(orderId, {
+			status
+		}, {
+			new: true
+		})
+	})
+	.then(()=>{
+		res.sendStatus(200);
+	})
+	.catch((err)=>{
+		console.error(err);
+		if(!responseSent){
+			res.sendStatus(500);
+		}
+	})
+})
+
 router.get('/admin/orders/count', authenticateAdmin, (req, res)=>{
 	Order.count()
 	.then((count)=>{
@@ -1126,8 +1156,8 @@ async function _checkProductAndSendFCMIfNeeded(productId){
 }
 
 router.route('/orders')
-.get((req, res)=>{
-	Order.find({}).populate('items.productId').sort({}).lean()
+.get(authenticateUser, (req, res)=>{
+	Order.find({userId: req.user._id}).populate('items.productId').sort({}).lean()
 	.then((orders)=>{
 		res.json(orders);
 	})
