@@ -387,7 +387,7 @@ router.route('/users')
 })
 .post((req, res)=>{
 	let responseSent = false;
-	let { firstName, lastName, email, password, passwordConfirmation, phone, address, creditCard } = req.body;
+	let { firstName, lastName, email, password, passwordConfirmation, phone, address, gender, creditCard } = req.body;
 	if(password === passwordConfirmation){
 		User.findOne({
 			email
@@ -404,7 +404,7 @@ router.route('/users')
 		})
 		.then(async (hash)=>{
 			let newUser = await User.create({
-				firstName, lastName, email, password: hash, phone, address
+				firstName, lastName, email, password: hash, phone, address, gender
 			}).catch((err)=>{
 				console.error(err);
 				res.status(400).send({
@@ -453,7 +453,7 @@ router.route('/users')
 .put(authenticateUser, (req, res)=>{
 	// res.sendStatus(501);
 	// let { firstName, lastName, email, password, passwordConfirmation, phone, address } = req.body;
-	let acceptedAttrs = [ "firstName", "lastName", "email", "password", "passwordConfirmation", "phone", "address" ]
+	let acceptedAttrs = [ "firstName", "lastName", "email", "password", "passwordConfirmation", "phone", "address", "gender" ]
 	let attrs = {};
 	Object.keys(req.body).forEach((key)=>{
 		if(acceptedAttrs.includes(key)) Object.assign(attrs, {[key]: req.body[key]});

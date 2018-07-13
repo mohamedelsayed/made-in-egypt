@@ -37,6 +37,7 @@ export default class Users extends Component {
 							<Table.HeaderCell textAlign='center'>Phone</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Email</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Address</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Gender</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Verified</Table.HeaderCell>
 						</Table.Row>
 					</Table.Header>
@@ -51,6 +52,7 @@ export default class Users extends Component {
 									<Table.Cell width="1" collapsing textAlign='center'>{user.email}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{user.phone}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{user.address}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{user.gender}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{user.verified? "Yes": "No"}</Table.Cell>
 								</Table.Row>
 								)

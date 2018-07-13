@@ -28,6 +28,11 @@ const UserSchema = new Schema({
 		type: String,
 		required: true
 	},
+	gender: {
+		type: String,
+		enum: ["male", "female"],
+		required: true
+	},
 	favourites: {
 		type: [{
 			type: Schema.Types.ObjectId,
