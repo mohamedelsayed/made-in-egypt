@@ -11,6 +11,10 @@ let AdminSchema = new Schema({
 	password: {
 		type: String,
 		required: true
+	},
+	master: {
+		type: Boolean,
+		required: true
 	}
 }, {
 	timestamps: true

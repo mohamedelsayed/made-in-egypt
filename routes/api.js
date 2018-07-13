@@ -351,7 +351,7 @@ router.route('/admin/products')
 
 router.route('/admins')
 .post(authenticateAdmin, (req, res)=>{
-	let { username, password } = req.body;
+	let { username, password, master } = req.body;
 	Admin.find({
 		username
 	}).lean()
@@ -368,7 +368,8 @@ router.route('/admins')
 			}
 			Admin.create({
 				username,
-				password: hash
+				password: hash,
+				master
 			})
 			.then((created)=>{
 				res.sendStatus(201);

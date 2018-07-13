@@ -82,7 +82,8 @@ export default class Admin extends React.Component {
 			}
 			axios.post('/api/admins', {
 				username: this.state.newAdminUsername,
-				password: this.state.newAdminPassword
+				password: this.state.newAdminPassword,
+				master: this.state.masterAdmin
 			}, {
 				headers: {
 					'x-auth-token': localStorage.getItem('auth')
@@ -188,6 +189,7 @@ export default class Admin extends React.Component {
 					<input type="text" value={this.state.newAdminUsername} placeholder="Username" onChange={(event)=>this.setState({newAdminUsername: event.currentTarget.value})} style={inputFieldStyle} /><br/>
 					<input type="password" value={this.state.newAdminPassword} placeholder="New Password" onChange={(event)=>this.setState({newAdminPassword: event.currentTarget.value})} style={inputFieldStyle} /><br/>
 					<input type="password" value={this.state.newAdminPasswordRepeat} placeholder="New Password Repeat" onChange={(event)=>this.setState({newAdminPasswordRepeat: event.currentTarget.value})} style={inputFieldStyle} /><br/>
+					Warehouse Admin? <input type="checkbox" value={!this.state.masterAdmin} onChange={(event)=>this.setState({masterAdmin: !event.currentTarget.checked})} /><br />
 					<Button onClick={this.handleNewAdmin}>Create</Button>
 				</div>
 				<div>
