@@ -214,8 +214,39 @@ router.route('/admin/products')
 .get((req, res)=>{
 	// Product.find().populate('brandId').populate('categoryId')
 	let theProducts, theBrands, theCategories;
+	let filter = req.query.search;
 
-	Product.aggregate([
+	Product.aggregate(
+	(
+		(filter)?
+		[
+			{
+				$match: {
+					$or: [
+						{
+							_id: {
+								$regex: filter, $options: 'i'
+							}
+						},
+						{
+							nameEn: {
+								$regex: filter, $options: 'i'
+							}
+						},
+						{
+							nameAr: {
+								$regex: filter, $options: 'i'
+							}
+						}
+					]
+				}
+			}
+		]
+		:
+		[]
+	)
+	.concat(
+	[
 		{
 			$lookup: {
 				from: 'brands',
@@ -266,7 +297,7 @@ router.route('/admin/products')
 				'createdAt': -1
 			}
 		}
-	])
+	]))
 	.then((products)=>{
 		theProducts = products;
 		return Category.find().lean()

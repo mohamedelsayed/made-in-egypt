@@ -66,6 +66,36 @@ export default class Products extends Component {
 		})
 	}
 
+	handleSearch = ()=>{
+		axios.get(`/api/admin/products${this.state.searchText? '?search='+this.state.searchText : ''}`, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			validateStatus: (status)=> status < 500
+		})
+		.then((response)=>{
+			if(response.status == 200){
+				let processedProducts = response.data.products.map((product)=>{
+					let quantity = product.details.reduce((accumilator, detail)=>{
+						return accumilator + parseInt(detail.quantity)
+					}, 0)
+					product.quantity = quantity;
+					return product;
+				})
+				this.setState({products: processedProducts, brands: response.data.brands, categories: response.data.categories});
+			} else {
+				if(response.status == 401){
+					localStorage.removeItem('auth');
+					this.props.changeView('login');
+				}
+				console.warn(response.status, response.data);
+			}
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+
 	render(){
 		const actionBtnStyle = {
 			margin: '3px auto'
@@ -81,7 +111,6 @@ export default class Products extends Component {
 					onClose={()=>this.setState({createOpen: false})}
 				/>
 				<Modal
-					trigger={<Button onClick={()=>this.setState({createOpen: true})}>Create New Product</Button>}
 					header="Edit Product"
 					content={<ProductEditForm context={this} />}
 					open={this.state.editOpen}
@@ -97,6 +126,10 @@ export default class Products extends Component {
 					onClose={()=>this.setState({deleteOpen: false, targetProductId: undefined})}
 					open={this.state.deleteOpen}
 				/>
+				<div>
+					<input type="text" placeholder="Search" onChange={(event)=>this.setState({searchText: event.currentTarget.value})} style={{border: '1px solid #ddd', borderRadius: 2, marginRight: 10, marginTop: 10, height: 32, padding: 10}} />
+					<Button onClick={this.handleSearch}>Search</Button>
+				</div>
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
@@ -128,7 +161,7 @@ export default class Products extends Component {
 								return(
 								<Table.Row key={Math.random().toFixed(5)} error={product.quantity < 6}>
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, categoryId, brandId, productDetailsEn, productDetailsAr, views, reviews */}
-									<Table.Cell collapsing>{/* <Icon name='folder' /> */} {product.nameEn}</Table.Cell>
+									<Table.Cell collapsing textAlign='center'>{/* <Icon name='folder' /> */} {product.nameEn}</Table.Cell>
 									<Table.Cell collapsing textAlign='center'>{product.nameAr}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.descriptionEn}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.descriptionAr}</Table.Cell>
