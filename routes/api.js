@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const path = require('path');
+const URL = require('url');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const co = require('co');
@@ -542,10 +543,10 @@ router.get('/file', (req, res)=>{
 	if(!url){
 		res.sendStatus(500);
 	}
-	let parsed = new URL(url);
+	let parsed = URL.parse(url);
 	publicS3.getObject({
-		Bucket: process.env.BUCKET_NAME,
-		Key: parsed.pathname
+		Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+		Key: parsed.pathname.slice(1)
 	}).createReadStream()
 	.pipe(res);
 })
