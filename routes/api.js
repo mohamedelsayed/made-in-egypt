@@ -89,7 +89,7 @@ router.post('/admin/login', (req, res)=>{
 	}).lean()
 	.then((admin)=>{
 		if(admin){
-			console.log("Admin found", admin)
+			console.log("Admin found")
 			bcrypt.compare(password, admin.password, (err, correct)=>{
 				if(err){
 					console.log("Admin password error")
@@ -123,7 +123,6 @@ router.get('/auth', authenticateUser, (req, res, next)=>{
 })
 
 router.get('/admin/auth', authenticateAdmin, (req, res, next)=>{
-	console.log(req.admin);
 	res.status(200).send({master: req.admin.master});
 })
 
@@ -353,7 +352,18 @@ router.route('/admin/products')
 })
 
 router.route('/admins')
-.post(authenticateAdmin, (req, res)=>{
+.all(authenticateAdmin)
+.get((req, res)=>{
+	Admin.find({}, '_id username master').lean()
+	.then((admins)=>{
+		res.send(admins);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
+})
+.post((req, res)=>{
 	let { username, password, master } = req.body;
 	Admin.find({
 		username
@@ -384,7 +394,7 @@ router.route('/admins')
 		})
 	})
 })
-.put(authenticateAdmin, async (req, res)=>{
+.put(async (req, res)=>{
 	// res.sendStatus(501);
 	let { oldPassword, newPassword } = req.body;
 	try {
@@ -405,6 +415,23 @@ router.route('/admins')
 		console.error(err);
 		res.sendStatus(500);
 	}
+})
+
+router.route('/admins/:adminId')
+.all(authenticateAdmin)
+.delete((req, res)=>{
+	let { adminId } = req.params
+	Admin.findByIdAndRemove(adminId).lean()
+	.then((deletedAdmin)=>{
+		if(deletedAdmin){
+			return res.sendStatus(200);
+		}
+		res.sendStatus(404);
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
 })
 
 // TODO: add authenticateAdmin for fetching all users route

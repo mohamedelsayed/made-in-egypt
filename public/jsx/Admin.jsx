@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { Button } from 'semantic-ui-react';
+import { Button, Table, Modal } from 'semantic-ui-react';
 
 export default class Admin extends React.Component {
 	constructor(){
@@ -20,7 +20,10 @@ export default class Admin extends React.Component {
 			shippingFees: 0,
 			freeShippingMinimumOrder: 0,
 			configError: "",
-			configDisabled: true
+			configDisabled: true,
+			admins: [],
+			deleteOpen: false,
+			adminDeleteTarget: undefined
 		}
 	}
 
@@ -29,6 +32,14 @@ export default class Admin extends React.Component {
 		.then((response)=>{
 			let { cashOnDeliveryFees, shippingFees, freeShippingMinimumOrder } = response.data
 			this.setState({cashOnDeliveryFees, shippingFees, freeShippingMinimumOrder, configDisabled: false})
+			return axios.get('/api/admins', {
+				headers: {
+					'x-auth-token': localStorage.getItem('auth')
+				}
+			})
+		})
+		.then((response)=>{
+			this.setState({admins: response.data});
 		})
 		.catch((err)=>{
 			console.error(err);
@@ -135,7 +146,22 @@ export default class Admin extends React.Component {
 		})
 	}
 
+	handleDelete = ()=>{
+		axios.delete(`/api/admins/${this.state.adminDeleteTarget._id}`, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			}
+		})
+		.then((response)=>{
+			this.setState({deleteOpen: false, adminDeleteTarget: undefined}, this.componentDidMount);
+		})
+		.catch(err=>console.error(err));
+	}
+
 	render(){
+		const actionBtnStyle = {
+			margin: '3px'
+		}
 		const inputFieldStyle = {
 			borderWidth: 1,
 			borderColor: '#eee',
@@ -145,6 +171,15 @@ export default class Admin extends React.Component {
 		}
 		return(
 			<div style={{padding: '10px 20px'}}>
+				<Modal
+					header={"Delete Admin?"}
+					actions={[
+						<Button style={actionBtnStyle} key={"deleteCategoryNo"} onClick={()=>this.setState({deleteOpen: false, adminDeleteTarget: undefined})} >No</Button>,
+						<Button style={actionBtnStyle} key={"deleteCategoryYes"} onClick={this.handleDelete}>Yes</Button>
+					]}
+					onClose={()=>this.setState({deleteOpen: false, adminDeleteTarget: undefined})}
+					open={this.state.deleteOpen}
+				/>
 				<div>
 					<h2>Change Password</h2>
 					{
@@ -210,6 +245,37 @@ export default class Admin extends React.Component {
 				</div>
 				<div>
 					{/* TODO: Generate reports */}
+				</div>
+				<div style={{marginTop: 10}}>
+					<Table celled striped>
+						<Table.Header>
+							<Table.Row>
+								<Table.HeaderCell colSpan='3'>Admins ({this.state.admins.length})</Table.HeaderCell>
+							</Table.Row>
+							<Table.Row>
+								<Table.HeaderCell textAlign='center'>Username</Table.HeaderCell>
+								<Table.HeaderCell textAlign='center'>Type</Table.HeaderCell>
+								<Table.HeaderCell textAlign='center'>Actions</Table.HeaderCell>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{
+								this.state.admins.map((admin)=>{
+									return(
+										<Table.Row>
+											<Table.Cell width="1" collapsing textAlign='center'>{admin.username}</Table.Cell>
+											<Table.Cell width="1" collapsing textAlign='center'>{admin.master? "Master": "Warehouse"}</Table.Cell>
+											<Table.Cell width="1" collapsing textAlign='center'>
+												<Button onClick={()=>this.setState({adminDeleteTarget: admin, deleteOpen: true})}>
+													Delete
+												</Button>
+											</Table.Cell>
+										</Table.Row>
+									)
+								})
+							}
+						</Table.Body>
+					</Table>
 				</div>
 			</div>
 		)
