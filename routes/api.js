@@ -241,6 +241,10 @@ router.get('/admin/orders/count', authenticateAdmin, (req, res)=>{
 	})
 })
 
+router.post('/admin/report', authenticateAdmin, (req, res)=>{
+	let { start, end, brandId } = req.body;
+})
+
 router.route('/admin/products')
 .all(authenticateAdmin)
 .get((req, res)=>{

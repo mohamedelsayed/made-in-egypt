@@ -1,6 +1,11 @@
 import React from 'react';
 import axios from 'axios';
-import { Button, Table, Modal } from 'semantic-ui-react';
+import { Button, Table, Modal, Dropdown } from 'semantic-ui-react';
+import DatePicker from 'react-datepicker';
+
+import moment from 'moment';
+
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default class Admin extends React.Component {
 	constructor(){
@@ -23,7 +28,11 @@ export default class Admin extends React.Component {
 			configDisabled: true,
 			admins: [],
 			deleteOpen: false,
-			adminDeleteTarget: undefined
+			adminDeleteTarget: undefined,
+			reportStartDate: undefined,
+			reportEndDate: undefined,
+			brands: [],
+			selectedBrand: undefined
 		}
 	}
 
@@ -40,6 +49,10 @@ export default class Admin extends React.Component {
 		})
 		.then((response)=>{
 			this.setState({admins: response.data});
+			return axios.get('/api/brands')
+		})
+		.then((response)=>{
+			this.setState({brands: response.data});
 		})
 		.catch((err)=>{
 			console.error(err);
@@ -158,6 +171,25 @@ export default class Admin extends React.Component {
 		.catch(err=>console.error(err));
 	}
 
+	generateReport = ()=>{
+		if(!(this.state.reportStartDate && this.state.reportEndDate)){
+			return console.warn("Report start date or end date missing");
+		}
+		let start = moment(this.state.reportStartDate).valueOf();
+		let end = moment(this.state.reportEndDate).valueOf();
+
+		axios.post('/api/admin/report', {
+			start, end
+		}, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			}
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+
 	render(){
 		const actionBtnStyle = {
 			margin: '3px'
@@ -243,8 +275,34 @@ export default class Admin extends React.Component {
 					Free Shipping Minimum Order: <input disabled={this.state.configDisabled} type="number" value={this.state.freeShippingMinimumOrder} min="0" onChange={(event)=>this.setState({freeShippingMinimumOrder: event.currentTarget.valueAsNumber})} /><br/>
 					<Button onClick={this.handleEditConfig}>Edit</Button>
 				</div>
-				<div>
+				<div style={{marginTop: 10}}>
 					{/* TODO: Generate reports */}
+					<h1>Sales Report</h1>
+					<label>Start Date: </label>
+					<DatePicker
+						dateFormat="DD/MM/YYYY"
+						selected={this.state.reportStartDate}
+						onChange={(date)=>this.setState({reportStartDate: date})}
+					/>
+					{/* <input type="date" onChange={(event)=>this.setState({reportStartDate: event.currentTarget.valueAsDate})}/> */}
+					<label>End Date: </label>
+					<DatePicker
+						dateFormat="DD/MM/YYYY"
+						selected={this.state.reportEndDate}
+						onChange={(date)=>this.setState({reportEndDate: date})}
+					/>
+					{/* <input type="date" onChange={(event)=>this.setState({reportEndDate: event.currentTarget.valueAsDate})}/> */}
+					<label>Brand:</label><br />
+					<Dropdown style={{marginRight: 15}} options={[{key: "none", value: null, text: "Choose Brand"}].concat(this.state.brands.map((brand)=>{
+						return {
+							key: brand._id,
+							value: brand._id,
+							text: brand.nameEn + " - " + brand.nameAr
+						}
+					}))} onChange={(event, data)=>this.setState({selectedBrand: data.value})} defaultValue={null} />
+					<Button onClick={this.generateReport}>
+						Generate Report
+					</Button>
 				</div>
 				<div style={{marginTop: 10}}>
 					<Table celled striped>
@@ -262,7 +320,7 @@ export default class Admin extends React.Component {
 							{
 								this.state.admins.map((admin)=>{
 									return(
-										<Table.Row>
+										<Table.Row key={Math.random()+"admin"}>
 											<Table.Cell width="1" collapsing textAlign='center'>{admin.username}</Table.Cell>
 											<Table.Cell width="1" collapsing textAlign='center'>{admin.master? "Master": "Warehouse"}</Table.Cell>
 											<Table.Cell width="1" collapsing textAlign='center'>
