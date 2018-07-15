@@ -16,7 +16,9 @@ export default class Products extends Component {
 			editOpen: false,
 			createOpen: false,
 			targetProductId: undefined,
-			targetProduct: undefined
+			targetProduct: undefined,
+			filterBrand: undefined,
+			filterCategory: undefined
 		}
 	}
 
@@ -67,7 +69,7 @@ export default class Products extends Component {
 	}
 
 	handleSearch = ()=>{
-		axios.get(`/api/admin/products${this.state.searchText? '?search='+this.state.searchText : ''}`, {
+		axios.get(`/api/admin/products?${this.state.searchText? 'search='+this.state.searchText : ''}${this.state.filterBrand? '&brandId='+this.state.filterBrand : ''}${this.state.filterCategory? '&categoryId='+this.state.filterCategory : ''}`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			},
@@ -128,6 +130,20 @@ export default class Products extends Component {
 				/>
 				<div>
 					<input type="text" placeholder="Search" onChange={(event)=>this.setState({searchText: event.currentTarget.value})} style={{border: '1px solid #ddd', borderRadius: 2, marginRight: 10, marginTop: 10, height: 32, padding: 10}} />
+					<Dropdown placeholder="Filter Brand" options={[{text: "None", value: null, key: "filterbrandnull"}].concat(this.state.brands.map((brand)=>{
+						return {
+							key: "filterkey-"+brand._id,
+							value: brand._id,
+							text: brand.nameEn + " - " + brand.nameAr
+						}
+					}))} onChange={(event, data)=>this.setState({filterBrand: data.value})} />
+					<Dropdown placeholder="Filter Category" options={[{text: "None", value: null, key: "filtercategorynull"}].concat(this.state.categories.map((category)=>{
+						return {
+							key: "filterkey-"+category._id,
+							value: category._id,
+							text: category.nameEn + " - " + category.nameAr
+						}
+					}))} onChange={(event, data)=>this.setState({filterCategory: data.value})} />
 					<Button onClick={this.handleSearch}>Search</Button>
 				</div>
 				<Table celled striped>
@@ -171,8 +187,8 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{product.quantity}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.photos.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.ratingTotal/product.ratingCount || 0}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.brand.name}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.category.name}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.brand.nameEn + " - "+ product.brand.nameAr}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.category.nameEn + " - "+ product.category.nameAr}</Table.Cell>
 									<Table.Cell textAlign='center'>{JSON.stringify(product.productDetails)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell>

@@ -250,39 +250,60 @@ router.route('/admin/products')
 .get((req, res)=>{
 	// Product.find().populate('brandId').populate('categoryId')
 	let theProducts, theBrands, theCategories;
-	let filter = req.query.search;
+	let { search, brandId, categoryId } = req.query;
+	let filter = {
+		$and: []
+	};
 
-	Product.aggregate(
-	(
-		(filter)?
-		[
-			{
-				$match: {
+	if(search || brandId || categoryId){
+		if(search){
+			filter['$and'].push(
+				{
 					$or: [
 						{
 							_id: {
-								$regex: filter, $options: 'i'
+								$regex: search, $options: 'i'
 							}
 						},
 						{
 							nameEn: {
-								$regex: filter, $options: 'i'
+								$regex: search, $options: 'i'
 							}
 						},
 						{
 							nameAr: {
-								$regex: filter, $options: 'i'
+								$regex: search, $options: 'i'
 							}
 						}
 					]
 				}
-			}
-		]
-		:
-		[]
-	)
-	.concat(
-	[
+			)
+		}
+		if(brandId){
+			filter['$and'].push(
+				{
+					brandId: mongoose.Types.ObjectId(brandId)
+				}
+			)
+		}
+	
+		if(categoryId){
+			filter['$and'].push(
+				{
+					categoryId: mongoose.Types.ObjectId(categoryId)
+				}
+			)
+		}
+	} else {
+		filter = {};
+	}
+
+	console.log(JSON.stringify(filter));
+
+	Product.aggregate([
+		{
+			$match: filter
+		},
 		{
 			$lookup: {
 				from: 'brands',
@@ -333,7 +354,7 @@ router.route('/admin/products')
 				'createdAt': -1
 			}
 		}
-	]))
+	])
 	.then((products)=>{
 		theProducts = products;
 		return Category.find().lean()
