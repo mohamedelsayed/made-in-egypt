@@ -40,6 +40,21 @@ export default class Orders extends Component {
 			console.error(err);
 		})
 	}
+	changeOrderState = (orderId, newState)=>{
+		axios.put(`/api/admin/orders/${orderId}`, {
+			state: newState
+		}, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			}
+		})
+		.then(()=>{
+			this.handleUpdatePage();
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
 	render(){
 		const actionBtnStyle = {
 			margin: '3px'
@@ -122,7 +137,26 @@ export default class Orders extends Component {
 										}, 0)
 									}
 									</Table.Cell>
-									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle}>Confirm</Button><Button style={actionBtnStyle}>Cancel</Button></Table.Cell>
+									<Table.Cell width="1" textAlign='center'>
+										{
+											(order.state === 'Pending')?
+											<Button style={actionBtnStyle} onClick={()=>this.changeOrderState(order._id, 'Under Processing')}>Accept & Print</Button>
+											:
+											null
+										}
+										{
+											(order.state === 'Under Processing')?
+											<Button style={actionBtnStyle} onClick={()=>this.changeOrderState(order._id, 'Completed')}>Confirm</Button>
+											:
+											null
+										}
+										{
+											(order.state === 'Pending' || order.state === 'Under Processing')?
+											<Button style={actionBtnStyle} onClick={()=>this.changeOrderState(order._id, 'Cancelled')}>Cancel</Button>
+											:
+											null
+										}
+									</Table.Cell>
 								</Table.Row>
 								)
 							})

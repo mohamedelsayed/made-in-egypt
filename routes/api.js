@@ -211,7 +211,8 @@ router.route('/admin/orders/:orderId')
 .all(authenticateAdmin)
 .put((req, res)=>{
 	let { orderId } = req.params
-	let { status } = req.body;
+	let { state } = req.body;
+	// TODO: handle on cancel order return items to stock
 	let responseSent = false;
 	Order.findById(orderId).lean()
 	.then((order)=>{
@@ -221,7 +222,7 @@ router.route('/admin/orders/:orderId')
 			throw Error("Order not found");
 		}
 		return Order.findByIdAndUpdate(orderId, {
-			status
+			state
 		}, {
 			new: true
 		})
