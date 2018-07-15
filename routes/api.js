@@ -183,8 +183,15 @@ router.route('/admin/users')
 router.route('/admin/orders')
 .all(authenticateAdmin)
 .get((req, res)=>{
-	let { pageNumber=1 } = req.query;
-	Order.find()
+	let { pageNumber=1, status, method } = req.query;
+	let filter = {};
+	if(status){
+		filter.state = status;
+	}
+	if(method){
+		filter.paymentMethod = method;
+	}
+	Order.find(filter)
 	.sort({createdAt: -1})
 	.skip(20* (pageNumber - 1))
 	.limit(20)
@@ -297,8 +304,6 @@ router.route('/admin/products')
 	} else {
 		filter = {};
 	}
-
-	console.log(JSON.stringify(filter));
 
 	Product.aggregate([
 		{

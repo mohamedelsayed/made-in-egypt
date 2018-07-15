@@ -9,7 +9,9 @@ export default class Orders extends Component {
 		super();
 		this.state = {
 			orders: [],
-			pageNumber: 1
+			pageNumber: 1,
+			filterMethod: undefined,
+			filterStatus: undefined
 		}
 	}
 	componentDidMount(){
@@ -26,7 +28,7 @@ export default class Orders extends Component {
 		})
 	}
 	handleUpdatePage = ()=>{
-		axios.get(`/api/admin/orders?pageNumber=${this.state.pageNumber}`, {
+		axios.get(`/api/admin/orders?pageNumber=${this.state.pageNumber}${this.state.filterMethod? '&method='+this.state.filterMethod: ''}${this.state.filterStatus? '&status='+this.state.filterStatus: ''}`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			}
@@ -44,22 +46,37 @@ export default class Orders extends Component {
 		}
 		return(
 			<div style={{padding: '15px', overflowX: 'scroll'}}>
-				<div>
-					<h2>Filter</h2>
-					<div>
-						<Dropdown placeholder="Payment Method" options={[{text: "Cash", value: "Cash On Delivery"}, {text: "Credit Card", value: "Credit Card"}]} />
-					</div>
-					<div>
-						<Dropdown placeholder="Status" options={[{text: "Pending", value: "Pending"}, {text: "Cancelled", value: "Cancelled"}, {text: "Accepted", value: "Accepted"}]} />
-					</div>
-					<Button>Filter</Button>
-				</div>
 				<h1 style={{textAlign: 'center'}}>Orders</h1>
 				{/* <Modal
 					trigger={<Button>Create New Order</Button>}
 					header="New Order"
 					content={<OrderForm context={this} />}
 				/> */}
+				<Dropdown
+					placeholder="Payment Method"
+					options={[
+						{key: "Allpayments", text: "All", value: null},
+						{key: "Credit Card payments", text: "Credit Card", value: "Credit Card"},
+						{key: "Cash payments", text: "Cash On Delivery", value: "Cash On Delivery"},
+					]}
+					onChange={(event, data)=>this.setState({filterMethod: data.value})}
+				/>
+				<Dropdown
+					placeholder="Status"
+					options={[
+						{key: "Allstatus", text: "All", value: null},
+						{key: "Cancelled order", text: "Cancelled", value: "Cancelled"},
+						{key: "Pending order", text: "Pending", value: "Pending"},
+						{key: "User processing order", text: "User Processing", value: "User Processing"},
+						{key: "Completed order", text: "Completed", value: "Completed"},
+					]}
+					onChange={(event, data)=>this.setState({filterStatus: data.value})}
+				/>
+				<Button onClick={()=>{
+					this.setState({pageNumber: 1}, this.handleUpdatePage)
+				}}>
+					Filter
+				</Button>
 				<Table celled striped>
 					<Table.Header>
 						<Table.Row>
