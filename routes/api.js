@@ -215,20 +215,50 @@ router.route('/admin/orders/:orderId')
 	// TODO: handle on cancel order return items to stock
 	let responseSent = false;
 	Order.findById(orderId).lean()
-	.then((order)=>{
+	.then(async (order)=>{
 		if(!order){
 			res.sendStatus(404);
 			responseSent = true;
 			throw Error("Order not found");
 		}
-		return Order.findByIdAndUpdate(orderId, {
-			state
-		}, {
-			new: true
-		})
-	})
-	.then(()=>{
-		res.sendStatus(200);
+		try {
+			if(state === 'Cancelled'){
+				let returnedProducts = order.items.map((item)=>{
+					return Product.findById(item.productId).lean().exec()
+				})
+				returnedProducts = await Promise.all(returnedProducts);
+				returnedProducts.forEach(async(product, index)=>{
+					if(!product){
+						return;
+					}
+					let detailIndex = product.details.findIndex((detail)=>{
+						return detail.size === order.items[index].details.size
+					})
+					if(detailIndex < 0){
+						responseSent = true;
+						res.sendStatus(500);
+						throw Error("Detail not found")
+					}
+					await Product.findByIdAndUpdate(product._id, {
+						$inc: {
+							['details.'+detailIndex+'.quantity']: order.items[index].details.quantity
+						}
+					}, {
+						new: true
+					})
+				})
+			}
+			if(!responseSent){
+				await Order.findByIdAndUpdate(orderId, {
+					state
+				}, {
+					new: true
+				})
+				res.sendStatus(200);
+			}
+		} catch(err){
+			throw Error(err);
+		}
 	})
 	.catch((err)=>{
 		console.error(err);
