@@ -3,6 +3,7 @@ const router = express.Router();
 
 const path = require('path');
 const URL = require('url');
+const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const co = require('co');
@@ -21,6 +22,7 @@ const publicS3 = new AWS.S3({
 	// region: 'eu-west-2'
 	region: process.env.REGION || undefined
 })
+const xlsx = require('xlsx');
 const firebase = require('firebase-admin');
 firebase.initializeApp({
 	databaseURL: process.env.FIREBASE_DB || 'https://made-in-egypt-dev.firebaseio.com/',
@@ -286,18 +288,60 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 		let orders = await Order.find(filter).populate({path: 'items.productId', model: 'Product'}).lean()
 		if(brandId){
 			let theBrand = await Brand.findById(brandId).lean();
-			if(theBrand){
-				orders = orders.filter((order)=>{
-					return order.items.findIndex((item)=>{
-						// console.log(item.productId.brandId.toString(), brandId, item.productId.brandId === brandId)
-						return item.productId.brandId.toString() === brandId
-					}) > -1
-				})
-			} else {
+			// orders = orders.filter((order)=>{
+				// 	return order.items.findIndex((item)=>{
+					// 		// console.log(item.productId.brandId.toString(), brandId, item.productId.brandId === brandId)
+					// 		return item.productId.brandId.toString() === brandId
+					// 	}) > -1
+					// })
+			if(!theBrand){
 				return res.sendStatus(404);
 			}
 		}
-		res.send(orders)
+		let reportProducts = {};
+
+		for (let oIndex = 0; oIndex < orders.length; oIndex++) {
+			const order = orders[oIndex];
+			if(order.state === "Cancelled")	continue;
+			for (let index = 0; index < order.items.length; index++) {
+				const item = order.items[index];
+				if(brandId && item.productId.brandId.toString() !== brandId) continue;
+				if(!item.details.quantity || !item.price){
+					console.error("Detail quantity or price not available for item in order "+order._id);
+					continue;
+				}
+				if(!reportProducts[item.productId._id]){
+					let productBrand = await Brand.findById(item.productId.brandId).lean()
+					let productCategory = await Category.findById(item.productId.categoryId).lean()
+					reportProducts[item.productId._id] = {
+						"ID": item.productId._id.toString(),
+						"English Name": item.productId.nameEn,
+						"Arabic Name": item.productId.nameAr,
+						"Brand": productBrand? productBrand.nameEn + " - " + productBrand.nameAr : item.brand,
+						"Category": productCategory? productCategory.nameEn + " - " + productCategory.nameAr : "Category not found",
+						salesVolume: 0,
+						salesValue: 0,
+						"Views": item.productId.views.length
+					}
+				}
+				reportProducts[item.productId._id].salesVolume += item.details.quantity;
+				reportProducts[item.productId._id].salesValue += item.price;
+			}
+		}
+		// res.send({orders, reportProducts})
+		let reportData = Object.keys(reportProducts).map((key)=>{
+			return reportProducts[key];
+		})
+		let excelSheet = xlsx.utils.json_to_sheet(reportData)
+		let workbook = xlsx.utils.book_new();
+		xlsx.utils.book_append_sheet(workbook, excelSheet, "Report");
+		let sheetName = moment().valueOf()+".xlsx";
+		xlsx.writeFile(workbook, sheetName);
+		fs.readFile(sheetName, (err, data)=>{
+			if(err) throw Error(err);
+			res.send(data);
+			fs.unlink(sheetName, (err)=>{if(err)console.error(err)});
+		})
 	} catch(err){
 		console.error(err);
 		res.sendStatus(500);

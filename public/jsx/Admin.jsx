@@ -172,18 +172,35 @@ export default class Admin extends React.Component {
 	}
 
 	generateReport = ()=>{
-		if(!(this.state.reportStartDate && this.state.reportEndDate)){
-			return console.warn("Report start date or end date missing");
+		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
+		// 	return console.warn("Report start date or end date missing");
+		// }
+		let start, end, brandId;
+		if(this.state.reportStartDate){
+			start = moment(this.state.reportStartDate).valueOf();
 		}
-		let start = moment(this.state.reportStartDate).valueOf();
-		let end = moment(this.state.reportEndDate).valueOf();
+		if(this.state.reportEndDate){
+			end = moment(this.state.reportEndDate).valueOf();
+		}
+		if(this.state.selectedBrand){
+			brandId = this.state.selectedBrand;
+		}
 
 		axios.post('/api/admin/report', {
-			start, end
+			start, end, brandId
 		}, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
-			}
+			},
+			responseType: 'blob'
+		})
+		.then((response)=>{
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'report.xlsx');
+			document.body.appendChild(link);
+			link.click();
 		})
 		.catch((err)=>{
 			console.error(err);
@@ -293,7 +310,7 @@ export default class Admin extends React.Component {
 					/>
 					{/* <input type="date" onChange={(event)=>this.setState({reportEndDate: event.currentTarget.valueAsDate})}/> */}
 					<label>Brand:</label><br />
-					<Dropdown style={{marginRight: 15}} options={[{key: "none", value: null, text: "Choose Brand"}].concat(this.state.brands.map((brand)=>{
+					<Dropdown placeholder="Choose Brand" style={{marginRight: 15}} options={[{key: "none", value: null, text: "Choose Brand"}].concat(this.state.brands.map((brand)=>{
 						return {
 							key: brand._id,
 							value: brand._id,
