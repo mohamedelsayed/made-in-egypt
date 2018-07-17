@@ -66,5 +66,26 @@ module.exports = {
 	},
 	optionalAuthenticateAdmin: function(req, res, next){
 		next();
+	},
+	authenticateAdminWithQuery: function(req, res, next){
+		jwt.verify(req.query['token'], jwtSecret, function(err, decoded){
+			if(err){
+				console.warn(err.message);
+				return res.sendStatus(401);
+			}
+			Admin.findById(decoded.id).lean()
+			.then((admin)=>{
+				if(!admin){
+					console.log("DECODED", decoded);
+					return res.status(401).send('Admin not found');
+				}
+				req.admin = admin;
+				next();
+			})
+			.catch((err)=>{
+				console.error(err);
+				res.sendStatus(500);
+			})
+		})
 	}
 }

@@ -43,7 +43,7 @@ const { jwtSecret, /* shippingFees */ } = require('./helpers/config');
 const { removeEmptyObjectKeys } = require('./helpers/helpers');
 const paymob = require('./helpers/paymobPayment');
 
-const { authenticateUser, optionalAuthenticateUser, authenticateAdmin } = require('./helpers/auth');
+const { authenticateUser, optionalAuthenticateUser, authenticateAdmin, authenticateAdminWithQuery } = require('./helpers/auth');
 
 router.post('/login', (req, res)=>{
 	let {email, password} = req.body;
@@ -265,6 +265,28 @@ router.route('/admin/orders/:orderId')
 		if(!responseSent){
 			res.sendStatus(500);
 		}
+	})
+})
+
+router.get('/admin/print/:orderId', authenticateAdminWithQuery, (req, res)=>{
+	Order.findById(req.params.orderId).populate('userId').lean()
+	.then((order)=>{
+		res.render('print', {
+			totalPrice: order.totalPrice,
+			date: moment().format('DD/MM/YYYY'),
+			address: order.userId.address,
+			receiver: order.userId.firstName + " " + order.userId.lastName,
+			instructions: "None",
+			items: order.items,
+			total: order.items.reduce((accumilator, item)=>{
+				return accumilator + item.price
+			}, 0),
+			shippingFees: order.shippingFees,
+
+		})
+	})
+	.catch((err)=>{
+		res.sendStatus(500);
 	})
 })
 

@@ -140,7 +140,10 @@ export default class Orders extends Component {
 									<Table.Cell width="1" textAlign='center'>
 										{
 											(order.state === 'Pending')?
-											<Button style={actionBtnStyle} onClick={()=>this.changeOrderState(order._id, 'Under Processing')}>Accept & Print</Button>
+											<Button style={actionBtnStyle} onClick={()=>{
+												this.changeOrderState(order._id, 'Under Processing');
+												window.open('/api/admin/print/'+order._id+"?token="+localStorage.getItem('auth'), "_blank")
+											}}>Accept & Print</Button>
 											:
 											null
 										}
