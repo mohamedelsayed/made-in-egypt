@@ -268,6 +268,42 @@ router.route('/admin/orders/:orderId')
 	})
 })
 
+router.post('/admin/report', authenticateAdmin, async (req, res)=>{
+	let { startDate, endDate, brandId } = req.body;
+	let filter = {};
+	if(startDate){
+		console.log(moment(startDate).valueOf())
+		filter['createdAt'] = {
+			$gt: moment(startDate).valueOf()
+		}
+	}
+	if(endDate){
+		filter['createdAt'] = {
+			$lt: moment(endDate).add(1, 'day').valueOf()
+		}
+	}
+	try {
+		let orders = await Order.find(filter).populate({path: 'items.productId', model: 'Product'}).lean()
+		if(brandId){
+			let theBrand = await Brand.findById(brandId).lean();
+			if(theBrand){
+				orders = orders.filter((order)=>{
+					return order.items.findIndex((item)=>{
+						// console.log(item.productId.brandId.toString(), brandId, item.productId.brandId === brandId)
+						return item.productId.brandId.toString() === brandId
+					}) > -1
+				})
+			} else {
+				return res.sendStatus(404);
+			}
+		}
+		res.send(orders)
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
+	}
+})
+
 router.get('/admin/print/:orderId', authenticateAdminWithQuery, (req, res)=>{
 	Order.findById(req.params.orderId).populate('userId').lean()
 	.then((order)=>{

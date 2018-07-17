@@ -280,14 +280,14 @@ export default class Admin extends React.Component {
 					<h1>Sales Report</h1>
 					<label>Start Date: </label>
 					<DatePicker
-						dateFormat="DD/MM/YYYY"
+						dateFormat="YYYY-MM-DD"
 						selected={this.state.reportStartDate}
 						onChange={(date)=>this.setState({reportStartDate: date})}
 					/>
 					{/* <input type="date" onChange={(event)=>this.setState({reportStartDate: event.currentTarget.valueAsDate})}/> */}
 					<label>End Date: </label>
 					<DatePicker
-						dateFormat="DD/MM/YYYY"
+						dateFormat="YYYY-MM-DD"
 						selected={this.state.reportEndDate}
 						onChange={(date)=>this.setState({reportEndDate: date})}
 					/>
