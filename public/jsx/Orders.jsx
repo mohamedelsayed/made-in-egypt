@@ -126,7 +126,13 @@ export default class Orders extends Component {
 									<Table.Cell width="1" collapsing textAlign='center'>{order.deliveryDate}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>
 										{order.items.map(item => <div key={Math.random()} style={{border: '1px solid black', borderRadius: '1px', marginBottom: '1px'}}>
-											{item.productId.nameEn} - {item.productId.nameAr}: {item.quantity}<br />
+											{/* {item.productId.nameEn} - {item.productId.nameAr}: {item.quantity}<br /> */}
+											{
+												item.productId?
+												item.productId.nameEn + " - " + item.productId.nameAr + " : " + item.details.quantity+<br />
+												:
+												"Product Deleted: "+item.nameEn + " - " + item.nameAr + " : " + item.details.quantity+<br />
+											}
 											{JSON.stringify(item.details)}
 										</div>)}
 									</Table.Cell>

@@ -1115,16 +1115,22 @@ router.route('/products/:id')
 		res.sendStatus(500);
 	})
 })
-.delete((req, res)=>{
+.delete(async (req, res)=>{
 	let productId = req.params.id;
-	Product.findByIdAndRemove(productId).lean()
-	.then(()=>{
-		res.sendStatus(204);
-	})
-	.catch((err)=>{
+	try {
+		let pendingOrderOfProduct = await Order.findOne({
+			state: 'Pending',
+			'items.productId': productId
+		}).lean()
+		if(pendingOrderOfProduct){
+			return res.sendStatus(409);
+		}
+		await Product.findByIdAndRemove(productId).lean()
+		return res.sendStatus(204);
+	} catch(err){
 		console.error(err);
 		res.sendStatus(500)
-	})
+	}
 })
 
 
