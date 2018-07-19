@@ -499,7 +499,8 @@ class ProductEditForm extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Photos</label>
-						<div>{this.state.photos? this.state.photos.map((photo, index)=><a href={"/api/file?url="+photo} style={{margin: '5px 15px'}} target="_blank" key={"p-"+index}>Photo {index}</a>) : null}</div>
+						{console.log(this.state.photos)}
+						<div>{this.state.photos? Object.values(this.state.photos).map((photo, index)=><a href={"/api/file?url="+photo} style={{margin: '5px 15px'}} target="_blank" key={"p-"+index}>Photo {index}</a>) : null}</div>
 						<input type="file" multiple onChange={(event)=>this.setState({photos: event.currentTarget.files})} />
 					</Form.Field>
 					<Form.Field>

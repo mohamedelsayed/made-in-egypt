@@ -914,9 +914,10 @@ router.route('/products')
 				return uploaded.Location
 			})
 		}
+		console.log("PHOTOS", photos, photos.length);
 		yield Product.findByIdAndUpdate(_id, Object.assign({},{
 			nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured
-		}, (photos.length > 0)? photos: {}), {new: true})
+		}, (photos.length > 0)? {photos}: {}), {new: true}).then((updated)=>console.log(updated))
 		return res.sendStatus(201);
 	})
 	.catch(err =>{
