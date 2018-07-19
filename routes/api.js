@@ -1031,7 +1031,8 @@ router.get('/mostpopular', (req, res)=>{
 		{
 			"$project": {
 				_id: 1,
-				viewCount: {"$size": "$views"}
+				viewCount: {"$size": "$views"},
+				brandId: 1
 			}
 		},
 		{
@@ -1039,6 +1040,23 @@ router.get('/mostpopular', (req, res)=>{
 		},
 		{
 			"$limit": 10
+		},
+		{ 
+			"$lookup": {
+				from: 'brands',
+				localField: 'brandId',
+				foreignField: '_id',
+				as: 'brand'
+			} 
+		},
+		{
+			"$project": {
+				_id: 1,
+				viewCount: 1,
+				'brand': {
+					$arrayElemAt: ['$brand', 0]
+				}
+			}
 		}
 	])
 	.then((products)=>{
