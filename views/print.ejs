@@ -32,16 +32,16 @@
 		</div>
 	</div>
 	<div>
-		<div style="flex: 1;">
-			<div>
+		<div style="flex: 1; display: flex;">
+			<div style="flex: 1">
 				To<br>
 				<p><%= address %></p>
 			</div>
-			<div>
+			<div style="flex: 1">
 				Ship To<br>
 				<p><%= receiver.toUpperCase() %></p>
 			</div>
-			<div>
+			<div style="flex: 1">
 				Instructions<br>
 				<p><%= instructions || "" %></p>
 			</div>
@@ -50,71 +50,74 @@
 		</div>
 	</div>
 	<div style="display: flex">
-		<div style="flex: 1;">
-		</div>
-		<div style="flex: 4;">
-			<table>
-				<thead>
-					<tr>
-						<td>Quantity</td>
-						<td colspan="3">Description</td>
-						<td>Unit Price</td>
-						<td>Total</td>
-					</tr>
-				</thead>
-				<tbody>
-					<% for(var i = 0; i < items.length; i++){ %>
+		<!-- <div style="flex: 1;">
+		</div> -->
+		<div style="flex: 5; display: flex; justify-content: space-between;">
+			<div style="flex: 1; text-align: center;">
+				<table>
+					<thead>
 						<tr>
-							<td><%= items[i].details.quantity %></td>
-							<td colspan="3"><%= items[i].nameEn %></td>
-							<td><%= items[i].price %></td>
-							<td><%= items[i].price * items[i].details.quantity %></td>
+							<td>Quantity</td>
+							<td colspan="3">Description</td>
+							<td>Unit Price</td>
+							<td>Total</td>
 						</tr>
-					<% } %>
-					<tr style="height: 25px">
-						<td></td>
-						<td colspan="3"></td>
-						<td></td>
-						<td></td>
-					</tr>
-					<tr style="height: 25px">
-						<td></td>
-						<td colspan="3"></td>
-						<td></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td colspan="4">Subtotal</td>
-						<td><%= total %></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td colspan="4">Sales Tax</td>
-						<td><%= parseInt(total * 0.14) %></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td colspan="4">Shipping And Handling</td>
-						<td><%= shippingFees %></td>
-						<td></td>
-					</tr>
-					<tr style="border-width: 3px;">
-						<td colspan="4">Subtotal</td>
-						<td><%= totalPrice + (total * 0.14) %></td>
-						<td></td>
-					</tr>
-				</tbody>
-			</table>
-			<div style="float: right">
+					</thead>
+					<tbody>
+						<% for(var i = 0; i < items.length; i++){ %>
+							<tr>
+								<td><%= items[i].details.quantity %></td>
+								<td colspan="3"><%= items[i].nameEn %></td>
+								<td><%= items[i].price %></td>
+								<td><%= items[i].price * items[i].details.quantity %></td>
+							</tr>
+						<% } %>
+						<tr style="height: 25px">
+							<td></td>
+							<td colspan="3"></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr style="height: 25px">
+							<td></td>
+							<td colspan="3"></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td colspan="4">Subtotal</td>
+							<td><%= total %></td>
+							<td></td>
+						</tr>
+						<!-- <tr>
+							<td colspan="4">Sales Tax</td>
+							<td><%= parseInt(total * 0.14) %></td>
+							<td></td>
+						</tr> -->
+						<tr>
+							<td colspan="4">Shipping And Handling</td>
+							<td><%= shippingFees %></td>
+							<td></td>
+						</tr>
+						<tr style="border-width: 3px;">
+							<td colspan="4">Subtotal</td>
+							<!-- <td><%= totalPrice + (total * 0.14) %></td> -->
+							<td><%= total + shippingFees %></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div style="flex: 1; text-align: center;">
 				<p>Due upon receipt</p>
 				<div>Thank you for your business</div>
 			</div>
 		</div>
 	</div>
 	<div>
-		<h2 style="color: orange">MadeInEgypt.Com</h2>
+		<h2 style="color: orange;">MadeInEgypt.Com</h2>
 		<div style="display: flex">
-			<div style="flex: 4; border-top: 2px solid black; border-bottom: 4px solid black;">
+			<div style="flex: 4; border-top: 2px solid black; border-bottom: 4px solid black; margin-right: 10px;">
 				<p>Address: This is a dummy address</p>
 				<p>Phone: 011111112222</p>
 			</div>
