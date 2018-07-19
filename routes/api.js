@@ -1380,7 +1380,7 @@ router.route('/orders')
 	}
 	let processedProducts = [];
 	let productsPromiseArray = products.map(element => {
-		return Product.findById(element.productId).populate('brandId').lean()
+		return Product.findById(element._id).populate('brandId').lean()
 	})
 	let theProducts = await Promise.all(productsPromiseArray);
 	// TODO: check there is no id replicas
