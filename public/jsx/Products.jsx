@@ -242,10 +242,12 @@ class ProductForm extends Component {
 		data.append('color', color)
 		data.append('details', JSON.stringify(details))
 		console.log(typeof photos);
-		Object.keys(photos).forEach((photoKey)=>{
-			data.append('photos', photos[photoKey], photos[photoKey].name);
-		})
-		data.append('photos', photos)
+		if(photos){
+			Object.keys(photos).forEach((photoKey)=>{
+				data.append('photos', photos[photoKey], photos[photoKey].name);
+			})
+			data.append('photos', photos)
+		}
 		data.append('brand', brand)
 		data.append('category', category)
 		data.append('featured', featured)
@@ -397,11 +399,13 @@ class ProductEditForm extends Component {
 		}
 		data.append('color', color)
 		data.append('details', JSON.stringify(details))
-		console.log(typeof photos);
-		Object.keys(photos).forEach((photoKey)=>{
-			data.append('photos', photos[photoKey], photos[photoKey].name);
-		})
-		data.append('photos', photos)
+		if(photos){
+			console.log(typeof photos, photos);
+			Object.keys(photos).forEach((photoKey)=>{
+				data.append('photos', photos[photoKey], photos[photoKey].name);
+			})
+			data.append('photos', photos)
+		}
 		data.append('brand', brand._id)
 		data.append('category', category._id)
 		data.append('featured', featured)
@@ -416,7 +420,7 @@ class ProductEditForm extends Component {
 		.then((response)=>{
 			if(response.status < 300){
 				this.props.context.componentDidMount();
-				return this.props.context.setState({createOpen: false});
+				return this.props.context.setState({editOpen: false});
 			}
 			this.setState({error: response.data.error});
 		})
@@ -511,7 +515,7 @@ class ProductEditForm extends Component {
 						<Radio label="Yes" checked={this.state.featured} value={true} onChange={(e, {value})=>this.setState({featured: value})} />
 						<Radio label="No" checked={!this.state.featured} value={false} onChange={(e, {value})=>this.setState({featured: value})} />
 					</Form.Field>
-					<Button onClick={this.handleSubmit}>Create Product</Button>
+					<Button onClick={this.handleSubmit}>Edit Product</Button>
 				</Form>
 			</div>
 		)
