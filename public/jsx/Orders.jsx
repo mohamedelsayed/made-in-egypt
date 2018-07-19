@@ -82,7 +82,7 @@ export default class Orders extends Component {
 						{key: "Allstatus", text: "All", value: null},
 						{key: "Cancelled order", text: "Cancelled", value: "Cancelled"},
 						{key: "Pending order", text: "Pending", value: "Pending"},
-						{key: "User processing order", text: "User Processing", value: "User Processing"},
+						{key: "Under processing order", text: "Under Processing", value: "Under Processing"},
 						{key: "Completed order", text: "Completed", value: "Completed"},
 					]}
 					onChange={(event, data)=>this.setState({filterStatus: data.value})}
