@@ -129,9 +129,13 @@ export default class Orders extends Component {
 											{/* {item.productId.nameEn} - {item.productId.nameAr}: {item.quantity}<br /> */}
 											{
 												item.productId?
-												item.productId.nameEn + " - " + item.productId.nameAr + " : " + item.details.quantity+<br />
+												<div>
+													{item.nameEn + " - " + item.nameAr/*  + " : " + item.details.quantity */}
+												</div>
 												:
-												"Product Deleted: "+item.nameEn + " - " + item.nameAr + " : " + item.details.quantity+<br />
+												<div>
+													"Product Deleted: "+{item.nameEn + " - " + item.nameAr/*  + " : " + item.details.quantity */}
+												</div>
 											}
 											{JSON.stringify(item.details)}
 										</div>)}

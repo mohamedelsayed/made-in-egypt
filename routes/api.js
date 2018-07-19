@@ -241,6 +241,7 @@ router.route('/admin/orders/:orderId')
 						res.sendStatus(500);
 						throw Error("Detail not found")
 					}
+					console.log("DETAIL INDEX", detailIndex, product.details, "ORDER DETAILS", order.items[index].details);
 					await Product.findByIdAndUpdate(product._id, {
 						$inc: {
 							['details.'+detailIndex+'.quantity']: order.items[index].details.quantity
@@ -248,6 +249,7 @@ router.route('/admin/orders/:orderId')
 					}, {
 						new: true
 					})
+					.then((updated)=>console.log("RESTOCKED", updated))
 				})
 			}
 			if(!responseSent){
@@ -825,6 +827,10 @@ router.route('/products')
 			error: "Details are missing"
 		})
 	}
+	details = details.map((detail)=>{
+		detail.quantity = parseFloat(detail.quantity);
+		return detail;
+	})
 	co(function*(){
 		let theCategory = yield Category.findOne({_id: category}).lean();
 		let theBrand = yield Brand.findOne({_id: brand}).lean();
@@ -1357,7 +1363,7 @@ async function _checkProductAndSendFCMIfNeeded(productId){
 
 router.route('/orders')
 .get(authenticateUser, (req, res)=>{
-	Order.find({userId: req.user._id}).populate('items.productId').sort({}).lean()
+	Order.find({userId: req.user._id}).sort({}).lean()
 	.then((orders)=>{
 		res.json(orders);
 	})
@@ -1373,17 +1379,35 @@ router.route('/orders')
 	}
 	let processedProducts = [];
 	let productsPromiseArray = products.map(element => {
-		return Product.findById(element._id).populate('brandId').lean()
+		return Product.findById(element.productId).populate('brandId').lean()
 	})
 	let theProducts = await Promise.all(productsPromiseArray);
 	// TODO: check there is no id replicas
+	let productDecrementor = [];
+	let decrementQuantity = function(){
+		productDecrementor.forEach((product)=>{
+			let decrementValue = -1 * product.quantity
+			let key = 'details.'+product.detailIndex+'.quantity';
+			Product.findByIdAndUpdate(product.productId, {
+				$inc: {
+					[key]: decrementValue
+				}
+			})
+			.catch((err)=>{
+				console.error(err);
+			})
+		})
+	}
 	try {
 		let totalPrice = 0;
 		theProducts.forEach((element, index)=>{
 			if(!element){
-				res.sendStatus(500);
+				res.status(404).send({error: "Unknown element at index "+index});
 				throw Error("Element unknown:", element);
 			}
+			let decrementObj = {
+				productId: element._id
+			};
 			if(!products[index].details || !_.isArray(products[index].details) || products[index].details.length === 0){
 				res.status(400).json({
 					error: "Product details not provided or malformed"
@@ -1398,6 +1422,8 @@ router.route('/orders')
 					return entry.size == products[index].details[0].size
 				})
 			}
+			decrementObj.detailIndex = detailIndex;
+			decrementObj.quantity = products[index].details[0].quantity;
 			if(detailIndex < 0){
 				res.status(400).json({
 					error: "Specified size for product " + products[index]._id + "found"
@@ -1413,7 +1439,7 @@ router.route('/orders')
 			_checkProductAndSendFCMIfNeeded(products[index]._id)
 			console.log(products[index], element)
 			processedProducts.push({
-				productId: products[index]._id,
+				productId: element._id,
 				price: products[index].details[0].quantity * element.price * (element.discount? 1 - (element.discount/100) : 1),
 				details: products[index].details[0],
 				nameEn: element.nameEn,
@@ -1422,8 +1448,10 @@ router.route('/orders')
 				imageUrl: element.photos.length > 1? element.photos[0] : undefined
 			})
 			totalPrice += element.price * products[index].details[0].quantity * (element.discount? 1 - (element.discount/100) : 1)
+			productDecrementor.push(decrementObj);
 		})
 		console.log("TOTAL", totalPrice, "SF", shippingFees)
+		console.log(processedProducts)
 		totalPrice += shippingFees;
 		let balanceToUse = 0;
 		if(req.user.balance > 0){
@@ -1471,7 +1499,8 @@ router.route('/orders')
 						})
 					})
 					if(paymentResponse && paymentResponse.status < 300){
-						return res.sendStatus(200)
+						res.sendStatus(200)
+						decrementQuantity()
 					} else {
 						await Order.findByIdAndRemove(theOrder._id)
 						return res.status(400).json({
@@ -1494,7 +1523,8 @@ router.route('/orders')
 					deliveryDate: moment().add(14, 'd').valueOf(),
 					items: processedProducts
 				})
-				return res.sendStatus(201);
+				res.sendStatus(201);
+				decrementQuantity();
 				break;
 			default:
 				return res.status(400).json({
@@ -1503,6 +1533,7 @@ router.route('/orders')
 		}
 	} catch(err) {
 		console.error(err);
+		res.sendStatus(500);
 	}
 })
 
