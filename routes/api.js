@@ -1271,11 +1271,21 @@ router.post('/rate/:productId', authenticateUser, (req, res)=>{
 
 router.get('/favourites', authenticateUser, (req, res)=>{
 	User.findById(req.user._id)
-	.populate('favourites', '_id nameEn nameAr')
-	.lean()
-	.then((populatedUser)=>{
-		res.send(populatedUser.favourites);
+	.then((user)=>{
+		console.log(user.favourites)
+		let favourited = user.favourites.map((favourite)=>{
+			return Product.findById(favourite, '-views -reviews').populate('brandId').lean();
+		})
+		return Promise.all(favourited);
 	})
+	.then((favourites)=>{
+		return res.send(favourites);
+	})
+	// .populate('favourites')
+	// .lean()
+	// .then((populatedUser)=>{
+	// 	res.send(populatedUser.favourites);
+	// })
 	.catch((err)=>{
 		console.error(err);
 		res.sendStatus(500);
