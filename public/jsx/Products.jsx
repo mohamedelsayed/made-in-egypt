@@ -211,7 +211,8 @@ class ProductForm extends Component {
 			error: "",
 			brands: [],
 			categories: [],
-			details: [{}]
+			details: [{}],
+			colors: [null]
 		}
 	}
 
@@ -222,14 +223,14 @@ class ProductForm extends Component {
 
 	handleSubmit = ()=>{
 		this.setState({error: ""})
-		let { nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured } = this.state;
+		let { nameEn, nameAr, descriptionEn, descriptionAr, price, discount, /* color */ colors, details, photos, brand, category, featured } = this.state;
 		details = details.filter((entry)=>{
 			return entry.quantity
 		})
-		if(!(nameEn || nameAr || descriptionEn || descriptionAr || price || discount || color || details.length > 0 || photos || brand || category || featured)){
+		if(!(nameEn || nameAr || descriptionEn || descriptionAr || price || discount || /* color */ colors || details.length > 0 || photos || brand || category || featured)){
 			return this.setState({error: "Form is incomplete"})
 		}
-		console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured);
+		console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, discount, /* color */colors, details, photos, brand, category, featured);
 		let data = new FormData();
 		data.append('nameEn', nameEn)
 		data.append('nameAr', nameAr)
@@ -239,7 +240,8 @@ class ProductForm extends Component {
 		if(discount){
 			data.append('discount', discount)
 		}
-		data.append('color', color)
+		// data.append('color', color)
+		data.append('colors', JSON.stringify(colors))
 		data.append('details', JSON.stringify(details))
 		console.log(typeof photos);
 		if(photos){
@@ -310,7 +312,18 @@ class ProductForm extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Color</label>
-						<input type="text" onChange={(event)=>this.setState({ color: event.currentTarget.value})} />
+						{/* <input type="text" onChange={(event)=>this.setState({ color: event.currentTarget.value})} /> */}
+						{
+							this.state.colors.map((color, index)=>{
+								return <input type="text" onChange={(event)=>{
+									let theColors = this.state.colors;
+									theColors[index] = event.currentTarget.value;
+									// this.setState({ colors: event.currentTarget.value})
+									this.setState({ colors: theColors })
+								}} />
+							})
+						}
+						<Button onClick={()=>this.setState({colors: this.state.colors.concat([null])})}>Add Color</Button>
 					</Form.Field>
 					<Form.Field>
 						<label>Details</label>

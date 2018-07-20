@@ -815,11 +815,17 @@ router.route('/products')
 })
 .all(authenticateAdmin)
 .post(upload.array('photos'), (req, res)=>{
-	let { nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, category, brand, color, featured } = req.body;
+	let { nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, category, brand, /* color */colors, featured } = req.body;
 	details = JSON.parse(details);
+	colors = JSON.parse(colors);
 	if(!_.isArray(details) || _.isUndefined(details)){
 		return res.status(400).json({
 			error: "Details is not an array or undefined"
+		});
+	}
+	if(!_.isArray(colors) || _.isUndefined(colors)){
+		return res.status(400).json({
+			error: "Colors is not an array or undefined"
 		});
 	}
 	if(details.length < 1){
@@ -855,10 +861,16 @@ router.route('/products')
 				return uploaded.Location
 			})
 		}
-		yield Product.create({
-			nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
-			ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
-		})
+		for (let index = 0; index < colors.length; index++) {
+			const color = colors[index];
+			if(!color){
+				continue;
+			}
+			yield Product.create({
+				nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
+				ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
+			})
+		}
 		return res.sendStatus(201);
 	})
 	.catch(err =>{
