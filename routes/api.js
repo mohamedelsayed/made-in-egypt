@@ -861,15 +861,22 @@ router.route('/products')
 				return uploaded.Location
 			})
 		}
-		for (let index = 0; index < colors.length; index++) {
-			const color = colors[index];
-			if(!color){
-				continue;
-			}
+		if(colors.length === 0){
 			yield Product.create({
-				nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
+				nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, featured: (featured === "yes"), photos,
 				ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 			})
+		} else {
+			for (let index = 0; index < colors.length; index++) {
+				const color = colors[index];
+				if(!color){
+					continue;
+				}
+				yield Product.create({
+					nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
+					ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
+				})
+			}
 		}
 		return res.sendStatus(201);
 	})
