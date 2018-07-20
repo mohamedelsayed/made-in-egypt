@@ -897,6 +897,10 @@ router.route('/products')
 		})
 	}
 	details.quantity = parseFloat(details.quantity)
+	details = details.map((detail)=>{
+		detail.quantity = parseFloat(detail.quantity);
+		return detail;
+	})
 	co(function*(){
 		let theProduct = yield Product.findById(_id).lean();
 		let theCategory = yield Category.findOne({_id: category}).lean();
