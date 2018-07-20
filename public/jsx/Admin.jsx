@@ -102,7 +102,7 @@ export default class Admin extends React.Component {
 
 		if(this.state.newAdminPassword === this.state.newAdminPasswordRepeat){
 			if(this.state.newAdminPassword.length < 6){
-				return this.setState({passwordError: "Password is too short"})
+				return this.setState({newAdminError: "Password is too short"})
 			}
 			axios.post('/api/admins', {
 				username: this.state.newAdminUsername,
@@ -119,6 +119,7 @@ export default class Admin extends React.Component {
 			.then((response)=>{
 				if(response.status < 300){
 					this.setState({newAdminUsername: "", newAdminPassword: "", newAdminPasswordRepeat: "", newAdminError: "", newAdminMessage: "Admin created successfully"}, ()=>{
+						this.componentDidMount();
 						setTimeout(()=>{
 							this.setState({newAdminMessage: ""})
 						}, 5000)

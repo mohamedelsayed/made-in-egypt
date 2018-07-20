@@ -529,7 +529,7 @@ router.route('/admins')
 	})
 })
 .post((req, res)=>{
-	let { username, password, master } = req.body;
+	let { username, password, master=true } = req.body;
 	Admin.find({
 		username
 	}).lean()
