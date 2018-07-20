@@ -896,6 +896,7 @@ router.route('/products')
 			error: "Details are missing"
 		})
 	}
+	details.quantity = parseFloat(details.quantity)
 	co(function*(){
 		let theProduct = yield Product.findById(_id).lean();
 		let theCategory = yield Category.findOne({_id: category}).lean();
