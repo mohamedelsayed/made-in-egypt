@@ -187,8 +187,8 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{product.quantity}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.photos.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.ratingTotal/product.ratingCount || 0}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.brand.nameEn + " - "+ product.brand.nameAr}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.category.nameEn + " - "+ product.category.nameAr}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.brand? product.brand.nameEn + " - "+ product.brand.nameAr : "Brand Not Found"}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.category ? product.category.nameEn + " - "+ product.category.nameAr : "Category Not Found"}</Table.Cell>
 									<Table.Cell textAlign='center'>{JSON.stringify(product.productDetails)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell>
