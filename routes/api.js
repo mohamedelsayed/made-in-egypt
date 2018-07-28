@@ -47,6 +47,31 @@ const paymob = require('./helpers/paymobPayment');
 
 const { authenticateUser, optionalAuthenticateUser, authenticateAdmin, authenticateAdminWithQuery } = require('./helpers/auth');
 
+function _setFavourites(products, user){
+	if(!user) return;
+	if(!products) {console.log("No products sent"); return;}
+	let favourites = user.favourites.map((f)=>f.toString())
+	if(!_.isArray(products)){
+		// single product. Accessed directly
+		let index = favourites.indexOf(products._id.toString())
+		if(index > -1){
+			products.isFavourite = true;
+		} else {
+			products.isFavourite = false;
+		}
+		return;
+	}
+	console.log(products, typeof products)
+	products.forEach((product, index)=>{
+		let fIndex = favourites.indexOf(product._id.toString());
+		if(fIndex > -1){
+			products[index].isFavourite = true;
+		} else {
+			products[index].isFavourite = false;
+		}
+	})
+}
+
 router.post('/login', (req, res)=>{
 	let {email, password} = req.body;
 	User.findOne({
@@ -744,7 +769,7 @@ router.get('/file', (req, res)=>{
 })
 
 router.route('/products')
-.get((req, res)=>{
+.get(optionalAuthenticateUser, (req, res)=>{
 
 	/**
 	 * Finds all products and filters them and sort them according to the query sent
@@ -806,6 +831,7 @@ router.route('/products')
 
 	Product.find(filter).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).populate('brandId').lean()
 	.then((products)=>{
+		_setFavourites(products, req.user)
 		res.json(products)
 	})
 	.catch((err)=>{
@@ -1039,9 +1065,10 @@ router.route('/featured')
 	})
 })
 
-router.get('/latest', (req, res)=>{
+router.get('/latest', optionalAuthenticateUser, (req, res)=>{
 	Product.find().sort({createdAt: -1}).limit(20).populate('brandId').lean()
 	.then((latestProducts)=>{
+		_setFavourites(latestProducts, req.user)
 		res.send(latestProducts);
 	})
 	.catch((err)=>{
@@ -1097,6 +1124,7 @@ router.route('/products/:id')
 
 	Product.findById(req.params.id).populate('brandId').lean()
 	.then((product)=>{
+		_setFavourites(product, req.user)
 		res.json(product);
 		/* Creates a view if viewed by user */
 		if(!req.admin){	
@@ -1117,6 +1145,7 @@ router.route('/products/:id')
 	})
 	.catch((err)=>{
 		console.error(err);
+		res.sendStatus(500);
 	})
 })
 .all(authenticateAdmin)
@@ -1217,7 +1246,7 @@ router.post('/review/:productId', authenticateUser, (req, res)=>{
 	})
 })
 
-router.get('/similar/:productId', (req, res)=>{
+router.get('/similar/:productId', optionalAuthenticateUser, (req, res)=>{
 	let responseSent = false;
 	Product.findById(req.params.productId).populate('brandId').lean()
 	.then((product)=>{
@@ -1238,6 +1267,7 @@ router.get('/similar/:productId', (req, res)=>{
 		}).lean()
 	})
 	.then((similarProducts)=>{
+		_setFavourites(similarProducts, req.user)
 		return res.json(similarProducts);
 	})
 	.catch((err)=>{
@@ -1497,7 +1527,7 @@ router.route('/orders')
 				details: products[index].details[0],
 				nameEn: element.nameEn,
 				nameAr: element.nameAr,
-				brand: element.brandId.nameEn,
+				brand: element.brandId.nameEn + " - " + element.brandId.nameAr,
 				imageUrl: element.photos.length > 1? element.photos[0] : undefined
 			})
 			totalPrice += element.price * products[index].details[0].quantity * (element.discount? 1 - (element.discount/100) : 1)

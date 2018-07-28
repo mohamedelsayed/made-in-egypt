@@ -48,7 +48,9 @@ app.use('/', index);
 app.use(function(req, res, next) {
   const err = new Error('Not Found');
   err.status = 404;
-  next(err);
+  // next(err);
+  console.error(err.message);
+  res.sendStatus(404);
 });
 
 // error handler
