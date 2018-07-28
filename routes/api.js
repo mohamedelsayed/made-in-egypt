@@ -935,8 +935,8 @@ router.route('/products')
 	})
 	co(function*(){
 		let theProduct = yield Product.findById(_id).lean();
-		let theCategory = yield Category.findOne({_id: category}).lean();
-		let theBrand = yield Brand.findOne({_id: brand}).lean();
+		let theCategory = yield Category.findById(category).lean();
+		let theBrand = yield Brand.findById(brand).lean();
 		if(!theProduct){
 			return res.status(404).json({
 				error: "Product not found"
@@ -1158,6 +1158,7 @@ router.route('/products/:id')
 	let { nameEn,	nameAr,	description, price,	quantity,
 				ratingTotal, categoryId, brandId,	productDetailsEn,
 				productDetailsAr } = req.body;
+	console.log(req.body);
 	let theBody = { nameEn,	nameAr,	description, price,	quantity,
 					ratingTotal, categoryId, brandId,	productDetailsEn,
 					productDetailsAr };
@@ -1852,10 +1853,13 @@ router.route('/categories/:id')
 				return res.sendStatus(404);
 			}
 			Object.assign(updateObject, {parentCategory});
+		} else {
+			Object.assign(updateObject, {parentCategory: null});
 		}
 		if(!theCategory){
 			return res.sendStatus(404);
 		}
+		console.log(updateObject);
 		await Category.findByIdAndUpdate(theCategory._id, updateObject);
 		res.sendStatus(200);
 	} catch(err){
@@ -1874,6 +1878,7 @@ router.route('/categories/:id')
 			return res.sendStatus(404);
 		}
 		await Category.deleteOne({_id: theCategory._id});
+		await Product.deleteMany({categoryId: req.params['id']})
 		return res.sendStatus(200);
 	} catch(err){
 		console.error(err);
@@ -2071,6 +2076,10 @@ router.route('/brands/:id')
 		})
 		.then((deletion)=>{
 			console.log(deletion);
+			Product.deleteMany({brandId: brandId})
+			.catch((err)=>{
+				console.error(err);
+			})
 			res.sendStatus(200)
 		})
 	})

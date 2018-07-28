@@ -82,6 +82,7 @@ export default class Brands extends Component {
 				<Modal
 					// trigger={<Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true})}>Delete</Button>}
 					header={"Delete Brand?"}
+					content={"WARNING: Deleting a brand will cause all products belonging to this brand to be deleted. Are you sure you want to continue?!"}
 					actions={[
 						<Button style={actionBtnStyle} key={"deleteBrandNo"} onClick={()=>this.setState({deleteOpen: false, targetBrandId: undefined})} >No</Button>,
 						<Button style={actionBtnStyle} key={"deleteBrandYes"} onClick={this.handleDelete}>Yes</Button>

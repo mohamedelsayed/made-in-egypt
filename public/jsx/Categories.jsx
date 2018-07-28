@@ -65,6 +65,7 @@ export default class Categories extends Component {
 				/>
 				<Modal
 					header={"Delete Category?"}
+					content={"WARNING: Deleting a category will cause all products belonging to this category to be deleted. Are you sure you want to continue?!"}
 					actions={[
 						<Button style={actionBtnStyle} key={"deleteCategoryNo"} onClick={()=>this.setState({deleteOpen: false, targetCategoryId: undefined})} >No</Button>,
 						<Button style={actionBtnStyle} key={"deleteCategoryYes"} onClick={this.handleDelete}>Yes</Button>
@@ -95,7 +96,15 @@ export default class Categories extends Component {
 									<Table.Cell width="1" collapsing>{/* <Icon name='folder' /> */} {category.nameEn}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{category.nameAr}</Table.Cell>
 									<Table.Cell width="1" textAlign='center'>{category.parentCategory? category.parentCategory.nameEn : ""}</Table.Cell>
-									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle} onClick={()=>this.setState({editOpen: true, category})}>Edit</Button><Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true, targetCategoryId: category._id})}>Delete</Button></Table.Cell>
+									<Table.Cell width="1" textAlign='center'><Button style={actionBtnStyle} onClick={()=>this.setState({editOpen: true, category})}>Edit</Button><Button style={actionBtnStyle} onClick={()=>{
+											let child = this.state.categories.find((c)=>{
+												return (c.parentCategory)? c.parentCategory._id.toString() === category._id.toString() : false
+											})
+											if(child){
+												return alert("You must delete all child categories belonging to this category before removing it")
+											}
+											this.setState({deleteOpen: true, targetCategoryId: category._id})
+										}}>Delete</Button></Table.Cell>
 								</Table.Row>
 								)
 							})
@@ -224,9 +233,9 @@ class CategoryFormEdit extends Component {
 		if(!_id){
 			throw Error("Category ID is undefined")
 		}
-		console.log({nameEn, nameAr, parentCategory: parentCategory._id})
+		console.log({nameEn, nameAr, parentCategory: (parentCategory)? parentCategory._id : null})
 		axios.put(`/api/categories/${_id}`, {
-			nameEn, nameAr, parentCategory: parentCategory._id
+			nameEn, nameAr, parentCategory: (parentCategory)? parentCategory._id : null
 		}, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')

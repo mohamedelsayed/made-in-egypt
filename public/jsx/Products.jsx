@@ -252,6 +252,8 @@ class ProductForm extends Component {
 				data.append('photos', photos[photoKey], photos[photoKey].name);
 			})
 			data.append('photos', photos)
+		} else {
+			return this.setState({error: "You must upload at least 1 image"});
 		}
 		data.append('brand', brand)
 		data.append('category', category)
@@ -423,8 +425,8 @@ class ProductEditForm extends Component {
 			})
 			data.append('photos', photos)
 		}
-		data.append('brand', brand._id)
-		data.append('category', category._id)
+		data.append('brand', (typeof brand === 'object')? brand._id: brand)
+		data.append('category', (typeof category === 'object')? category._id : category)
 		data.append('featured', featured)
 		axios.put('/api/products', data, {
 			headers: {
