@@ -54,12 +54,14 @@ export default class Categories extends Component {
 					header="New Category"
 					content={<CategoryForm context={this} />}
 					open={this.state.createOpen}
+					closeOnDimmerClick={false}
 				/>
 				<Modal
 					header="Edit Category"
 					content={<CategoryFormEdit context={this} category={this.state.category} />}
 					open={this.state.editOpen}
 					onClose={()=>this.setState({editOpen: false})}
+					closeOnDimmerClick={false}
 				/>
 				<Modal
 					header={"Delete Category?"}
@@ -69,6 +71,7 @@ export default class Categories extends Component {
 					]}
 					onClose={()=>this.setState({deleteOpen: false, targetCategoryId: undefined})}
 					open={this.state.deleteOpen}
+					closeOnDimmerClick={false}
 				/>
 				<Table celled striped>
 					<Table.Header>
@@ -186,6 +189,7 @@ class CategoryForm extends Component {
 						/>
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
+					<Button onClick={()=>this.props.context.setState({createOpen: false})}>Cancel</Button>
 				</Form>
 			</div>
 		)
@@ -283,6 +287,7 @@ class CategoryFormEdit extends Component {
 						/>
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.editing} /></Button>
+					<Button onClick={()=>this.props.context.setState({editOpen: false})}>Cancel</Button>
 				</Form>
 			</div>
 		)

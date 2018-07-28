@@ -111,12 +111,14 @@ export default class Products extends Component {
 					content={<ProductForm context={this} />}
 					open={this.state.createOpen}
 					onClose={()=>this.setState({createOpen: false})}
+					closeOnDimmerClick={false}
 				/>
 				<Modal
 					header="Edit Product"
 					content={<ProductEditForm context={this} />}
 					open={this.state.editOpen}
 					onClose={()=>this.setState({editOpen: false})}
+					closeOnDimmerClick={false}
 				/>
 				<Modal
 					// trigger={<Button>Create New Product</Button>}
@@ -127,6 +129,7 @@ export default class Products extends Component {
 					]}
 					onClose={()=>this.setState({deleteOpen: false, targetProductId: undefined})}
 					open={this.state.deleteOpen}
+					closeOnDimmerClick={false}
 				/>
 				<div>
 					<input type="text" placeholder="Search" onChange={(event)=>this.setState({searchText: event.currentTarget.value})} style={{border: '1px solid #ddd', borderRadius: 2, marginRight: 10, marginTop: 10, height: 32, padding: 10}} />
@@ -367,6 +370,7 @@ class ProductForm extends Component {
 						<Radio label="No" checked={this.state.featured === 'no'} value="no" onChange={(e, {value})=>this.setState({featured: value})} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Create Product</Button>
+					<Button onClick={()=>this.props.context.setState({createOpen: false})}>Cancel</Button>
 				</Form>
 			</div>
 		)
@@ -530,6 +534,7 @@ class ProductEditForm extends Component {
 						<Radio label="No" checked={!this.state.featured} value={false} onChange={(e, {value})=>this.setState({featured: value})} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Edit Product</Button>
+					<Button onClick={()=>this.props.context.setState({editOpen: false})}>Cancel</Button>
 				</Form>
 			</div>
 		)

@@ -70,12 +70,14 @@ export default class Brands extends Component {
 					content={<BrandForm context={this} />}
 					open={this.state.formOpen}
 					onClose={()=>this.setState({formOpen: false})}
+					closeOnDimmerClick={false}
 				/>
 				<Modal
 					header="Edit Brand"
 					content={<BrandFormEdit context={this} brand={this.state.targetBrand} />}
 					open={this.state.editOpen}
 					onClose={()=>this.setState({editOpen: false})}
+					closeOnDimmerClick={false}
 				/>
 				<Modal
 					// trigger={<Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true})}>Delete</Button>}
@@ -86,12 +88,14 @@ export default class Brands extends Component {
 					]}
 					onClose={()=>this.setState({deleteOpen: false, targetBrandId: undefined})}
 					open={this.state.deleteOpen}
+					closeOnDimmerClick={false}
 				/>
 				<Modal
 					actions={[<Button style={actionBtnStyle} key={"deleteError"} onClick={()=>this.setState({errorOpen: false})} >Ok</Button>,]}
 					content={"Some orders are pending that contain products of this brand"}
 					open={this.state.errorOpen}
 					onClose={()=>this.setState({errorOpen: false})}
+					closeOnDimmerClick={false}
 				/>
 				<Table celled striped>
 					<Table.Header>
@@ -194,6 +198,7 @@ class BrandForm extends Component {
 						<input type="file" onChange={(event)=>this.newBrand.logo = event.currentTarget.files[0]} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.creating} /></Button>
+					<Button onClick={()=>this.props.context.setState({formOpen: false})}>Cancel</Button>
 				</Form>
 			</div>
 		)
@@ -285,6 +290,7 @@ class BrandFormEdit extends Component {
 						<input type="file" onChange={(event)=>this.setState({newLogo: event.currentTarget.files[0]})} />
 					</Form.Field>
 					<Button onClick={this.handleSubmit}>Submit <Loader active={this.state.editing} /></Button>
+					<Button onClick={()=>this.props.context.setState({editOpen: false})}>Cancel</Button>
 				</Form>
 			</div>
 		)
