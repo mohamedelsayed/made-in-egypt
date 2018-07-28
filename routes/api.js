@@ -49,7 +49,7 @@ const { authenticateUser, optionalAuthenticateUser, authenticateAdmin, authentic
 
 function _setFavourites(products, user){
 	if(!user) return;
-	if(!products) {console.log("No products sent"); return;}
+	if(!products) return console.log("No products sent");
 	let favourites = user.favourites.map((f)=>f.toString())
 	if(!_.isArray(products)){
 		// single product. Accessed directly
@@ -61,7 +61,6 @@ function _setFavourites(products, user){
 		}
 		return;
 	}
-	console.log(products, typeof products)
 	products.forEach((product, index)=>{
 		let fIndex = favourites.indexOf(product._id.toString());
 		if(fIndex > -1){
