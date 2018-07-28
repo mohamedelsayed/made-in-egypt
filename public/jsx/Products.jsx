@@ -449,6 +449,23 @@ class ProductEditForm extends Component {
 		})
 	}
 
+	removeImage = (productId, image)=>{
+		axios.delete(`/api/image/${productId}?image=${image}`, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			}
+		})
+		.then((response)=>{
+			let updated = this.state.photos;
+			updated.splice(this.state.photos.indexOf(image), 1)
+			this.setState({photos: updated})
+		})
+		.catch((err)=>{
+			console.log(err);
+			this.setState({error: "Couldn't remove image"});
+		})
+	}
+
 	render(){
 		return(
 			<div style={{padding: '20px'}}>
@@ -519,7 +536,9 @@ class ProductEditForm extends Component {
 					<Form.Field>
 						<label>Photos</label>
 						{console.log(this.state.photos)}
-						<div>{this.state.photos? Object.values(this.state.photos).map((photo, index)=><a href={"/api/file?url="+photo} style={{margin: '5px 15px'}} target="_blank" key={"p-"+index}>Photo {index}</a>) : null}</div>
+						<div>{this.state.photos? Object.values(this.state.photos).map((photo, index)=>
+									<span><a href={"/api/file?url="+photo} style={{margin: '5px 15px'}} target="_blank" key={"p-"+index}>Photo {index}</a><span style={{cursor: 'pointer'}} onClick={()=>this.removeImage(this.state._id, photo)}>x</span></span>
+								) : null}</div>
 						<input type="file" multiple onChange={(event)=>this.setState({photos: event.currentTarget.files})} />
 					</Form.Field>
 					<Form.Field>

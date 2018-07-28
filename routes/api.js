@@ -1158,7 +1158,6 @@ router.route('/products/:id')
 	let { nameEn,	nameAr,	description, price,	quantity,
 				ratingTotal, categoryId, brandId,	productDetailsEn,
 				productDetailsAr } = req.body;
-	console.log(req.body);
 	let theBody = { nameEn,	nameAr,	description, price,	quantity,
 					ratingTotal, categoryId, brandId,	productDetailsEn,
 					productDetailsAr };
@@ -2087,6 +2086,30 @@ router.route('/brands/:id')
 		console.error(err);
 		res.sendStatus(500)
 	})
+})
+
+router.route('/image/:productId')
+.delete(authenticateAdmin, async (req, res)=>{
+	let { productId } = req.params;
+	let { image } = req.query;
+	if(!image){
+		return res.sendStatus(400);
+	}
+	try {
+		let product = await Product.findById(productId).lean();
+		if(!product){
+			return res.sendStatus(404);
+		}
+		await Product.findByIdAndUpdate(productId, {
+			$pull: {
+				photos: image
+			}
+		})
+		res.sendStatus(204);
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
+	}
 })
 
 router.route('/notifications')
