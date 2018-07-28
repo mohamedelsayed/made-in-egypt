@@ -150,16 +150,21 @@ export default class Orders extends Component {
 									<Table.Cell width="1" textAlign='center'>
 										{
 											(order.state === 'Pending')?
-											<Button style={actionBtnStyle} onClick={()=>{
-												this.changeOrderState(order._id, 'Under Processing');
-												window.open('/api/admin/print/'+order._id+"?token="+localStorage.getItem('auth'), "_blank")
-											}}>Accept & Print</Button>
+											<span>
+												<Button style={actionBtnStyle} onClick={()=>{
+													this.changeOrderState(order._id, 'Under Processing');
+												}}>Accept</Button>
+												<Button style={actionBtnStyle} onClick={()=>window.open('/api/admin/print/'+order._id+"?token="+localStorage.getItem('auth'), "_blank")}>Print</Button>
+											</span>
 											:
 											null
 										}
 										{
 											(order.state === 'Under Processing')?
-											<Button style={actionBtnStyle} onClick={()=>this.changeOrderState(order._id, 'Completed')}>Confirm</Button>
+											<span>
+												<Button style={actionBtnStyle} onClick={()=>this.changeOrderState(order._id, 'Completed')}>Confirm</Button>
+												<Button style={actionBtnStyle} onClick={()=>window.open('/api/admin/print/'+order._id+"?token="+localStorage.getItem('auth'), "_blank")}>Print</Button>
+											</span>
 											:
 											null
 										}
