@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Icon, Table, Modal, Button, Form, Dropdown, Radio, Loader, Menu } from 'semantic-ui-react'
 
 import axios from 'axios';
+import moment from 'moment';
 
 export default class Orders extends Component {
 	constructor(){
@@ -104,6 +105,7 @@ export default class Orders extends Component {
 							<Table.HeaderCell textAlign='center'>Shipping Fee</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Payment Method</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>State</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Order Date</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Delivery Date</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Items</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Total Price</Table.HeaderCell>
@@ -123,7 +125,8 @@ export default class Orders extends Component {
 									<Table.Cell width="1" collapsing textAlign='center'>{order.shippingFees}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.paymentMethod}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.state}</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{order.deliveryDate}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{moment(order.createdAt).format('DD/MM/YYYY')}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{moment(order.deliveryDate).format('DD/MM/YYYY')}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>
 										{order.items.map(item => <div key={Math.random()} style={{border: '1px solid black', borderRadius: '1px', marginBottom: '1px'}}>
 											{/* {item.productId.nameEn} - {item.productId.nameAr}: {item.quantity}<br /> */}
