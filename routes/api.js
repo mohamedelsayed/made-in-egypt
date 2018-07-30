@@ -108,6 +108,18 @@ router.post('/login', (req, res)=>{
 	})
 })
 
+router.get('/verify', (req, res)=>{
+	res.sendStatus(502);
+})
+
+router.get('/reverify', (req, res)=>{
+	res.sendStatus(502);
+})
+
+router.get('/resetpassword', (req, res)=>{
+	res.sendStatus(502);
+})
+
 router.post('/admin/login', (req, res)=>{
 	let {username, password} = req.body;
 	Admin.findOne({
