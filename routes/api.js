@@ -1495,7 +1495,7 @@ router.route('/orders')
 	})
 })
 .post(authenticateUser, async (req, res)=>{
-	let { products, paymentMethod, creditCard, shippingFees, address, phone } = req.body;
+	let { products, paymentMethod, creditCard, shippingFees, address, phone, cashOnDeliveryFees } = req.body;
 	if(!_.isArray(products) || products.length < 1 || !shippingFees){
 		return res.sendStatus(400);
 	}
@@ -1575,6 +1575,7 @@ router.route('/orders')
 		console.log("TOTAL", totalPrice, "SF", shippingFees)
 		console.log(processedProducts)
 		totalPrice += shippingFees;
+		totalPrice += (cashOnDeliveryFees || 0)
 		let balanceToUse = 0;
 		if(req.user.balance > 0){
 			if(req.user.balance >= totalPrice){
