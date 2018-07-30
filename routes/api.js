@@ -1322,7 +1322,7 @@ router.get('/similar/:productId', optionalAuthenticateUser, (req, res)=>{
 				$gte: product.price * 0.75
 			},
 			category: product.category
-		}).lean()
+		}).populate('brandId').lean()
 	})
 	.then((similarProducts)=>{
 		_setFavourites(similarProducts, req.user)
