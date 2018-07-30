@@ -1088,7 +1088,24 @@ router.get('/mostpopular', (req, res)=>{
 			"$project": {
 				_id: 1,
 				viewCount: {"$size": "$views"},
-				brandId: 1
+				brandId: 1,
+				nameEn: 1,
+				nameAr: 1,
+				descriptionEn: 1,
+				descriptionAr: 1,
+				price: 1,
+				discount: 1,
+				color: 1,
+				details: 1,
+				photos: 1,
+				ratingTotal: 1,
+				ratingCount: 1,
+				ratings: 1,
+				categoryId: 1,
+				reviews: 1,
+				featured: 1,
+				createdAt: 1,
+				updatedAt: 1
 			}
 		},
 		{
