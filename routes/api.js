@@ -771,12 +771,17 @@ router.get('/file', (req, res)=>{
 	if(!url){
 		res.sendStatus(500);
 	}
-	let parsed = URL.parse(url);
-	publicS3.getObject({
-		Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
-		Key: parsed.pathname.slice(1)
-	}).createReadStream()
-	.pipe(res);
+	try {
+		let parsed = URL.parse(url);
+		publicS3.getObject({
+			Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+			Key: parsed.pathname.slice(1)
+		}).createReadStream()
+		.pipe(res);
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
+	}
 })
 
 router.route('/products')
