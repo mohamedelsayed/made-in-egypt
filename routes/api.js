@@ -773,11 +773,13 @@ router.get('/file', (req, res)=>{
 	}
 	try {
 		let parsed = URL.parse(url);
-		publicS3.getObject({
+		let stream = publicS3.getObject({
 			Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
 			Key: parsed.pathname.slice(1)
 		}).createReadStream()
-		.pipe(res);
+		stream
+		.on('error', (err)=>{console.error(err); stream.unpipe(); res.end()})
+		.pipe(res)
 	} catch(err){
 		console.error(err);
 		res.sendStatus(500);
