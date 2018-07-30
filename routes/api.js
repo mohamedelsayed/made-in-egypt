@@ -1804,7 +1804,7 @@ router.route('/categories')
 })
 
 router.route('/categories/:id')
-.get((req, res)=>{
+.get(optionalAuthenticateUser, (req, res)=>{
 	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo, pageNumber = 1 } = req.query;
 
 	let filter = {};
@@ -1847,6 +1847,7 @@ router.route('/categories/:id')
 		if(!products){
 			return res.sendStatus(404);
 		}
+		_setFavourites(products, req.user)
 		res.json(products);
 	})
 	.catch((err)=>{
@@ -1961,7 +1962,7 @@ router.route('/brands')
 })
 
 router.route('/brands/:id')
-.get((req, res)=>{
+.get(optionalAuthenticateUser, (req, res)=>{
 	let { sortBy, sortDirection, filterByBrand, filterPriceFrom, filterPriceTo, pageNumber = 1 } = req.query;
 
 	let filter = {};
@@ -2007,6 +2008,7 @@ router.route('/brands/:id')
 	.then((products)=>{
 		if(products){
 			brand.products = products;
+			_setFavourites(brand.products, req.user)
 			res.json(brand)
 		} else {
 			res.sendStatus(404);
