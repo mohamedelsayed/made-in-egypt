@@ -1661,7 +1661,7 @@ router.route('/orders')
 })
 
 router.post('/orders/mock', authenticateUser, async (req, res)=>{
-	let { products, shippingFees, address, phone } = req.body;
+	let { products, shippingFees, address, phone, cashOnDeliveryFees } = req.body;
 	if(!_.isArray(products) || products.length < 1 || !shippingFees){
 		return res.sendStatus(400);
 	}
@@ -1706,6 +1706,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 				throw Error("Quantity conflict");
 			}
 			totalPrice += element.price * products[index].details[0].quantity * (element.discount? 1 - (element.discount/100) : 1)
+			totalPrice += (cashOnDeliveryFees || 0)
 		})
 		let balanceToUse = 0;
 		if(req.user.balance > 0){
