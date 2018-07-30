@@ -34,8 +34,8 @@ export default class Users extends Component {
 						</Table.Row>
 						<Table.Row>
 							<Table.HeaderCell textAlign='center'>Name</Table.HeaderCell>
-							<Table.HeaderCell textAlign='center'>Phone</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Email</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Phone</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Address</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Gender</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Verified</Table.HeaderCell>
