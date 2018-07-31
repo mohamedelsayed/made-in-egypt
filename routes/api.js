@@ -90,6 +90,7 @@ router.post('/login', (req, res)=>{
 						phone: user.phone,
 						address: user.address,
 						email,
+						verified: user.verified,
 						token: jwt.sign({
 							id: user._id
 						}, jwtSecret)
