@@ -143,6 +143,7 @@ export default class Orders extends Component {
 												</div>
 											}
 											{JSON.stringify(item.details)}
+											{item.productId && item.productId.color? <div>{"Color: " + item.productId.color}</div> : null}
 										</div>)}
 									</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>
