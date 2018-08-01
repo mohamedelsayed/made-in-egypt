@@ -324,7 +324,7 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 		}
 	}
 	try {
-		let orders = await Order.find(filter).populate({path: 'items.productId', model: 'Product'}).lean()
+		let orders = await Order.find(filter)/* .populate({path: 'items.productId', model: 'Product'}) */.lean()
 		if(brandId){
 			let theBrand = await Brand.findById(brandId).lean();
 			// orders = orders.filter((order)=>{
@@ -349,22 +349,22 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 					console.error("Detail quantity or price not available for item in order "+order._id);
 					continue;
 				}
-				if(!reportProducts[item.productId._id]){
-					let productBrand = await Brand.findById(item.productId.brandId).lean()
-					let productCategory = await Category.findById(item.productId.categoryId).lean()
-					reportProducts[item.productId._id] = {
-						"ID": item.productId._id.toString(),
-						"English Name": item.productId.nameEn,
-						"Arabic Name": item.productId.nameAr,
-						"Brand": productBrand? productBrand.nameEn + " - " + productBrand.nameAr : item.brand,
-						"Category": productCategory? productCategory.nameEn + " - " + productCategory.nameAr : "Category not found",
+				if(!reportProducts[item.productId]){
+					// let productBrand = await Brand.findById(item.productId.brandId).lean()
+					// let productCategory = await Category.findById(item.productId.categoryId).lean()
+					reportProducts[item.productId] = {
+						"ID": item.productId? item.productId.toString() : "Product Deleted",
+						"English Name": item.nameEn,
+						"Arabic Name": item.nameAr,
+						"Brand": item.brand,
+						"Category": item.category,
 						salesVolume: 0,
 						salesValue: 0,
 						"Views": item.productId.views.length
 					}
 				}
-				reportProducts[item.productId._id].salesVolume += item.details.quantity;
-				reportProducts[item.productId._id].salesValue += item.price;
+				reportProducts[item.productId].salesVolume += item.details.quantity;
+				reportProducts[item.productId].salesValue += item.price;
 			}
 		}
 		// res.send({orders, reportProducts})
@@ -1521,7 +1521,7 @@ router.route('/orders')
 	}
 	let processedProducts = [];
 	let productsPromiseArray = products.map(element => {
-		return Product.findById(element._id).populate('brandId').lean()
+		return Product.findById(element._id).populate('brandId').populate('categoryId').lean()
 	})
 	let theProducts = await Promise.all(productsPromiseArray);
 	// TODO: check there is no id replicas
@@ -1587,6 +1587,7 @@ router.route('/orders')
 				nameEn: element.nameEn,
 				nameAr: element.nameAr,
 				brand: element.brandId.nameEn + " - " + element.brandId.nameAr,
+				category: (element.categoryId)? element.categoryId.nameEn + " - " + element.categoryId.nameAr : "Deleted Category",
 				imageUrl: element.photos.length > 1? element.photos[0] : undefined
 			})
 			totalPrice += element.price * products[index].details[0].quantity * (element.discount? 1 - (element.discount/100) : 1)

@@ -27,6 +27,10 @@ const OrderItemSchema = new Schema({
 		type: String,
 		required: true
 	},
+	category: {
+		type: String,
+		required: true
+	},
 	details: {
 		type: Schema.Types.Mixed,
 		required: true
