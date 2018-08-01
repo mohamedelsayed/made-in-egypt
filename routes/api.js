@@ -324,7 +324,7 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 		}
 	}
 	try {
-		let orders = await Order.find(filter)/* .populate({path: 'items.productId', model: 'Product'}) */.lean()
+		let orders = await Order.find(filter).populate({path: 'items.productId', model: 'Product'}).lean()
 		if(brandId){
 			let theBrand = await Brand.findById(brandId).lean();
 			// orders = orders.filter((order)=>{
@@ -360,7 +360,7 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 						"Category": item.category,
 						salesVolume: 0,
 						salesValue: 0,
-						"Views": item.productId.views.length
+						"Views": item.productId? item.productId.views.length : "Product Deleted"
 					}
 				}
 				reportProducts[item.productId].salesVolume += item.details.quantity;
