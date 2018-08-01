@@ -140,7 +140,7 @@ export default class Products extends Component {
 							text: brand.nameEn + " - " + brand.nameAr
 						}
 					}))} onChange={(event, data)=>this.setState({filterBrand: data.value})} />
-					<Dropdown placeholder="Filter Category" options={[{text: "None", value: null, key: "filtercategorynull"}].concat(this.state.categories.map((category)=>{
+					<Dropdown placeholder="Filter Category" options={[{text: "None", value: null, key: "filtercategorynull"}].concat(this.state.categories.filter((c)=>c.parentCategory).map((category)=>{
 						return {
 							key: "filterkey-"+category._id,
 							value: category._id,
@@ -221,7 +221,7 @@ class ProductForm extends Component {
 
 	componentDidMount(){
 		this.setState({brands: this.props.context.state.brands.map((brand)=>Object.assign({},{key: brand._id, value: brand._id, text: brand.nameEn+" - "+brand.nameAr})),
-									categories: this.props.context.state.categories.map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))})
+									categories: this.props.context.state.categories.filter((c)=>c.parentCategory).map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))})
 	}
 
 	handleSubmit = ()=>{
@@ -392,7 +392,7 @@ class ProductEditForm extends Component {
 	componentDidMount(){
 		this.setState({...this.props.context.state.targetProduct, 
 			brands: this.props.context.state.brands.map((brand)=>Object.assign({},{key: brand._id, value: brand._id, text: brand.nameEn+" - "+brand.nameAr})),
-			categories: this.props.context.state.categories.map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))
+			categories: this.props.context.state.categories.filter((c)=>c.parentCategory).map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))
 		})
 	}
 
