@@ -1322,7 +1322,7 @@ router.get('/similar/:productId', optionalAuthenticateUser, (req, res)=>{
 				$lte: product.price * 1.25,
 				$gte: product.price * 0.75
 			},
-			category: product.category
+			categoryId: product.category
 		}).populate('brandId').lean()
 	})
 	.then((similarProducts)=>{
