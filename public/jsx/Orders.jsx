@@ -103,6 +103,7 @@ export default class Orders extends Component {
 							<Table.HeaderCell textAlign='center'>Buyer Phone</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Buyer Address</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Shipping Fee</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Cash On Delivery Fee</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Payment Method</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>State</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Order Date</Table.HeaderCell>
@@ -123,6 +124,7 @@ export default class Orders extends Component {
 									<Table.Cell width="1" collapsing textAlign='center'>{order.phone || order.userId.phone}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.address || order.userId.address}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.shippingFees}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{order.cashOnDeliveryFees}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.paymentMethod}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{order.state}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{moment(order.createdAt).format('DD/MM/YYYY')}</Table.Cell>

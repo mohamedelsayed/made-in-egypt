@@ -401,7 +401,7 @@ router.get('/admin/print/:orderId', authenticateAdminWithQuery, (req, res)=>{
 				return accumilator + item.price
 			}, 0),
 			shippingFees: order.shippingFees,
-
+			cashOnDeliveryFees: order.cashOnDeliveryFees
 		})
 	})
 	.catch((err)=>{
@@ -1661,6 +1661,7 @@ router.route('/orders')
 					userId: req.user._id,
 					price: totalPrice,
 					shippingFees: shippingFees,
+					cashOnDeliveryFees,
 					paymentMethod,
 					state: 'Pending',
 					deliveryDate: moment().add(14, 'd').valueOf(),
@@ -1741,6 +1742,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 			balanceToBeUsed: balanceToUse,
 			shippingFees: shippingFees,
 			totalPrice,
+			cashOnDeliveryFees,
 			address,
 			phone,
 			deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')

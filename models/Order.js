@@ -50,6 +50,9 @@ const OrderSchema = new Schema({
 		type: Number,
 		required: true
 	},
+	cashOnDeliveryFees: {
+		type: Number
+	},
 	items: {
 		type: [OrderItemSchema],
 		required: true,

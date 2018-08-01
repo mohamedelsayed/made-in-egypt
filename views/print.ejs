@@ -32,7 +32,7 @@
 		</div>
 	</div>
 	<div>
-		<div style="flex: 1; display: flex;">
+		<div style="flex: 1; display: flex; flex-direction: column;">
 			<div style="flex: 1">
 				To<br>
 				<p><%= address %></p>
@@ -68,8 +68,8 @@
 							<tr>
 								<td><%= items[i].details.quantity %></td>
 								<td colspan="3"><%= items[i].nameEn %></td>
+								<td><%= items[i].price / items[i].details.quantity %></td>
 								<td><%= items[i].price %></td>
-								<td><%= items[i].price * items[i].details.quantity %></td>
 							</tr>
 						<% } %>
 						<tr style="height: 25px">
@@ -99,10 +99,15 @@
 							<td><%= shippingFees %></td>
 							<td></td>
 						</tr>
+						<tr>
+							<td colspan="4">Cash On Delivery</td>
+							<td><%= cashOnDeliveryFees || 0 %></td>
+							<td></td>
+						</tr>
 						<tr style="border-width: 3px;">
 							<td colspan="4">Subtotal</td>
 							<!-- <td><%= totalPrice + (total * 0.14) %></td> -->
-							<td><%= total + shippingFees %></td>
+							<td><%= total + shippingFees + (cashOnDeliveryFees || 0) %></td>
 							<td></td>
 						</tr>
 					</tbody>
