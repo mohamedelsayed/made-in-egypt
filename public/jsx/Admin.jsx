@@ -188,7 +188,7 @@ export default class Admin extends React.Component {
 		}
 
 		axios.post('/api/admin/report', {
-			start, end, brandId
+			startDate: start, endDate: end, brandId
 		}, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')

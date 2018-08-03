@@ -325,8 +325,9 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 	}
 	try {
 		let orders = await Order.find(filter)/* .populate({path: 'items.productId', model: 'Product'}) */.lean()
+		let theBrand;
 		if(brandId){
-			let theBrand = await Brand.findById(brandId).lean();
+			theBrand = await Brand.findById(brandId).lean();
 			// orders = orders.filter((order)=>{
 				// 	return order.items.findIndex((item)=>{
 					// 		// console.log(item.productId.brandId.toString(), brandId, item.productId.brandId === brandId)
@@ -344,7 +345,7 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 			if(order.state === "Cancelled")	continue;
 			for (let index = 0; index < order.items.length; index++) {
 				const item = order.items[index];
-				if(brandId && item.productId.brandId.toString() !== brandId) continue;
+				if(brandId && item.brandId && item.brandId.toString() !== theBrand._id.toString()) continue;
 				if(!item.details.quantity || !item.price){
 					console.error("Detail quantity or price not available for item in order "+order._id);
 					continue;
@@ -1521,7 +1522,7 @@ router.route('/orders')
 	}
 	let processedProducts = [];
 	let productsPromiseArray = products.map(element => {
-		return Product.findById(element._id).populate('brandId').populate('categoryId').lean()
+		return Product.findById(element._id).populate('brandId').lean()
 	})
 	let theProducts = await Promise.all(productsPromiseArray);
 	// TODO: check there is no id replicas
@@ -1586,6 +1587,7 @@ router.route('/orders')
 				details: products[index].details[0],
 				nameEn: element.nameEn,
 				nameAr: element.nameAr,
+				brandId: element.brandId._id,
 				brand: element.brandId.nameEn + " - " + element.brandId.nameAr,
 				category: (element.categoryId)? element.categoryId.nameEn + " - " + element.categoryId.nameAr : "Deleted Category",
 				imageUrl: element.photos.length > 1? element.photos[0] : undefined

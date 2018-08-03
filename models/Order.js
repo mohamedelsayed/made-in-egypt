@@ -23,6 +23,10 @@ const OrderItemSchema = new Schema({
 	imageUrl: {
 		type: String
 	},
+	brandId: {
+		type: Schema.Types.ObjectId,
+		required: true
+	},
 	brand: {
 		type: String,
 		required: true
