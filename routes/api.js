@@ -435,7 +435,7 @@ router.route('/admin/products')
 		$and: []
 	};
 
-	if(search || brandId || categoryId){
+	if(search || brandId || categoryId || featured){
 		if(search){
 			filter['$and'].push(
 				{
@@ -478,13 +478,15 @@ router.route('/admin/products')
 		if(featured){
 			filter['$and'].push(
 				{
-					featured
+					featured: JSON.parse(featured)
 				}
 			)
 		}
 	} else {
 		filter = {};
 	}
+
+	console.log(filter);
 
 	Product.aggregate([
 		{

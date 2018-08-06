@@ -19,7 +19,7 @@ export default class Products extends Component {
 			targetProduct: undefined,
 			filterBrand: undefined,
 			filterCategory: undefined,
-			filterFeatured: undefined
+			filterFeatured: null
 		}
 	}
 
