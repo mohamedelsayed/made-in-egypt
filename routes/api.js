@@ -849,7 +849,7 @@ router.route('/products')
 	/* In all cases, sort by creation time */
 	Object.assign(sort, {createdAt: -1});
 
-	Product.find(filter).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).populate('brandId').lean()
+	Product.find(filter, '-views -ratings').sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).populate('brandId').lean()
 	.then((products)=>{
 		_setFavourites(products, req.user)
 		res.json(products)
@@ -1092,7 +1092,7 @@ router.route('/featured')
 })
 
 router.get('/latest', optionalAuthenticateUser, (req, res)=>{
-	Product.find().sort({createdAt: -1}).limit(20).populate('brandId').lean()
+	Product.find({}, '-views -ratings').sort({createdAt: -1}).limit(20).populate('brandId').lean()
 	.then((latestProducts)=>{
 		_setFavourites(latestProducts, req.user)
 		res.send(latestProducts);
@@ -1121,7 +1121,7 @@ router.get('/mostpopular', (req, res)=>{
 				photos: 1,
 				ratingTotal: 1,
 				ratingCount: 1,
-				ratings: 1,
+				// ratings: 1,
 				categoryId: 1,
 				reviews: 1,
 				featured: 1,
@@ -1161,7 +1161,7 @@ router.get('/mostpopular', (req, res)=>{
 				photos: 1,
 				ratingTotal: 1,
 				ratingCount: 1,
-				ratings: 1,
+				// ratings: 1,
 				categoryId: 1,
 				reviews: 1,
 				featured: 1,
@@ -1308,7 +1308,7 @@ router.post('/review/:productId', authenticateUser, (req, res)=>{
 
 router.get('/similar/:productId', optionalAuthenticateUser, (req, res)=>{
 	let responseSent = false;
-	Product.findById(req.params.productId).populate('brandId').lean()
+	Product.findById(req.params.productId, '-views -ratings').populate('brandId').lean()
 	.then((product)=>{
 		if(!product){
 			res.sendStatus(404);
