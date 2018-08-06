@@ -30,7 +30,11 @@ export default class Login extends React.Component {
 			if(response.status === 200){
 				localStorage.setItem('auth', response.data.token);
 				this.props.context.setState({master: response.data.master});
-				this.props.changeView('products');
+				if(response.data.master){
+					this.props.changeView('products');
+				} else {
+					this.props.changeView('orders');
+				}
 			} else {
 				this.setState({error: "Incorrect username or password"})
 			}
