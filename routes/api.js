@@ -430,7 +430,7 @@ router.route('/admin/products')
 .get((req, res)=>{
 	// Product.find().populate('brandId').populate('categoryId')
 	let theProducts, theBrands, theCategories;
-	let { search, brandId, categoryId } = req.query;
+	let { search, brandId, categoryId, featured } = req.query;
 	let filter = {
 		$and: []
 	};
@@ -471,6 +471,14 @@ router.route('/admin/products')
 			filter['$and'].push(
 				{
 					categoryId: mongoose.Types.ObjectId(categoryId)
+				}
+			)
+		}
+
+		if(featured){
+			filter['$and'].push(
+				{
+					featured
 				}
 			)
 		}

@@ -18,7 +18,8 @@ export default class Products extends Component {
 			targetProductId: undefined,
 			targetProduct: undefined,
 			filterBrand: undefined,
-			filterCategory: undefined
+			filterCategory: undefined,
+			filterFeatured: undefined
 		}
 	}
 
@@ -69,7 +70,7 @@ export default class Products extends Component {
 	}
 
 	handleSearch = ()=>{
-		axios.get(`/api/admin/products?${this.state.searchText? 'search='+this.state.searchText : ''}${this.state.filterBrand? '&brandId='+this.state.filterBrand : ''}${this.state.filterCategory? '&categoryId='+this.state.filterCategory : ''}`, {
+		axios.get(`/api/admin/products?${this.state.searchText? 'search='+this.state.searchText : ''}${this.state.filterBrand? '&brandId='+this.state.filterBrand : ''}${this.state.filterCategory? '&categoryId='+this.state.filterCategory : ''}${this.state.filterFeatured !== null? '&featured='+this.state.filterFeatured : ''}`, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
 			},
@@ -147,6 +148,23 @@ export default class Products extends Component {
 							text: category.nameEn + " - " + category.nameAr
 						}
 					}))} onChange={(event, data)=>this.setState({filterCategory: data.value})} />
+					<Dropdown placeholder="Featured" options={[
+						{
+							key: 'filterfeatured-null',
+							value: null,
+							text: "Not specified"
+						},
+						{
+							key: 'filterfeatured-yes',
+							value: true,
+							text: "Featured"
+						},
+						{
+							key: 'filterfeatured-no',
+							value: false,
+							text: "Not Featured"
+						}
+					]} onChange={(event, data)=>this.setState({filterFeatured: data.value})}/>
 					<Button onClick={this.handleSearch}>Search</Button>
 				</div>
 				<Table celled striped>
@@ -169,7 +187,7 @@ export default class Products extends Component {
 							<Table.HeaderCell textAlign='center'>Category</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Details</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Views</Table.HeaderCell>
-							<Table.HeaderCell textAlign='center'>Reviews</Table.HeaderCell>
+							{/* <Table.HeaderCell textAlign='center'>Reviews</Table.HeaderCell> */}
 							<Table.HeaderCell textAlign='center'>Actions</Table.HeaderCell>
 						</Table.Row>
 					</Table.Header>
@@ -192,9 +210,9 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{product.ratingTotal/product.ratingCount || 0}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.brand? product.brand.nameEn + " - "+ product.brand.nameAr : "Brand Not Found"}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.category ? product.category.nameEn + " - "+ product.category.nameAr : "Category Not Found"}</Table.Cell>
-									<Table.Cell textAlign='center'>{JSON.stringify(product.productDetails)}</Table.Cell>
+									<Table.Cell textAlign='center'>{JSON.stringify(product.details)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
-									<Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell>
+									{/* <Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell> */}
 									<Table.Cell textAlign='center'><Button style={actionBtnStyle} onClick={()=>this.setState({targetProduct: product, editOpen: true})} >Edit</Button><Button style={actionBtnStyle} onClick={()=>this.setState({targetProductId: product._id, deleteOpen: true})}>Delete</Button></Table.Cell>
 								</Table.Row>
 								)
