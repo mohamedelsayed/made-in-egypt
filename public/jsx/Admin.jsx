@@ -204,7 +204,115 @@ export default class Admin extends React.Component {
 			brandId = this.state.selectedBrand;
 		}
 
-		axios.post('/api/admin/report', {
+		axios.post('/api/admin/report/sales', {
+			startDate: start, endDate: end, brandId
+		}, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			responseType: 'blob'
+		})
+		.then((response)=>{
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'report.xlsx');
+			document.body.appendChild(link);
+			link.click();
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+
+	generateProductsReport = ()=>{
+		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
+		// 	return console.warn("Report start date or end date missing");
+		// }
+		let start, end, brandId;
+		if(this.state.productsReportStartDate){
+			start = moment(this.state.reportStartDate).valueOf();
+		}
+		if(this.state.productsReportEndDate){
+			end = moment(this.state.reportEndDate).valueOf();
+		}
+		if(this.state.productsSelectedBrand){
+			brandId = this.state.selectedBrand;
+		}
+
+		axios.post('/api/admin/report/products', {
+			startDate: start, endDate: end, brandId
+		}, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			responseType: 'blob'
+		})
+		.then((response)=>{
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'report.xlsx');
+			document.body.appendChild(link);
+			link.click();
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+
+	generateOrdersReport = ()=>{
+		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
+		// 	return console.warn("Report start date or end date missing");
+		// }
+		let start, end, brandId;
+		if(this.state.reportStartDate){
+			start = moment(this.state.reportStartDate).valueOf();
+		}
+		if(this.state.reportEndDate){
+			end = moment(this.state.reportEndDate).valueOf();
+		}
+		if(this.state.selectedBrand){
+			brandId = this.state.selectedBrand;
+		}
+
+		axios.post('/api/admin/report/orders', {
+			startDate: start, endDate: end, brandId
+		}, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			responseType: 'blob'
+		})
+		.then((response)=>{
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'report.xlsx');
+			document.body.appendChild(link);
+			link.click();
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+
+	generateUsersReport = ()=>{
+		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
+		// 	return console.warn("Report start date or end date missing");
+		// }
+		let start, end, brandId;
+		if(this.state.reportStartDate){
+			start = moment(this.state.reportStartDate).valueOf();
+		}
+		if(this.state.reportEndDate){
+			end = moment(this.state.reportEndDate).valueOf();
+		}
+		if(this.state.selectedBrand){
+			brandId = this.state.selectedBrand;
+		}
+
+		axios.post('/api/admin/report/users', {
 			startDate: start, endDate: end, brandId
 		}, {
 			headers: {
@@ -308,8 +416,8 @@ export default class Admin extends React.Component {
 					Cash On Delivery Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.cashOnDeliveryFees} min="0" onChange={(event)=>this.setState({cashOnDeliveryFees: event.currentTarget.valueAsNumber})} /><br/>
 					Shipping Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.shippingFees} min="0" onChange={(event)=>this.setState({shippingFees: event.currentTarget.valueAsNumber})} /><br/>
 					Free Shipping Minimum Order: <input disabled={this.state.configDisabled} type="number" value={this.state.freeShippingMinimumOrder} min="0" onChange={(event)=>this.setState({freeShippingMinimumOrder: event.currentTarget.valueAsNumber})} /><br/>
-					Address: <input disabled={this.state.configDisabled} type="number" value={this.state.freeShippingMinimumOrder} min="0" onChange={(event)=>this.setState({freeShippingMinimumOrder: event.currentTarget.valueAsNumber})} /><br/>
-					Free Shipping Minimum Order: <input disabled={this.state.configDisabled} type="number" value={this.state.freeShippingMinimumOrder} min="0" onChange={(event)=>this.setState({freeShippingMinimumOrder: event.currentTarget.valueAsNumber})} /><br/>
+					Address: <input disabled={this.state.configDisabled} type="number" value={this.state.address} min="0" onChange={(event)=>this.setState({address: event.currentTarget.value})} /><br/>
+					Phone: <input disabled={this.state.configDisabled} type="number" value={this.state.phone} min="0" onChange={(event)=>this.setState({phone: event.currentTarget.value})} /><br/>
 					<Button onClick={this.handleEditConfig}>Edit</Button>
 				</div>
 				<div style={{marginTop: 10}}>
