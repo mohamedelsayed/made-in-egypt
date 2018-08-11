@@ -2234,12 +2234,14 @@ router.route('/config')
 	})
 })
 .put(authenticateAdmin, (req, res)=>{
-	let { cashOnDeliveryFees = 5, shippingFees = 15, freeShippingMinimumOrder = 250 } = req.body;
+	let { cashOnDeliveryFees = 5, shippingFees = 15, freeShippingMinimumOrder = 250, address = "N/A", phone = "N/A" } = req.body;
 	let file = Buffer.from(`
 	{
 		"cashOnDeliveryFees": ${cashOnDeliveryFees},
 		"shippingFees": ${shippingFees},
-		"freeShippingMinimumOrder": ${freeShippingMinimumOrder}
+		"freeShippingMinimumOrder": ${freeShippingMinimumOrder},
+		"address": ${address},
+		"phone": ${phone}
 	}
 	`);
 	publicS3.putObject({
