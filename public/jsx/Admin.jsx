@@ -53,7 +53,7 @@ export default class Admin extends React.Component {
 		axios.get('/api/config')
 		.then((response)=>{
 			let { cashOnDeliveryFees, shippingFees, freeShippingMinimumOrder, address, phone } = response.data
-			this.setState({cashOnDeliveryFees, shippingFees, freeShippingMinimumOrder, configDisabled: false})
+			this.setState({cashOnDeliveryFees, shippingFees, freeShippingMinimumOrder, address, phone, configDisabled: false})
 			return axios.get('/api/admins', {
 				headers: {
 					'x-auth-token': localStorage.getItem('auth')
