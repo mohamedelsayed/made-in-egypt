@@ -1197,7 +1197,7 @@ router.route('/creditcard')
 		let oldToken = await CardToken.findOne({userId: req.user._id})
 		let newToken = await paymob.createCreditCardToken(req.user, cardHolderName, cardNumber, expiryYear, expiryMonth, cvn)
 		if(oldToken){
-			CardToken.findByIdAndRemove(oldToken._id)
+			await CardToken.findByIdAndRemove(oldToken._id)
 		}
 		res.status(201).send({
 			maskedPan: newToken.maskedPan
