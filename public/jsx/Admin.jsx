@@ -234,18 +234,18 @@ export default class Admin extends React.Component {
 		// }
 		let start, end, brandId, categoryId;
 		if(this.state.productsReportStartDate){
-			start = moment(this.state.reportStartDate).valueOf();
+			start = moment(this.state.productsReportStartDate).valueOf();
 		}
 		if(this.state.productsReportEndDate){
-			end = moment(this.state.reportEndDate).valueOf();
+			end = moment(this.state.productsReportEndDate).valueOf();
 		}
 		if(this.state.productsSelectedBrand){
-			brandId = this.state.selectedBrand;
+			brandId = this.state.productsSelectedBrand;
 		}
 		if(this.state.productsSelectedCategory){
 			categoryId = this.state.productsSelectedCategory;
 		}
-
+		console.log({startDate: start, endDate: end, brandId, categoryId})
 		axios.post('/api/admin/report/products', {
 			startDate: start, endDate: end, brandId, categoryId
 		}, {
@@ -272,11 +272,11 @@ export default class Admin extends React.Component {
 		// 	return console.warn("Report start date or end date missing");
 		// }
 		let start, end, gender;
-		if(this.state.reportStartDate){
-			start = moment(this.state.reportStartDate).valueOf();
+		if(this.state.usersReportStartDate){
+			start = moment(this.state.usersReportStartDate).valueOf();
 		}
-		if(this.state.reportEndDate){
-			end = moment(this.state.reportEndDate).valueOf();
+		if(this.state.usersReportEndDate){
+			end = moment(this.state.usersReportEndDate).valueOf();
 		}
 		if(this.state.selectedGender){
 			gender = this.state.selectedGender;
