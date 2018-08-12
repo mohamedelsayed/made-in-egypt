@@ -248,7 +248,7 @@ class ProductForm extends Component {
 		details = details.filter((entry)=>{
 			return entry.quantity
 		})
-		if(!(nameEn || nameAr || descriptionEn || descriptionAr || price || discount || /* color */ colors || details.length > 0 || photos || brand || category || featured)){
+		if(!(nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ /* color */ colors.length > 0 && details.length > 0 && photos && brand && category && typeof featured === 'boolean')){
 			return this.setState({error: "Form is incomplete"})
 		}
 		console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, discount, /* color */colors, details, photos, brand, category, featured);
@@ -417,13 +417,13 @@ class ProductEditForm extends Component {
 	handleSubmit = ()=>{
 		this.setState({error: ""})
 		let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured } = this.state;
-		if(!(_id || nameEn || nameAr || descriptionEn || descriptionAr || price || discount || color || details.length > 0 || photos || brand || category || featured)){
+		if(!(_id && nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ color && details.length > 0 && photos && brand && category && typeof featured === 'boolean')){
+			console.log([!!_id , !!nameEn , !!nameAr , !!descriptionEn , !!descriptionAr , !!price , !!/* discount , !!*/ color , !!details.length > 0 , !!photos , !!brand , !!category , !!(typeof featured === 'boolean')]);
 			return this.setState({error: "Form is incomplete"})
 		}
 		details = details.filter((entry)=>{
 			return entry.quantity
 		})
-		console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured);
 		let data = new FormData();
 		data.append('_id', _id)
 		data.append('nameEn', nameEn)
@@ -553,7 +553,6 @@ class ProductEditForm extends Component {
 					</Form.Field>
 					<Form.Field>
 						<label>Photos</label>
-						{console.log(this.state.photos)}
 						<div>{this.state.photos? Object.values(this.state.photos).map((photo, index)=>
 									<span><a href={"/api/file?url="+photo} style={{margin: '5px 15px'}} target="_blank" key={"p-"+index}>Photo {index}</a><span style={{cursor: 'pointer'}} onClick={()=>this.removeImage(this.state._id, photo)}>x</span></span>
 								) : null}</div>
