@@ -519,7 +519,7 @@ router.post('/admin/report/users', authenticateAdmin, async (req, res)=>{
 		filter['gender'] = gender
 	}
 
-	let reportData = await User.find(filter, '-updatedAt -password -favourites -__v -_id').lean();
+	let reportData = await User.find(filter, '-updatedAt -password -favourites -__v -_id -fcmToken').lean();
 
 
 	let excelSheet = xlsx.utils.json_to_sheet(reportData)
