@@ -408,7 +408,20 @@ router.post('/admin/report/products', authenticateAdmin, async (req, res)=>{
 		filter.categoryId = categoryId;
 	}
 
-	let reportData = await Product.find(filter).lean();
+	let reportData = await Product.find(filter, '-ratingTotal -ratingCount -ratings -views -reviews -__v -createdBy -_id').populate('brandId').populate('categoryId').lean();
+	// console.log(reportData);
+	reportData.forEach((product, index)=>{
+		product = JSON.parse(JSON.stringify(product));
+		product.photos = JSON.stringify(product.photos);
+		product.category = product.categoryId? product.categoryId.nameEn + " - " + product.categoryId.nameAr : "N/A";
+		product.brand = product.brandId? product.brandId.nameEn + " - " + product.brandId.nameAr : "N/A";
+		delete product.categoryId;
+		delete product.brandId;
+		product.featured = (product.featured)? "Yes" : "No";
+		product.details = JSON.stringify(product.details);
+		product.createdAt = moment(product.createdAt).format("DD/MM/YYYY");
+		reportData[index] = product;
+	})
 
 	let excelSheet = xlsx.utils.json_to_sheet(reportData)
 	let workbook = xlsx.utils.book_new();

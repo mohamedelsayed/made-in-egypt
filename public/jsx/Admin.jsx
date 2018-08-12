@@ -45,7 +45,8 @@ export default class Admin extends React.Component {
 			selectedGender: undefined,
 			selectedPaymentMethod: undefined,
 			selectedStatus: undefined,
-			productsSelectedBrand: undefined
+			productsSelectedBrand: undefined,
+			productsSelectedCategory: undefined
 		}
 	}
 
@@ -231,7 +232,7 @@ export default class Admin extends React.Component {
 		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
 		// 	return console.warn("Report start date or end date missing");
 		// }
-		let start, end, brandId;
+		let start, end, brandId, categoryId;
 		if(this.state.productsReportStartDate){
 			start = moment(this.state.reportStartDate).valueOf();
 		}
@@ -241,9 +242,12 @@ export default class Admin extends React.Component {
 		if(this.state.productsSelectedBrand){
 			brandId = this.state.selectedBrand;
 		}
+		if(this.state.productsSelectedCategory){
+			categoryId = this.state.productsSelectedCategory;
+		}
 
 		axios.post('/api/admin/report/products', {
-			startDate: start, endDate: end, brandId
+			startDate: start, endDate: end, brandId, categoryId
 		}, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
@@ -440,14 +444,15 @@ export default class Admin extends React.Component {
 							text: brand.nameEn + " - " + brand.nameAr
 						}
 					}))} onChange={(event, data)=>this.setState({productsSelectedBrand: data.value})} defaultValue={null} />
+					<br />
 					<label>Category:</label><br />
-					<Dropdown placeholder="Choose Category" style={{marginRight: 15}} options={[{key: "category-none", value: null, text: "Choose Category"}].concat(this.state.brands.filter((category)=>category.parentCategory).map((category)=>{
+					<Dropdown placeholder="Choose Category" style={{marginRight: 15}} options={[{key: "category-none", value: null, text: "Choose Category"}].concat(this.state.categories.filter((category)=>category.parentCategory).map((category)=>{
 						return {
-							key: "category-"+brand._id,
-							value: brand._id,
-							text: brand.nameEn + " - " + brand.nameAr
+							key: "category-"+category._id,
+							value: category._id,
+							text: category.nameEn + " - " + category.nameAr
 						}
-					}))} onChange={(event, data)=>this.setState({productsSelectedBrand: data.value})} defaultValue={null} />
+					}))} onChange={(event, data)=>this.setState({productsSelectedCategory: data.value})} defaultValue={null} />
 					<Button onClick={this.generateProductsReport}>
 						Generate Report
 					</Button>
