@@ -901,7 +901,7 @@ router.route('/users')
 			});
 		} else {
 			delete attrs.passwordConfirmation;
-			bcrypt.hash(password, 10, (err, hash)=>{
+			bcrypt.hash(attrs.password, 10, (err, hash)=>{
 				if(err){
 					console.error(err);
 					return res.sendStatus(500);
