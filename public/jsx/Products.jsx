@@ -248,7 +248,8 @@ class ProductForm extends Component {
 		details = details.filter((entry)=>{
 			return entry.quantity
 		})
-		if(!(nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ /* color */ colors.length > 0 && details.length > 0 && photos && brand && category && typeof featured === 'boolean')){
+		if(!(nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ /* color */ colors.length > 0 && details.length > 0 && photos && brand && category && featured)){
+			console.log([nameEn , nameAr , descriptionEn , descriptionAr , price , /* discount , */ /* color */ colors.length > 0 , details.length > 0 , photos , brand , category , featured])
 			return this.setState({error: "Form is incomplete"})
 		}
 		console.log(nameEn, nameAr, descriptionEn, descriptionAr, price, discount, /* color */colors, details, photos, brand, category, featured);
