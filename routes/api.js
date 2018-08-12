@@ -323,7 +323,9 @@ router.post('/admin/report/sales', authenticateAdmin, async (req, res)=>{
 		}
 	}
 	try {
+		console.log(filter);
 		let orders = await Order.find(filter)/* .populate({path: 'items.productId', model: 'Product'}) */.lean()
+		console.log(orders.length);
 		let theBrand;
 		if(brandId){
 			theBrand = await Brand.findById(brandId).lean();
@@ -341,7 +343,7 @@ router.post('/admin/report/sales', authenticateAdmin, async (req, res)=>{
 
 		for (let oIndex = 0; oIndex < orders.length; oIndex++) {
 			const order = orders[oIndex];
-			if(order.state === "Cancelled")	continue;
+			if(order.state === "Cancelled")	{console.log("Continuing index:", oIndex, orders.length); continue;}
 			for (let index = 0; index < order.items.length; index++) {
 				const item = order.items[index];
 				if(brandId && item.brandId && item.brandId.toString() !== theBrand._id.toString()) continue;
@@ -472,7 +474,7 @@ router.post('/admin/report/orders', authenticateAdmin, async (req, res)=>{
 		for (let itemIndex = 0; itemIndex < order.items.length; itemIndex++) {
 			const item = order.items[itemIndex];
 			reportData.push({
-				"ID": order._id,
+				"ID": JSON.stringify(order._id),
 				"User email": order.userId? order.userId.email : "N/A",
 				// "Order total price": order.totalPrice,
 				"Shipping fees": order.shippingFees,
