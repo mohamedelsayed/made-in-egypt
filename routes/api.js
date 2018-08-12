@@ -1612,7 +1612,7 @@ router.route('/favourites/:productId')
 })
 .delete(authenticateUser, (req, res)=>{
 	let { productId } = req.params;
-	User.findOneAndUpdate(req.user._id, {
+	User.findByIdAndUpdate(req.user._id, {
 		$pull: {
 			favourites: productId
 		}
@@ -1621,7 +1621,7 @@ router.route('/favourites/:productId')
 	})
 	.then((updated)=>{
 		console.log(updated);
-		res.sendStatus(200)
+		res.status(200).send(updated);
 	})
 	.catch((err)=>{
 		console.error(err);
