@@ -466,6 +466,7 @@ router.post('/admin/report/orders', authenticateAdmin, async (req, res)=>{
 		for (let itemIndex = 0; itemIndex < order.items.length; itemIndex++) {
 			const item = order.items[itemIndex];
 			reportData.push({
+				"ID": order._id,
 				"User email": order.userId? order.userId.email : "N/A",
 				// "Order total price": order.totalPrice,
 				"Shipping fees": order.shippingFees,
@@ -1677,7 +1678,7 @@ router.route('/orders')
 	}
 	let processedProducts = [];
 	let productsPromiseArray = products.map(element => {
-		return Product.findById(element._id).populate('brandId').lean()
+		return Product.findById(element._id).populate('brandId').populate('categoryId').lean()
 	})
 	let theProducts = await Promise.all(productsPromiseArray);
 	// TODO: check there is no id replicas
