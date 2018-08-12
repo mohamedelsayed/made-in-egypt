@@ -118,10 +118,10 @@ module.exports = {
 		let authResponse = await authentication();
 		let {token} = authResponse.data;
 		let paymentKeyResponse = await paymentKey(token, 0, null, null, user, null);
-		console.log(paymentKeyResponse.data)
+		// console.log(paymentKeyResponse.data)
 		let paymentKeyToken = paymentKeyResponse.data.token;
 		let tokenizationResponse = await tokenization(paymentKeyToken, user, cardNumber, cardHolderName, expiryMonth, expiryYear, cvn);
-		console.log(tokenizationResponse.data);
+		// console.log(tokenizationResponse.data);
 		let createdCardToken = await CardToken.create({
 			userId: user._id,
 			token: tokenizationResponse.data.token,
