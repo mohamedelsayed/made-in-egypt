@@ -63,19 +63,21 @@ export default class Orders extends Component {
 		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
 		// 	return console.warn("Report start date or end date missing");
 		// }
-		let start, end, brandId;
-		if(this.state.reportStartDate){
-			start = moment(this.state.reportStartDate).valueOf();
+		let start, end, state, paymentMethod;
+		if(this.state.ordersReportStartDate){
+			start = moment(this.state.ordersReportStartDate).valueOf();
 		}
-		if(this.state.reportEndDate){
-			end = moment(this.state.reportEndDate).valueOf();
+		if(this.state.ordersReportEndDate){
+			end = moment(this.state.ordersReportEndDate).valueOf();
 		}
-		if(this.state.selectedBrand){
-			brandId = this.state.selectedBrand;
+		if(this.state.selectedPaymentMethod){
+			paymentMethod = this.state.selectedPaymentMethod;
 		}
-
+		if(this.state.selectedStatus){
+			state = this.state.selectedStatus;
+		}
 		axios.post('/api/admin/report/orders', {
-			startDate: start, endDate: end, brandId
+			startDate: start, endDate: end, paymentMethod, state
 		}, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')

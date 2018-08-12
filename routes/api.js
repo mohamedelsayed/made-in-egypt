@@ -85,6 +85,7 @@ router.post('/login', (req, res)=>{
 				}
 				if(correct){
 					return res.json({
+						_id: user._id,
 						firstName: user.firstName,
 						lastName: user.lastName,
 						phone: user.phone,
@@ -399,6 +400,14 @@ router.post('/admin/report/products', authenticateAdmin, async (req, res)=>{
 		}
 	}
 
+	if(brandId){
+		filter.brandId = brandId
+	}
+
+	if(categoryId){
+		filter.categoryId = categoryId;
+	}
+
 	let reportData = await Product.find(filter).lean();
 
 	let excelSheet = xlsx.utils.json_to_sheet(reportData)
@@ -414,7 +423,8 @@ router.post('/admin/report/products', authenticateAdmin, async (req, res)=>{
 })
 
 router.post('/admin/report/orders', authenticateAdmin, async (req, res)=>{
-	let { startDate, endDate } = req.body;
+	let { startDate, endDate, state, paymentMethod } = req.body;
+	console.log(req.body);
 	let filter = {};
 	if(startDate || endDate){
 		filter['createdAt'] = {}
@@ -426,20 +436,60 @@ router.post('/admin/report/orders', authenticateAdmin, async (req, res)=>{
 		}
 	}
 
+	if(state){
+		filter.state = state;
+	}
+
+	if(paymentMethod){
+		filter.paymentMethod = paymentMethod;
+	}
+
+
+	let orders = await Order.find(filter).populate('userId').lean();
+
+	let reportData = [];
+	for (let index = 0; index < orders.length; index++) {
+		const order = orders[index];
+		for (let itemIndex = 0; itemIndex < order.items.length; itemIndex++) {
+			const item = order.items[itemIndex];
+			reportData.push({
+				"User email": order.userId? order.userId.email : "N/A",
+				// "Order total price": order.totalPrice,
+				"Shipping fees": order.shippingFees,
+				"Cash on delivery fess": order.cashOnDeliveryFees,
+				"Payment method": order.paymentMethod,
+				"State": order.state,
+				"Delivery Date": order.deliveryDate,
+				"Address": order.address,
+				"Phone": order.phone,
+				"Item price": item.price,
+				"English Name": item.nameEn,
+				"Arabic Name": item.nameAr,
+				"Brand": item.brand,
+				"Category": item.category,
+				"Details": JSON.stringify(item.details),
+				"Order Date": moment(order.createdAt).format("DD/MM/YYYY")
+			})
+		}
+	}
+
 	let excelSheet = xlsx.utils.json_to_sheet(reportData)
 	let workbook = xlsx.utils.book_new();
 	xlsx.utils.book_append_sheet(workbook, excelSheet, "Report");
 	let sheetName = moment().valueOf()+".xlsx";
 	xlsx.writeFile(workbook, sheetName);
 	fs.readFile(sheetName, (err, data)=>{
-		if(err) throw Error(err);
+		if(err) {
+			console.error(err);
+			res.sendStatus(500);
+		}
 		res.send(data);
 		fs.unlink(sheetName, (err)=>{if(err)console.error(err)});
 	})
 })
 
 router.post('/admin/report/users', authenticateAdmin, async (req, res)=>{
-	let { startDate, endDate } = req.body;
+	let { startDate, endDate, gender } = req.body;
 	let filter = {};
 	if(startDate || endDate){
 		filter['createdAt'] = {}
@@ -455,7 +505,7 @@ router.post('/admin/report/users', authenticateAdmin, async (req, res)=>{
 		filter['gender'] = gender
 	}
 
-	let reportData = await User.find(filter).lean();
+	let reportData = await User.find(filter, '-updatedAt -password -favourites -__v -_id').lean();
 
 
 	let excelSheet = xlsx.utils.json_to_sheet(reportData)

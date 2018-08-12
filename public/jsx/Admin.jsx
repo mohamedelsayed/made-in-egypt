@@ -267,19 +267,19 @@ export default class Admin extends React.Component {
 		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
 		// 	return console.warn("Report start date or end date missing");
 		// }
-		let start, end, brandId;
+		let start, end, gender;
 		if(this.state.reportStartDate){
 			start = moment(this.state.reportStartDate).valueOf();
 		}
 		if(this.state.reportEndDate){
 			end = moment(this.state.reportEndDate).valueOf();
 		}
-		if(this.state.selectedBrand){
-			brandId = this.state.selectedBrand;
+		if(this.state.selectedGender){
+			gender = this.state.selectedGender;
 		}
 
 		axios.post('/api/admin/report/users', {
-			startDate: start, endDate: end, brandId
+			startDate: start, endDate: end, gender
 		}, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
