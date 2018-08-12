@@ -1045,6 +1045,7 @@ router.route('/products')
 			error: "Colors is not an array or undefined"
 		});
 	}
+	colors = colors.filter((color)=>color)
 	if(details.length < 1){
 		return res.status(400).json({
 			error: "Details are missing"

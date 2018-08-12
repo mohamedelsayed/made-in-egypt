@@ -418,7 +418,7 @@ class ProductEditForm extends Component {
 	handleSubmit = ()=>{
 		this.setState({error: ""})
 		let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured } = this.state;
-		if(!(_id && nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ color && details.length > 0 && photos && brand && category && typeof featured === 'boolean')){
+		if(!(_id && nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ /* color && */ details.length > 0 && photos && brand && category && typeof featured === 'boolean')){
 			console.log([!!_id , !!nameEn , !!nameAr , !!descriptionEn , !!descriptionAr , !!price , !!/* discount , !!*/ color , !!details.length > 0 , !!photos , !!brand , !!category , !!(typeof featured === 'boolean')]);
 			return this.setState({error: "Form is incomplete"})
 		}
