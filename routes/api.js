@@ -309,18 +309,16 @@ router.route('/admin/orders/:orderId')
 	})
 })
 
-router.post('/admin/report', authenticateAdmin, async (req, res)=>{
+router.post('/admin/report/sales', authenticateAdmin, async (req, res)=>{
 	let { startDate, endDate, brandId } = req.body;
 	let filter = {};
-	if(startDate){
-		console.log(moment(startDate).valueOf())
-		filter['createdAt'] = {
-			$gt: moment(startDate).valueOf()
+	if(startDate || endDate){
+		filter['createdAt'] = {}
+		if(startDate){
+			filter['createdAt']['$gt'] = moment(startDate).valueOf();
 		}
-	}
-	if(endDate){
-		filter['createdAt'] = {
-			$lt: moment(endDate).add(1, 'day').valueOf()
+		if(endDate){
+			filter['createdAt']['$lt'] = moment(endDate).add(1, 'day').valueOf()
 		}
 	}
 	try {
@@ -386,6 +384,90 @@ router.post('/admin/report', authenticateAdmin, async (req, res)=>{
 		console.error(err);
 		res.sendStatus(500);
 	}
+})
+
+router.post('/admin/report/products', authenticateAdmin, async (req, res)=>{
+	let { startDate, endDate, brandId, categoryId } = req.body;
+	let filter = {};
+	if(startDate || endDate){
+		filter['createdAt'] = {}
+		if(startDate){
+			filter['createdAt']['$gt'] = moment(startDate).valueOf();
+		}
+		if(endDate){
+			filter['createdAt']['$lt'] = moment(endDate).add(1, 'day').valueOf()
+		}
+	}
+
+	let reportData = await Product.find(filter).lean();
+
+	let excelSheet = xlsx.utils.json_to_sheet(reportData)
+	let workbook = xlsx.utils.book_new();
+	xlsx.utils.book_append_sheet(workbook, excelSheet, "Report");
+	let sheetName = moment().valueOf()+".xlsx";
+	xlsx.writeFile(workbook, sheetName);
+	fs.readFile(sheetName, (err, data)=>{
+		if(err) throw Error(err);
+		res.send(data);
+		fs.unlink(sheetName, (err)=>{if(err)console.error(err)});
+	})
+})
+
+router.post('/admin/report/orders', authenticateAdmin, async (req, res)=>{
+	let { startDate, endDate } = req.body;
+	let filter = {};
+	if(startDate || endDate){
+		filter['createdAt'] = {}
+		if(startDate){
+			filter['createdAt']['$gt'] = moment(startDate).valueOf();
+		}
+		if(endDate){
+			filter['createdAt']['$lt'] = moment(endDate).add(1, 'day').valueOf()
+		}
+	}
+
+	let excelSheet = xlsx.utils.json_to_sheet(reportData)
+	let workbook = xlsx.utils.book_new();
+	xlsx.utils.book_append_sheet(workbook, excelSheet, "Report");
+	let sheetName = moment().valueOf()+".xlsx";
+	xlsx.writeFile(workbook, sheetName);
+	fs.readFile(sheetName, (err, data)=>{
+		if(err) throw Error(err);
+		res.send(data);
+		fs.unlink(sheetName, (err)=>{if(err)console.error(err)});
+	})
+})
+
+router.post('/admin/report/users', authenticateAdmin, async (req, res)=>{
+	let { startDate, endDate } = req.body;
+	let filter = {};
+	if(startDate || endDate){
+		filter['createdAt'] = {}
+		if(startDate){
+			filter['createdAt']['$gt'] = moment(startDate).valueOf();
+		}
+		if(endDate){
+			filter['createdAt']['$lt'] = moment(endDate).add(1, 'day').valueOf()
+		}
+	}
+
+	if(gender){
+		filter['gender'] = gender
+	}
+
+	let reportData = await User.find(filter).lean();
+
+
+	let excelSheet = xlsx.utils.json_to_sheet(reportData)
+	let workbook = xlsx.utils.book_new();
+	xlsx.utils.book_append_sheet(workbook, excelSheet, "Report");
+	let sheetName = moment().valueOf()+".xlsx";
+	xlsx.writeFile(workbook, sheetName);
+	fs.readFile(sheetName, (err, data)=>{
+		if(err) throw Error(err);
+		res.send(data);
+		fs.unlink(sheetName, (err)=>{if(err)console.error(err)});
+	})
 })
 
 router.get('/admin/print/:orderId', authenticateAdminWithQuery, (req, res)=>{
@@ -2240,8 +2322,8 @@ router.route('/config')
 		"cashOnDeliveryFees": ${cashOnDeliveryFees},
 		"shippingFees": ${shippingFees},
 		"freeShippingMinimumOrder": ${freeShippingMinimumOrder},
-		"address": ${address},
-		"phone": ${phone}
+		"address": "${address}",
+		"phone": "${phone}"
 	}
 	`);
 	publicS3.putObject({

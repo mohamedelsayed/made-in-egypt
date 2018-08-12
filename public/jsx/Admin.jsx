@@ -159,7 +159,9 @@ export default class Admin extends React.Component {
 		axios.put('/api/config', {
 			cashOnDeliveryFees: this.state.cashOnDeliveryFees,
 			shippingFees: this.state.shippingFees,
-			freeShippingMinimumOrder: this.state.freeShippingMinimumOrder
+			freeShippingMinimumOrder: this.state.freeShippingMinimumOrder,
+			address: this.state.address,
+			phone: this.state.phone
 		}, {
 			headers: {
 				'x-auth-token': localStorage.getItem('auth')
@@ -241,42 +243,6 @@ export default class Admin extends React.Component {
 		}
 
 		axios.post('/api/admin/report/products', {
-			startDate: start, endDate: end, brandId
-		}, {
-			headers: {
-				'x-auth-token': localStorage.getItem('auth')
-			},
-			responseType: 'blob'
-		})
-		.then((response)=>{
-			const url = window.URL.createObjectURL(new Blob([response.data]));
-			const link = document.createElement('a');
-			link.href = url;
-			link.setAttribute('download', 'report.xlsx');
-			document.body.appendChild(link);
-			link.click();
-		})
-		.catch((err)=>{
-			console.error(err);
-		})
-	}
-
-	generateOrdersReport = ()=>{
-		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
-		// 	return console.warn("Report start date or end date missing");
-		// }
-		let start, end, brandId;
-		if(this.state.reportStartDate){
-			start = moment(this.state.reportStartDate).valueOf();
-		}
-		if(this.state.reportEndDate){
-			end = moment(this.state.reportEndDate).valueOf();
-		}
-		if(this.state.selectedBrand){
-			brandId = this.state.selectedBrand;
-		}
-
-		axios.post('/api/admin/report/orders', {
 			startDate: start, endDate: end, brandId
 		}, {
 			headers: {
@@ -416,8 +382,8 @@ export default class Admin extends React.Component {
 					Cash On Delivery Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.cashOnDeliveryFees} min="0" onChange={(event)=>this.setState({cashOnDeliveryFees: event.currentTarget.valueAsNumber})} /><br/>
 					Shipping Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.shippingFees} min="0" onChange={(event)=>this.setState({shippingFees: event.currentTarget.valueAsNumber})} /><br/>
 					Free Shipping Minimum Order: <input disabled={this.state.configDisabled} type="number" value={this.state.freeShippingMinimumOrder} min="0" onChange={(event)=>this.setState({freeShippingMinimumOrder: event.currentTarget.valueAsNumber})} /><br/>
-					Address: <input disabled={this.state.configDisabled} type="number" value={this.state.address} min="0" onChange={(event)=>this.setState({address: event.currentTarget.value})} /><br/>
-					Phone: <input disabled={this.state.configDisabled} type="number" value={this.state.phone} min="0" onChange={(event)=>this.setState({phone: event.currentTarget.value})} /><br/>
+					Address: <input disabled={this.state.configDisabled} type="text" value={this.state.address} min="0" onChange={(event)=>this.setState({address: event.currentTarget.value})} /><br/>
+					Phone: <input disabled={this.state.configDisabled} type="text" value={this.state.phone} min="0" onChange={(event)=>this.setState({phone: event.currentTarget.value})} /><br/>
 					<Button onClick={this.handleEditConfig}>Edit</Button>
 				</div>
 				<div style={{marginTop: 10}}>
@@ -474,42 +440,15 @@ export default class Admin extends React.Component {
 							text: brand.nameEn + " - " + brand.nameAr
 						}
 					}))} onChange={(event, data)=>this.setState({productsSelectedBrand: data.value})} defaultValue={null} />
+					<label>Category:</label><br />
+					<Dropdown placeholder="Choose Category" style={{marginRight: 15}} options={[{key: "category-none", value: null, text: "Choose Category"}].concat(this.state.brands.filter((category)=>category.parentCategory).map((category)=>{
+						return {
+							key: "category-"+brand._id,
+							value: brand._id,
+							text: brand.nameEn + " - " + brand.nameAr
+						}
+					}))} onChange={(event, data)=>this.setState({productsSelectedBrand: data.value})} defaultValue={null} />
 					<Button onClick={this.generateProductsReport}>
-						Generate Report
-					</Button>
-				</div>
-
-				<div style={{marginTop: 10}}>
-					<h1>Orders Report</h1>
-					<label>Start Date: </label>
-					<DatePicker
-						dateFormat="YYYY-MM-DD"
-						selected={this.state.ordersReportStartDate}
-						onChange={(date)=>this.setState({ordersReportStartDate: date})}
-					/>
-					{/* <input type="date" onChange={(event)=>this.setState({reportStartDate: event.currentTarget.valueAsDate})}/> */}
-					<label>End Date: </label>
-					<DatePicker
-						dateFormat="YYYY-MM-DD"
-						selected={this.state.ordersReportEndDate}
-						onChange={(date)=>this.setState({ordersReportEndDate: date})}
-					/>
-					{/* <input type="date" onChange={(event)=>this.setState({reportEndDate: event.currentTarget.valueAsDate})}/> */}
-					<label>Payment Method:</label><br />
-					<Dropdown placeholder="Choose Payment Method" style={{marginRight: 15}} options={[
-						{key: "pm-none", value: null, text: "None"},
-						{key: "cashondelivery", value: "Cash On Delivery", text: "Cash On Delivery"},
-						{key: "creditcard", value: "Credit Card", text: "Credit Card"}
-					]} onChange={(event, data)=>this.setState({selectedPaymentMethod: data.value})} defaultValue={null} />
-					<label>Status:</label><br />
-					<Dropdown placeholder="Choose Status" style={{marginRight: 15}} options={[
-						{key: "s-none", value: null, text: "None"},
-						{key: "pending", value: "Pending", text: "Pending"},
-						{key: "cancelled", value: "Cancelled", text: "Cancelled"},
-						{key: "Under Processing", value: "Under Processing", text: "Under Processing"},
-						{key: "Completed", value: "Completed", text: "Completed"}
-					]} onChange={(event, data)=>this.setState({selectedStatus: data.value})} defaultValue={null} />
-					<Button onClick={this.generateOrdersReport}>
 						Generate Report
 					</Button>
 				</div>

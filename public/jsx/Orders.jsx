@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, Table, Modal, Button, Form, Dropdown, Radio, Loader, Menu } from 'semantic-ui-react'
+import { Icon, Table, Modal, Button, Form, Dropdown, Radio, Loader, Menu } from 'semantic-ui-react';
+import DatePicker from 'react-datepicker';
 
 import axios from 'axios';
 import moment from 'moment';
@@ -41,6 +42,7 @@ export default class Orders extends Component {
 			console.error(err);
 		})
 	}
+
 	changeOrderState = (orderId, newState)=>{
 		axios.put(`/api/admin/orders/${orderId}`, {
 			state: newState
@@ -56,6 +58,43 @@ export default class Orders extends Component {
 			console.error(err);
 		})
 	}
+
+	generateOrdersReport = ()=>{
+		// if(!(this.state.reportStartDate && this.state.reportEndDate)){
+		// 	return console.warn("Report start date or end date missing");
+		// }
+		let start, end, brandId;
+		if(this.state.reportStartDate){
+			start = moment(this.state.reportStartDate).valueOf();
+		}
+		if(this.state.reportEndDate){
+			end = moment(this.state.reportEndDate).valueOf();
+		}
+		if(this.state.selectedBrand){
+			brandId = this.state.selectedBrand;
+		}
+
+		axios.post('/api/admin/report/orders', {
+			startDate: start, endDate: end, brandId
+		}, {
+			headers: {
+				'x-auth-token': localStorage.getItem('auth')
+			},
+			responseType: 'blob'
+		})
+		.then((response)=>{
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'report.xlsx');
+			document.body.appendChild(link);
+			link.click();
+		})
+		.catch((err)=>{
+			console.error(err);
+		})
+	}
+
 	render(){
 		const actionBtnStyle = {
 			margin: '3px'
@@ -63,6 +102,42 @@ export default class Orders extends Component {
 		return(
 			<div style={{padding: '15px', overflowX: 'scroll'}}>
 				<h1 style={{textAlign: 'center'}}>Orders</h1>
+				<div style={{marginTop: 10}}>
+					<h1>Orders Report</h1>
+					<label>Start Date: </label>
+					<DatePicker
+						dateFormat="YYYY-MM-DD"
+						selected={this.state.ordersReportStartDate}
+						onChange={(date)=>this.setState({ordersReportStartDate: date})}
+					/>
+					{/* <input type="date" onChange={(event)=>this.setState({reportStartDate: event.currentTarget.valueAsDate})}/> */}
+					<label>End Date: </label>
+					<DatePicker
+						dateFormat="YYYY-MM-DD"
+						selected={this.state.ordersReportEndDate}
+						onChange={(date)=>this.setState({ordersReportEndDate: date})}
+					/>
+					{/* <input type="date" onChange={(event)=>this.setState({reportEndDate: event.currentTarget.valueAsDate})}/> */}
+					<label>Payment Method:</label><br />
+					<Dropdown placeholder="Choose Payment Method" style={{marginRight: 15}} options={[
+						{key: "pm-none", value: null, text: "None"},
+						{key: "cashondelivery", value: "Cash On Delivery", text: "Cash On Delivery"},
+						{key: "creditcard", value: "Credit Card", text: "Credit Card"}
+					]} onChange={(event, data)=>this.setState({selectedPaymentMethod: data.value})} defaultValue={null} />
+					<br />
+					<label>Status:</label><br />
+					<Dropdown placeholder="Choose Status" style={{marginRight: 15}} options={[
+						{key: "s-none", value: null, text: "None"},
+						{key: "pending", value: "Pending", text: "Pending"},
+						{key: "cancelled", value: "Cancelled", text: "Cancelled"},
+						{key: "Under Processing", value: "Under Processing", text: "Under Processing"},
+						{key: "Completed", value: "Completed", text: "Completed"}
+					]} onChange={(event, data)=>this.setState({selectedStatus: data.value})} defaultValue={null} />
+					<Button onClick={this.generateOrdersReport}>
+						Generate Report
+					</Button>
+				</div>
+				<hr />
 				{/* <Modal
 					trigger={<Button>Create New Order</Button>}
 					header="New Order"
