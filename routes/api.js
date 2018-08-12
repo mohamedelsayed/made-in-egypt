@@ -343,14 +343,15 @@ router.post('/admin/report/sales', authenticateAdmin, async (req, res)=>{
 
 		for (let oIndex = 0; oIndex < orders.length; oIndex++) {
 			const order = orders[oIndex];
-			if(order.state === "Cancelled")	{console.log("Continuing index:", oIndex, orders.length); continue;}
+			if(order.state === "Cancelled")	{/* console.log("Continuing index:", oIndex, orders.length);  */continue;}
 			for (let index = 0; index < order.items.length; index++) {
 				const item = order.items[index];
-				if(brandId && item.brandId && item.brandId.toString() !== theBrand._id.toString()) continue;
+				if(brandId && item.brandId && item.brandId.toString() !== theBrand._id.toString()) {/* console.log("Continuing at item", oIndex, index, item.brandId.toString(), theBrand._id.toString(), order.items.length); */ continue;}
 				if(!item.details.quantity || !item.price){
 					console.error("Detail quantity or price not available for item in order "+order._id);
 					continue;
 				}
+				// console.log("Passed at item", oIndex, index, item.brandId.toString(), theBrand? theBrand._id.toString() : "No brand given")
 				if(!reportProducts[item.productId]){
 					// let productBrand = await Brand.findById(item.productId.brandId).lean()
 					// let productCategory = await Category.findById(item.productId.categoryId).lean()
