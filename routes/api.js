@@ -1791,7 +1791,7 @@ router.route('/orders')
 					throw Error("Order failed. No order")
 				}
 
-				let theToken = (Object.keys(creditCard).length < 2)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.nameOnCard, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>{console.error(err); res.status(400).json({error: "Credit card info provided are not correct or incomplete"})})
+				let theToken = (creditCard.cvn && !creditCard.cardNumber && !creditCard.nameOnCard && !creditCard.expiryMonth && !creditCard.expiryYear)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.nameOnCard, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>{console.error(err); res.status(400).json({error: "Credit card info provided are not correct or incomplete"})})
 				if(theToken){
 					let paymentResponse = await paymob.pay(theToken.token, totalPrice * 100, req.user, creditCard.cvn).catch(async (err)=>{
 						await Order.findByIdAndRemove(theOrder._id)
