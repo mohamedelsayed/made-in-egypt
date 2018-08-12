@@ -1208,10 +1208,10 @@ router.route('/creditcard')
 	})
 })
 .put(authenticateUser, async (req, res)=>{
-	let {cardNumber, cardHolderName, expiryMonth, expiryYear, cvn} = req.body;
+	let {cardNumber, nameOnCard, expiryMonth, expiryYear, cvn} = req.body;
 	try{
 		let oldToken = await CardToken.findOne({userId: req.user._id})
-		let newToken = await paymob.createCreditCardToken(req.user, cardHolderName, cardNumber, expiryYear, expiryMonth, cvn)
+		let newToken = await paymob.createCreditCardToken(req.user, nameOnCard, cardNumber, expiryYear, expiryMonth, cvn)
 		if(oldToken){
 			await CardToken.findByIdAndRemove(oldToken._id)
 		}
