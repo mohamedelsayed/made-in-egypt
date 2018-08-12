@@ -530,6 +530,12 @@ router.post('/admin/report/users', authenticateAdmin, async (req, res)=>{
 
 	let reportData = await User.find(filter, '-updatedAt -password -favourites -__v -_id -fcmToken').lean();
 
+	for (let index = 0; index < reportData.length; index++) {
+		let user = reportData[index];
+		user.createdAt = moment(user.createdAt).format('DD/MM/YYYY');
+		reportData[index] = user;
+	}
+
 
 	let excelSheet = xlsx.utils.json_to_sheet(reportData)
 	let workbook = xlsx.utils.book_new();
