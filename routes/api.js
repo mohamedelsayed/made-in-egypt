@@ -45,6 +45,7 @@ const CardToken = require('../models/CardToken')
 const { jwtSecret, /* shippingFees */ } = require('./helpers/config');
 const { removeEmptyObjectKeys } = require('./helpers/helpers');
 const paymob = require('./helpers/paymobPayment');
+const mailer = require('./helpers/email');
 
 const { authenticateUser, optionalAuthenticateUser, authenticateAdmin, authenticateAdminWithQuery } = require('./helpers/auth');
 
@@ -133,8 +134,21 @@ router.get('/verify', async (req, res)=>{
 	}
 })
 
-router.get('/resendverification', (req, res)=>{
-	res.sendStatus(502);
+router.get('/resendverification', async (req, res)=>{
+	let { email } = req.query;
+	let user = await User.findOne({ email }).lean();
+	if(!user){
+		return res.sendStatus(404);
+	}
+	if(user.verified){
+		return res.sendStatus(400);
+	}
+	const cipher = crypto.createCipher('aes192', 'a password');
+
+	let encrypted = cipher.update(user._id, 'utf8', 'hex');
+	encrypted += cipher.final('hex');
+	mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`)
+	res.sendStatus(200);
 })
 
 router.get('/resetpassword', (req, res)=>{
