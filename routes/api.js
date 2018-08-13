@@ -4,6 +4,7 @@ const router = express.Router();
 const path = require('path');
 const URL = require('url');
 const fs = require('fs');
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const co = require('co');
@@ -110,11 +111,29 @@ router.post('/login', (req, res)=>{
 	})
 })
 
-router.get('/verify', (req, res)=>{
-	res.sendStatus(502);
+router.get('/verify', async (req, res)=>{
+	let { data } = req.query;
+	try {
+		const decipher = crypto.createDecipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
+		let decrypted = decipher.update(data, 'hex', 'utf8');
+		decrypted += decipher.final('utf8');
+		let user = await User.findById(decrypted)
+		if(!user){
+			return res.sendStatus(404);
+		}
+		if(user.verified === true){
+			return res.status(400).send("You are already verified");
+		}
+		user.verified = true;
+		await user.save();
+		return res.send("You have been verified successfully. Welcome to <strong>Made In Egypt</strong>.Please log in through the app.")
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
+	}
 })
 
-router.get('/reverify', (req, res)=>{
+router.get('/resendverification', (req, res)=>{
 	res.sendStatus(502);
 })
 
