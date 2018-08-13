@@ -902,6 +902,12 @@ router.route('/users')
 				})
 				Object.assign(newUser, {maskedPan: createdToken.maskedPan})
 			}
+
+			const cipher = crypto.createCipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
+			let encrypted = cipher.update(newUser._id, 'utf8', 'hex');
+			encrypted += cipher.final('hex');
+			mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`)
+			
 			res.status(201).send(newUser);
 		})
 		.catch((err)=>{
