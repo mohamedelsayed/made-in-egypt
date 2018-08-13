@@ -143,7 +143,7 @@ router.get('/resendverification', async (req, res)=>{
 	if(user.verified){
 		return res.sendStatus(400);
 	}
-	const cipher = crypto.createCipher('aes192', 'a password');
+	const cipher = crypto.createCipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
 
 	let encrypted = cipher.update(user._id, 'utf8', 'hex');
 	encrypted += cipher.final('hex');
