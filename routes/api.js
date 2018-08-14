@@ -127,7 +127,7 @@ router.get('/verify', async (req, res)=>{
 		}
 		user.verified = true;
 		await user.save();
-		return res.send("You have been verified successfully. Welcome to <strong>Made In Egypt</strong>.Please log in through the app.")
+		return res.send("You have been verified successfully. Welcome to <strong>Made In Egypt</strong>.Please log in through the app.", user.email)
 	} catch(err){
 		console.error(err);
 		res.sendStatus(500);
@@ -147,12 +147,32 @@ router.get('/resendverification', async (req, res)=>{
 
 	let encrypted = cipher.update(user._id, 'utf8', 'hex');
 	encrypted += cipher.final('hex');
-	mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`)
+	mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`, email)
 	res.sendStatus(200);
 })
 
-router.get('/resetpassword', (req, res)=>{
-	res.sendStatus(502);
+router.post('/resetpassword', (req, res)=>{
+	let { email } = req.body;
+	User.findOne({email})
+	.then((user)=>{
+		if(!user){
+			return res.sendStatus(404);
+		}
+		let newPassword = randomstring.generate(12);
+		bcrypt.hash(newPassword, parseInt(process.env.SALT) || 10)
+		.then((hashed)=>{
+			user.password = hashed;
+			return user.save()
+		})
+		.then((updated)=>{
+			mailer.sendAutoEmail("Reset Password", `You have requested to reset your password. Here's your new one: <br><strong>${newPassword}</strong>`, email)
+			return res.sendStatus(200);
+		})
+	})
+	.catch((err)=>{
+		console.error(err);
+		res.sendStatus(500);
+	})
 })
 
 router.post('/admin/login', (req, res)=>{
@@ -843,7 +863,7 @@ router.route('/admins/:adminId')
 
 // TODO: add authenticateAdmin for fetching all users route
 router.route('/users')
-.get((req, res)=>{
+.get(authenticateAdmin, (req, res)=>{
 	User.find({}).lean()
 	.then((users)=>{
 		res.json(users);
@@ -906,7 +926,7 @@ router.route('/users')
 			const cipher = crypto.createCipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
 			let encrypted = cipher.update(newUser._id, 'utf8', 'hex');
 			encrypted += cipher.final('hex');
-			mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`)
+			mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`, email)
 			
 			res.status(201).send(newUser);
 		})

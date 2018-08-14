@@ -1,7 +1,7 @@
 const nodeMailer = require('nodemailer');
 const _ = require('lodash');
-const emailUser = "";
-const emailPassword = "";
+const emailUser = "no-reply@madeinegyptapp.com";
+const emailPassword = "a9535b1571f865f7edb1c76e";
 const transport = nodeMailer.createTransport({
 	host: 'smtp.zoho.com',
 	port: 465,
