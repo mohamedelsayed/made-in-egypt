@@ -127,7 +127,7 @@ router.get('/verify', async (req, res)=>{
 		}
 		user.verified = true;
 		await user.save();
-		return res.send("You have been verified successfully. Welcome to <strong>Made In Egypt</strong>.Please log in through the app.", user.email)
+		return res.send("You have been verified successfully. Welcome to <strong>Made In Egypt</strong>.Please log in through the app.")
 	} catch(err){
 		console.error(err);
 		res.sendStatus(500);
@@ -143,12 +143,17 @@ router.get('/resendverification', async (req, res)=>{
 	if(user.verified){
 		return res.sendStatus(400);
 	}
-	const cipher = crypto.createCipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
-
-	let encrypted = cipher.update(user._id, 'utf8', 'hex');
-	encrypted += cipher.final('hex');
-	mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`, email)
-	res.sendStatus(200);
+	try {
+		const cipher = crypto.createCipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
+	
+		let encrypted = cipher.update(user._id.toString(), 'utf8', 'hex');
+		encrypted += cipher.final('hex');
+		mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`, email)
+		res.sendStatus(200);
+	} catch(err){
+		console.error(err);
+		return res.sendStatus(500);
+	}
 })
 
 router.post('/resetpassword', (req, res)=>{
@@ -924,7 +929,7 @@ router.route('/users')
 			}
 
 			const cipher = crypto.createCipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
-			let encrypted = cipher.update(newUser._id, 'utf8', 'hex');
+			let encrypted = cipher.update(newUser._id.toString(), 'utf8', 'hex');
 			encrypted += cipher.final('hex');
 			mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`, email)
 			
