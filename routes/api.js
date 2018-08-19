@@ -86,17 +86,25 @@ router.post('/login', (req, res)=>{
 					return res.sendStatus(500);
 				}
 				if(correct){
-					return res.json({
-						_id: user._id,
-						firstName: user.firstName,
-						lastName: user.lastName,
-						phone: user.phone,
-						address: user.address,
-						email,
-						verified: user.verified,
-						token: jwt.sign({
-							id: user._id
-						}, jwtSecret)
+					return CardToken.findOne({userId: user._id}, '-token').lean()
+					.then((card)=>{
+						return res.json({
+							_id: user._id,
+							firstName: user.firstName,
+							lastName: user.lastName,
+							phone: user.phone,
+							address: user.address,
+							email,
+							creditCard: card,
+							verified: user.verified,
+							token: jwt.sign({
+								id: user._id
+							}, jwtSecret)
+						})
+					})
+					.catch((err)=>{
+						console.error(err);
+						res.sendStatus(500);
 					})
 				} else {
 					return res.sendStatus(401);
@@ -194,7 +202,7 @@ router.post('/admin/login', (req, res)=>{
 					console.error(err);
 				}
 				if(correct){
-					return res.json({
+						return res.json({
 						token: jwt.sign({
 							id: admin._id
 						}, jwtSecret),
