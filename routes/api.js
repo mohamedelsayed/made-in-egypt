@@ -27,7 +27,7 @@ const publicS3 = new AWS.S3({
 const xlsx = require('xlsx');
 const firebase = require('firebase-admin');
 firebase.initializeApp({
-	databaseURL: process.env.FIREBASE_DB || 'https://made-in-egypt-dev.firebaseio.com/',
+	databaseURL: process.env.FIREBASE_DB || 'https://made-in-egypt-e75e0.firebaseio.com',
 	credential: firebase.credential.cert(require('../firebaseCredentials.json'))
 });
 
