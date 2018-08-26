@@ -1002,9 +1002,15 @@ function _updateUser(req, res, attrs){
 }
 
 router.get('/users/:id', (req, res)=>{
-	User.findById(req.params.id).lean()
+	let theUser;
+	User.findById(req.params.id, '-password').lean()
 	.then((user)=>{
-		res.json(user);
+		theUser = user;
+		return CardToken.findOne({userId: user._id}, '-token').lean()
+	})
+	.then((card)=>{
+		theUser.creditCard = card;
+		res.json(theUser);
 	})
 	.catch((err)=>{
 		console.error(err);
