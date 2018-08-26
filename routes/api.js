@@ -20,6 +20,7 @@ AWS.config.setPromisesDependency(global.Promise);
 const publicS3 = new AWS.S3({
 	accessKeyId: process.env.ACCESS_KEY_ID || 'AKIAIYLCCVSOEDYBUVVA',
 	secretAccessKey: process.env.SECRET_ACCESS_KEY || '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',
+	endpoint: process.env.STORAGE_ENDPOINT || undefined,
 	// region: 'eu-west-2'
 	region: process.env.REGION || undefined
 })
