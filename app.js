@@ -15,7 +15,7 @@ const api = require('./routes/api');
 const users = require('./routes/users');
 // const admins = require('./routes/admins');
 
-mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost'}:${process.env.MONGO_PORT || '27017'}/${process.env.MONGO_DB_NAME || 'madeInEgypt'}`, function(err){
+mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost:27017/madeInEgypt'}`, function(err){
   if(err){
     return console.error(err);
   }
