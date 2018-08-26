@@ -15,7 +15,7 @@ const api = require('./routes/api');
 const users = require('./routes/users');
 // const admins = require('./routes/admins');
 
-mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost:27017/madeInEgypt'}`, function(err){
+mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost:27017/madeInEgypt'}`, { useNewUrlParser: true }, function(err){
   if(err){
     return console.error(err);
   }
