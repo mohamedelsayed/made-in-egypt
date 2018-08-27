@@ -1501,7 +1501,7 @@ router.route('/products/:id')
 						token: oneUser.fcmToken,
 						data: {
 							titleEn: "Product back in stock",
-							bodyEn: "An item you favourited has just came back in stock",
+							bodyEn: "An item you favourited has just come back in stock",
 							titleAr: "عاد منتجك المفضل",
 							bodyAr: "احد المنتجات التي فضلتها عاد من جديد",
 							productId: theProduct._id
