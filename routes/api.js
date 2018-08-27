@@ -1490,11 +1490,23 @@ router.route('/products/:id')
 		if(theUsers && theProduct){
 			for (let userIndex = 0; userIndex < theUsers.length; userIndex++) {
 				const element = theUsers[userIndex];
-				const ref = firebaseDB.ref(`/notifications/${theUsers[userIndex]._id}`);
-				ref.push(`An item you added to your favourites (${theProduct.nameEn}) has come into stock`, (err)=>{
-					if(err){
-						console.error(err);
-					}
+				// const ref = firebaseDB.ref(`/notifications/${theUsers[userIndex]._id}`);
+				// ref.push(`An item you added to your favourites (${theProduct.nameEn}) has come into stock`, (err)=>{
+				// 	if(err){
+				// 		console.error(err);
+				// 	}
+				// })
+				theUsers.forEach((oneUser)=>{
+					fcm.send({
+						token: oneUser.fcmToken,
+						data: {
+							titleEn: "Product back in stock",
+							bodyEn: "An item you favourited has just came back in stock",
+							titleAr: "عاد منتجك المفضل",
+							bodyAr: "احد المنتجات التي فضلتها عاد من جديد",
+							productId: theProduct._id
+						}
+					})
 				})
 			}
 		}
@@ -1740,7 +1752,8 @@ async function _checkProductAndSendFCMIfNeeded(productId){
 							titleEn: "Product Running Out",
 							bodyEn: "An item you favourited is running out of stock",
 							titleAr: "المنتج على وشك ان ينفذ",
-							bodyAr: "احد المنتجات التي فضلتها على وشك ان ينفذ من عندنا"
+							bodyAr: "احد المنتجات التي فضلتها على وشك ان ينفذ من عندنا",
+							productId
 						}
 					})
 					console.log(fcmMsg);
