@@ -1499,6 +1499,10 @@ router.route('/products/:id')
 				theUsers.forEach((oneUser)=>{
 					fcm.send({
 						token: oneUser.fcmToken,
+						notification: {
+							title: "Made In Egypt",
+							body: "احد المنتجات التي فضلتها عاد من جديد"
+						},
 						data: {
 							titleEn: "Product back in stock",
 							bodyEn: "An item you favourited has just come back in stock",
@@ -1748,6 +1752,10 @@ async function _checkProductAndSendFCMIfNeeded(productId){
 				if(user.fcmToken){
 					let fcmMsg = await fcm.send({
 						token: user.fcmToken,
+						notification: {
+							title: "Made In Egypt",
+							body: "احد المنتجات التي فضلتها على وشك ان ينفذ من عندنا"
+						},
 						data: {
 							titleEn: "Product Running Out",
 							bodyEn: "An item you favourited is running out of stock",
