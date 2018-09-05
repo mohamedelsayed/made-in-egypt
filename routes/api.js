@@ -2234,13 +2234,12 @@ router.route('/brands')
 .post(upload.single('logo'), (req, res)=>{
 	let { nameEn, nameAr } = req.body;
 	let photoName = "brandImage-"+randomstring.generate()+((req.file)? "."+ path.extname(req.file.originalname) : "");
+	let uploadPromise;
 	let createBrand = function(){
 		let params = { nameEn, nameAr };
 		if(req.file){
 			Object.assign(params, {
-				logo: ('https://s3.eu-west-2.amazonaws.com/'
-				+ (process.env.BUCKET_NAME || 'madeinegypt-test') + '/'
-				+ photoName)
+				logo: uploadPromise.Location
 			})
 		}
 		console.log("PARAMS", params);
@@ -2260,6 +2259,7 @@ router.route('/brands')
 			Key: photoName
 		}).promise()
 		.then((dataSent)=>{
+			uploadPromise = dataSent;
 			return true;
 		})
 		.catch((err)=>{
