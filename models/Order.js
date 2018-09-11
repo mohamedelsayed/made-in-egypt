@@ -91,6 +91,9 @@ const OrderSchema = new Schema({
 	},
 	phone: {
 		type: String
+	},
+	paymobOrderId: {
+		type: String
 	}
 }, {
 	timestamps: true
