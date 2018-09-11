@@ -80,7 +80,7 @@ const OrderSchema = new Schema({
 		type: String,
 		required: true,
 		// enum: ['Pending', 'Cancelled', 'On Route', 'Delivered']
-		enum: ['Pending', 'Cancelled', 'Under Processing', 'Completed']
+		enum: ['Pending', 'Cancelled', 'Under Processing', 'Completed', 'Awaiting Paymob']
 	},
 	deliveryDate: {
 		type: Date,
