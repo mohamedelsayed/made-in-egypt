@@ -129,5 +129,16 @@ module.exports = {
 			cardSubType: tokenizationResponse.data.card_subtype
 		})
 		return createdCardToken;
+	},
+	getPaymentKey: async function(amount, user, merchantOrderId){
+		let authResponse = await authentication();
+		let {token, profile} = authResponse.data;
+		let merchantId = profile.id;
+		let merchantOrderId = crypto.randomBytes(8).toString('base64').toUpperCase();
+		let orderRegistrationResponse = await orderRegistration(token, merchantId, amount, null, merchantOrderId, user);
+		let paymobOrderIdFromResponse = orderRegistrationResponse.data.id;
+		let paymentKeyResponse = await paymentKey(token, amount, paymobOrderIdFromResponse, null, user, null);
+		let paymentKeyToken = paymentKeyResponse.data.token;
+		return {paymentKeyToken, paymobOrderIdFromResponse};
 	}
 }
