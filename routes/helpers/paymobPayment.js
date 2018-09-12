@@ -134,8 +134,9 @@ module.exports = {
 		let authResponse = await authentication();
 		let {token, profile} = authResponse.data;
 		let merchantId = profile.id;
-		let merchantOrderId = crypto.randomBytes(8).toString('base64').toUpperCase();
+		// let merchantOrderId = crypto.randomBytes(8).toString('base64').toUpperCase();
 		let orderRegistrationResponse = await orderRegistration(token, merchantId, amount, null, merchantOrderId, user);
+		// console.log("ORDER REGISTRATION:\n",orderRegistrationResponse);
 		let paymobOrderIdFromResponse = orderRegistrationResponse.data.id;
 		let paymentKeyResponse = await paymentKey(token, amount, paymobOrderIdFromResponse, null, user, null);
 		let paymentKeyToken = paymentKeyResponse.data.token;

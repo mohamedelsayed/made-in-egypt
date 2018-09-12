@@ -1885,30 +1885,46 @@ router.route('/orders')
 		}
 		switch(paymentMethod){
 			case 'Credit Card':
-				if(!creditCard){
+				/* if(!creditCard){
 					return res.status(400).json({
 						error: "Credit card info missing"
 					})
-				}
+				} */
 				let theOrder = await Order.create({
 					userId: req.user._id,
 					price: totalPrice,
 					shippingFees: shippingFees,
 					paymentMethod,
-					state: 'Pending',
+					state: 'Awaiting Paymob',
 					deliveryDate: moment().add(14, 'd').valueOf(),
 					items:processedProducts,
 					address,
-					phone
-				}).catch((err)=>console.log("Order failed to create created", err))
+					phone,
+					// paymobOrderId: paymobOrderIdFromResponse
+				})
+				.catch((err)=>console.log("Order failed to be create", err))
 				if(!theOrder){
 					res.status(500).json({
 						error: "Order failed"
 					})
 					throw Error("Order failed. No order")
 				}
+				let { paymentKeyToken, paymobOrderIdFromResponse } = await paymob.getPaymentKey(totalPrice * 100, req.user, theOrder._id);
+				theOrder = await Order.findByIdAndUpdate(theOrder._id, {paymobOrderId: paymobOrderIdFromResponse, paymobOrderIdFromResponse}, {new: true}).catch((err)=>console.error(err));
+				if(!theOrder){
+					res.status(500).json({
+						error: "Order failed"
+					})
+					throw Error("Order failed. No order")
+				} else {
+					decrementQuantity()
+					return res.status(201).send({
+						paymentKey: paymentKeyToken,
+						paymobOrderIdFromResponse
+					})
+				}
 
-				let theToken = (creditCard.cvn && !creditCard.cardNumber && !creditCard.nameOnCard && !creditCard.expiryMonth && !creditCard.expiryYear)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.nameOnCard, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>{console.error(err); res.status(400).json({error: "Credit card info provided are not correct or incomplete"})})
+				/* let theToken = (creditCard.cvn && !creditCard.cardNumber && !creditCard.nameOnCard && !creditCard.expiryMonth && !creditCard.expiryYear)? await CardToken.findOne({userId: req.user._id}) : await paymob.createCreditCardToken(req.user, creditCard.nameOnCard, creditCard.cardNumber, creditCard.expiryYear, creditCard.expiryMonth, creditCard.cvn).catch((err)=>{console.error(err); res.status(400).json({error: "Credit card info provided are not correct or incomplete"})})
 				if(theToken){
 					let paymentResponse = await paymob.pay(theToken.token, totalPrice * 100, req.user, creditCard.cvn).catch(async (err)=>{
 						await Order.findByIdAndRemove(theOrder._id)
@@ -1929,7 +1945,7 @@ router.route('/orders')
 					await Order.findByIdAndRemove(theOrder._id).catch((err)=>console.error(err));
 					res.status(400).send("Incorrect credit card info")
 					throw Error("Incorrect credit card info")
-				}
+				} */
 				break;
 			case 'Cash On Delivery':
 				await Order.create({
@@ -1952,7 +1968,9 @@ router.route('/orders')
 		}
 	} catch(err) {
 		console.error(err);
-		res.sendStatus(500);
+		if(!res.headersSent){
+			res.sendStatus(500);
+		}
 	}
 })
 
@@ -2516,6 +2534,63 @@ router.route('/config')
 		console.error(err)
 		res.sendStatus(500);
 	})
+})
+
+router.route('/paymob_callback')
+.get((req, res)=>{
+	console.log(req.query);
+	res.sendStatus(200);
+})
+.post(async (req, res)=>{
+	console.log(req.body);
+	let { type, obj } = req.body;
+	let { id, success, order, data, error_occured } = obj;
+	let order_id = obj.order.id.toString();
+	let { txn_response_code } = data;
+	try {
+		let theOrder = await Order.findOne({
+			paymobOrderId: order_id
+		}).lean();
+		if(txn_response_code != "0"){
+			// Error in transaction
+			// Delete order and return products to stock
+			await co(function*(){
+				let order  = yield Order.findById(req.params.orderId)
+				if(order.userId === req.user._id && order.status === 'Pending'){
+					order.set({status: 'Cancelled'});
+					let promiseArray = [];
+					for(let item in order.items){
+						promiseArray.push(
+							Product.findByIdAndUpdate(item.productId, {$inc: {quantity: item.quantity}}).exec()
+						)
+					}
+					promiseArray.push(order.save());
+					yield promiseArray;
+					return res.json({
+						success: "Order cancelled"
+					})
+				} else {
+					res.status(403).send({
+						error: "You are not allowed to edit this order"
+					});
+				}
+			})
+			.catch((err)=>{
+				console.error(err);
+				res.sendStatus(500);
+			})
+		} else {
+			// transaction successful. Set transaction to pending
+			await Order.findByIdAndUpdate(theOrder._id, {
+				state: 'Pending'
+			}, {new: true})
+			res.sendStatus(200);
+		}
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
+	}
+
 })
 
 
