@@ -2249,49 +2249,26 @@ router.route('/brands')
 	})
 })
 .all(authenticateAdmin)
-.post(upload.single('logo'), (req, res)=>{
+.post(upload.single('logo'), async (req, res)=>{
 	let { nameEn, nameAr } = req.body;
 	let photoName = "brandImage-"+randomstring.generate()+((req.file)? "."+ path.extname(req.file.originalname) : "");
 	let uploadPromise;
-	let createBrand = function(){
+	try {
 		let params = { nameEn, nameAr };
 		if(req.file){
-			Object.assign(params, {
-				logo: uploadPromise.Location
-			})
+			let uploaded = await publicS3.upload({
+				Body: req.file.buffer,
+				Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+				Key: photoName
+			}).promise()
+			params.logo = uploaded.Location;
 		}
 		console.log("PARAMS", params);
-		Brand.create(params)
-		.then((brand)=>{
-			return res.sendStatus(201);
-		})
-		.catch((err)=>{
-			console.error(err);
-			return res.sendStatus(500);
-		})
-	}
-	if(req.file){
-		publicS3.putObject({
-			Body: req.file.buffer,
-			Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
-			Key: photoName
-		}).promise()
-		.then((dataSent)=>{
-			uploadPromise = dataSent;
-			return true;
-		})
-		.catch((err)=>{
-			console.error(err);
-			return false;
-		})
-		.then((shouldContinue)=>{
-			if(shouldContinue){
-				return createBrand();
-			}
-			return res.sendStatus(500);
-		})
-	} else {
-		createBrand();
+		await Brand.create(params)
+		return res.sendStatus(201);
+	} catch(err){
+		console.error(err);
+		res.sendStatus(500);
 	}
 })
 
