@@ -46,6 +46,7 @@ const paymentKey = function(token, amount, orderId, expiration, user, currency){
 		expiration: expiration || 36000,
 		card_integration_id: paymob.cardIntegrationId,
 		currency: currency || "EGP",
+		order_id: orderId,
 		billing_data: {
 			first_name: user.firstName,
 			last_name: user.lastName,
@@ -136,7 +137,6 @@ module.exports = {
 		let merchantId = profile.id;
 		// let merchantOrderId = crypto.randomBytes(8).toString('base64').toUpperCase();
 		let orderRegistrationResponse = await orderRegistration(token, merchantId, amount, null, merchantOrderId, user);
-		// console.log("ORDER REGISTRATION:\n",orderRegistrationResponse);
 		let paymobOrderIdFromResponse = orderRegistrationResponse.data.id;
 		let paymentKeyResponse = await paymentKey(token, amount, paymobOrderIdFromResponse, null, user, null);
 		let paymentKeyToken = paymentKeyResponse.data.token;

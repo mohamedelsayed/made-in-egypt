@@ -2531,31 +2531,34 @@ router.route('/paymob_callback')
 		if(txn_response_code != "0"){
 			// Error in transaction
 			// Delete order and return products to stock
-			await co(function*(){
-				let order  = yield Order.findById(req.params.orderId)
-				if(order.userId === req.user._id && order.status === 'Pending'){
-					order.set({status: 'Cancelled'});
-					let promiseArray = [];
-					for(let item in order.items){
-						promiseArray.push(
-							Product.findByIdAndUpdate(item.productId, {$inc: {quantity: item.quantity}}).exec()
-						)
-					}
-					promiseArray.push(order.save());
-					yield promiseArray;
-					return res.json({
-						success: "Order cancelled"
-					})
-				} else {
-					res.status(403).send({
-						error: "You are not allowed to edit this order"
-					});
+			let returnedProducts = theOrder.items.map((item)=>{
+				return Product.findById(item.productId).lean().exec()
+			})
+			returnedProducts = await Promise.all(returnedProducts);
+			for (let index = 0; index < returnedProducts.length; index++) {
+				let product = returnedProducts[index];
+				if(!product){
+					continue;
 				}
-			})
-			.catch((err)=>{
-				console.error(err);
-				res.sendStatus(500);
-			})
+				let detailIndex = product.details.findIndex((detail)=>{
+					return detail.size === theOrder.items[index].details.size
+				})
+				if(detailIndex < 0){
+					responseSent = true;
+					res.sendStatus(500);
+					throw Error("Detail not found")
+				}
+				console.log("DETAIL INDEX", detailIndex, product.details, "ORDER DETAILS", theOrder.items[index].details);
+				await Product.findByIdAndUpdate(product._id, {
+					$inc: {
+						['details.'+detailIndex+'.quantity']: theOrder.items[index].details.quantity
+					}
+				}, {
+					new: true
+				})
+				.then((updated)=>console.log("RESTOCKED", updated._id))	
+				return res.sendStatus(200);
+			}
 		} else {
 			// transaction successful. Set transaction to pending
 			await Order.findByIdAndUpdate(theOrder._id, {
