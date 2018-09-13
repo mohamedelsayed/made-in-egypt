@@ -119,7 +119,7 @@ export default class Brands extends Component {
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, brandId, brandId, brandDetailsEn, brandDetailsAr, views, reviews */}
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameEn}</Table.Cell>
 									<Table.Cell width="1" collapsing textAlign='center'>{brand.nameAr}</Table.Cell>
-									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={brand.logo} style={{width: 200}} /> : null}</Table.Cell>
+									<Table.Cell width="1" collapsing textAlign='center'>{brand.logo? <img src={"/api/file?url="+brand.logo} style={{width: 200}} /> : null}</Table.Cell>
 									<Table.Cell width="1" textAlign='center'>
 										<Button style={actionBtnStyle} onClick={()=>this.setState({editOpen: true, targetBrand: brand})}>Edit</Button>
 										<Button style={actionBtnStyle} onClick={()=>this.setState({deleteOpen: true, targetBrandId: brand._id})} >Delete</Button>
