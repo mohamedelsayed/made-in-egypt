@@ -77,7 +77,8 @@ export default class App extends Component {
 					this.state.currentView.type.name !== undefined && this.state.currentView.type.name !== 'Login'?
 					<div>
 						{
-							this.state.master?
+							this.state.master !== undefined?
+							(this.state.master?
 							<div style={{border: '1px solid #eee', borderRadius: '2px', display: 'flex', justifyContent: 'space-evenly', padding: '5px 20px'}}>
 								<Button style={navBarButtonStyle} onClick={()=>this.changeView('products')}>Products</Button>
 								<Button style={navBarButtonStyle} onClick={()=>this.changeView('orders')}>Orders</Button>
@@ -99,7 +100,9 @@ export default class App extends Component {
 									this.setState({master: undefined})
 									this.componentDidMount();
 								}}>Log Out</Button>
-							</div>
+							</div>)
+							:
+							null
 						}
 					</div>
 					:
