@@ -7,6 +7,9 @@
 var app = require('../app');
 var debug = require('debug')('made-in-egypt:server');
 var http = require('http');
+var https = require('https');
+var fs = require('fs');
+var path = require('path');
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +23,14 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+if(process.env.SECURED){
+  server = https.createServer({
+    ca: fs.readFileSync(path.join(__dirname, '../ssl/madeinegyptapp_com.ca-bundle')),
+    cert: fs.readFileSync(path.join(__dirname, '../ssl/madeinegyptapp_com.crt')),
+    key: fs.readFileSync('/run/secrets/privKey')
+  }, app);
+}
 
 /**
  * Listen on provided port, on all network interfaces.
