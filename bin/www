@@ -28,7 +28,7 @@ if(process.env.SECURED){
   server = https.createServer({
     ca: fs.readFileSync(path.join(__dirname, '../ssl/madeinegyptapp_com.ca-bundle'), 'utf8'),
     cert: fs.readFileSync(path.join(__dirname, '../ssl/madeinegyptapp_com.crt'), 'utf8'),
-    key: fs.readFileSync(path.join('/run/secrets/privKey'), 'utf8')
+    key: fs.readFileSync(path.join(__dirname, '../ssl/madeinegyptapp_com.key'), 'utf8')
   }, app);
 }
 
