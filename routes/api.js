@@ -2080,8 +2080,8 @@ router.get('/orders/:orderId', authenticateUser, (req, res)=>{
 router.post('/order/:orderId/cancel', authenticateUser, (req, res)=>{
 	co(function*(){
 		let order  = yield Order.findById(req.params.orderId)
-		if(order.userId === req.user._id && order.status === 'Pending'){
-			order.set({status: 'Cancelled'});
+		if(order.userId === req.user._id && (order.status === 'Pending' || order.status === 'Awaiting Paymob')){
+			/* order.set({status: 'Cancelled'});
 			let promiseArray = [];
 			for(let item in order.items){
 				promiseArray.push(
@@ -2092,7 +2092,39 @@ router.post('/order/:orderId/cancel', authenticateUser, (req, res)=>{
 			yield promiseArray;
 			return res.json({
 				success: "Order cancelled"
+			}) */
+			// Delete order and return products to stock
+			let returnedProducts = theOrder.items.map((item)=>{
+				return Product.findById(item.productId).lean().exec()
 			})
+			returnedProducts = yield Promise.all(returnedProducts);
+			for (let index = 0; index < returnedProducts.length; index++) {
+				let product = returnedProducts[index];
+				if(!product){
+					continue;
+				}
+				let detailIndex = product.details.findIndex((detail)=>{
+					return detail.size === theOrder.items[index].details.size
+				})
+				if(detailIndex < 0){
+					responseSent = true;
+					res.sendStatus(500);
+					throw Error("Detail not found")
+				}
+				console.log("DETAIL INDEX", detailIndex, product.details, "ORDER DETAILS", theOrder.items[index].details);
+				yield Product.findByIdAndUpdate(product._id, {
+					$inc: {
+						['details.'+detailIndex+'.quantity']: theOrder.items[index].details.quantity
+					}
+				}, {
+					new: true
+				})
+				.then((updated)=>console.log("RESTOCKED", updated._id))	
+			}
+			yield Order.findByIdAndUpdate(theOrder._id, {
+				state: 'Cancelled'
+			}, {new: true})
+			return res.sendStatus(200);
 		} else {
 			res.status(403).send({
 				error: "You are not allowed to edit this order"
@@ -2544,7 +2576,7 @@ router.route('/paymob_callback')
 		}).lean();
 		if(txn_response_code != "0"){
 			// Error in transaction
-			// Delete order and return products to stock
+			// Cancelling order and return products to stock
 			let returnedProducts = theOrder.items.map((item)=>{
 				return Product.findById(item.productId).lean().exec()
 			})
@@ -2571,8 +2603,11 @@ router.route('/paymob_callback')
 					new: true
 				})
 				.then((updated)=>console.log("RESTOCKED", updated._id))	
-				return res.sendStatus(200);
 			}
+			await Order.findByIdAndUpdate(theOrder._id, {
+				state: 'Cancelled'
+			}, {new: true})
+			return res.sendStatus(200);
 		} else {
 			// transaction successful. Set transaction to pending
 			await Order.findByIdAndUpdate(theOrder._id, {
