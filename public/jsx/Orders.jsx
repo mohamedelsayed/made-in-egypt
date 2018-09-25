@@ -133,7 +133,8 @@ export default class Orders extends Component {
 						{key: "pending", value: "Pending", text: "Pending"},
 						{key: "cancelled", value: "Cancelled", text: "Cancelled"},
 						{key: "Under Processing", value: "Under Processing", text: "Under Processing"},
-						{key: "Completed", value: "Completed", text: "Completed"}
+						{key: "Completed", value: "Completed", text: "Completed"},
+						{key: "Awaiting Paymob", value: "Awaiting Paymob", text: "Awaiting Paymob"}
 					]} onChange={(event, data)=>this.setState({selectedStatus: data.value})} defaultValue={null} />
 					<Button onClick={this.generateOrdersReport}>
 						Generate Report
@@ -162,6 +163,7 @@ export default class Orders extends Component {
 						{key: "Pending order", text: "Pending", value: "Pending"},
 						{key: "Under processing order", text: "Under Processing", value: "Under Processing"},
 						{key: "Completed order", text: "Completed", value: "Completed"},
+						{key: "Awaiting Paymob", text: "Awaiting Paymob", value: "Awaiting Paymob"},
 					]}
 					onChange={(event, data)=>this.setState({filterStatus: data.value})}
 				/>
@@ -252,7 +254,7 @@ export default class Orders extends Component {
 											null
 										}
 										{
-											(order.state === 'Pending' || order.state === 'Under Processing')?
+											(order.state === 'Pending' || order.state === 'Under Processing' || order.state === 'Awaiting Paymob')?
 											<Button style={actionBtnStyle} onClick={()=>this.changeOrderState(order._id, 'Cancelled')}>Cancel</Button>
 											:
 											null
