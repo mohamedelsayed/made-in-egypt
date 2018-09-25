@@ -87,7 +87,7 @@ router.post('/login', (req, res)=>{
 					return res.sendStatus(500);
 				}
 				if(correct){
-					return CardToken.findOne({userId: user._id}, '-token').lean()
+					return CardToken.findOne({userId: user._id}).lean()
 					.then((card)=>{
 						return res.json({
 							_id: user._id,
@@ -1275,7 +1275,7 @@ router.route('/creditcard')
 .get(authenticateUser, (req, res)=>{
 	CardToken.findOne({
 		userId: req.user._id
-	}, '_id maskedPan').lean()
+	}).lean()
 	.then((card)=>{
 		if(card){
 			return res.send(card);
@@ -1288,16 +1288,27 @@ router.route('/creditcard')
 	})
 })
 .put(authenticateUser, async (req, res)=>{
-	let {cardNumber, nameOnCard, expiryMonth, expiryYear, cvn} = req.body;
+	// let {cardNumber, nameOnCard, expiryMonth, expiryYear, cvn} = req.body;
+	let { token, maskedPan, cardSubType } = req.body;
+	if(!token || !maskedPan || !cardSubType){
+		return res.status(400).send({
+			error: "Body param(s) missing"
+		})
+	}
 	try{
 		let oldToken = await CardToken.findOne({userId: req.user._id})
-		let newToken = await paymob.createCreditCardToken(req.user, nameOnCard, cardNumber, expiryYear, expiryMonth, cvn)
+		// let newToken = await paymob.createCreditCardToken(req.user, nameOnCard, cardNumber, expiryYear, expiryMonth, cvn)
+		let newCard = await CardToken.create({
+			userId: req.user._id,
+			token, maskedPan, cardSubType
+		})
 		if(oldToken){
 			await CardToken.findByIdAndRemove(oldToken._id)
 		}
-		res.status(201).send({
-			maskedPan: newToken.maskedPan
-		})
+		// res.status(201).send({
+		// 	maskedPan: newToken.maskedPan
+		// })
+		res.status(201).send(newCard)
 	} catch(err){
 		console.error(err);
 		res.sendStatus(500);
@@ -1958,7 +1969,10 @@ router.route('/orders')
 					deliveryDate: moment().add(14, 'd').valueOf(),
 					items: processedProducts
 				})
-				res.sendStatus(201);
+				res.status(201).send({
+					paymentKey: null,
+					paymobOrderIdFromResponse: null
+				});
 				decrementQuantity();
 				break;
 			default:
