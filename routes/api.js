@@ -157,7 +157,7 @@ router.get('/resendverification', async (req, res)=>{
 	
 		let encrypted = cipher.update(user._id.toString(), 'utf8', 'hex');
 		encrypted += cipher.final('hex');
-		mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`, email)
+		mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="https://madeinegyptapp.com/api/verify?data=${encrypted}">https://madeinegyptapp.com/api/verify?data=${encrypted}</a>`, email)
 		res.sendStatus(200);
 	} catch(err){
 		console.error(err);
@@ -940,7 +940,7 @@ router.route('/users')
 			const cipher = crypto.createCipher('aes192', '5c323744f3d5b477390bc9bcd2886267afbcf5459199150e605851b4cba2');
 			let encrypted = cipher.update(newUser._id.toString(), 'utf8', 'hex');
 			encrypted += cipher.final('hex');
-			mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="madeinegypt.ga/api/verify?data=${encrypted}">madeinegypt.ga/api/verify?data=${encrypted}</a>`, email)
+			mailer.sendAutoEmail("Verify Email", `Click on the following link or copy and paste it in your browser to verify your account.<br> <a href="https://madeinegyptapp.com/api/verify?data=${encrypted}">https://madeinegyptapp.com/api/verify?data=${encrypted}</a>`, email)
 			
 			res.status(201).send(newUser);
 		})
