@@ -1907,7 +1907,7 @@ router.route('/orders')
 					shippingFees: shippingFees,
 					paymentMethod,
 					state: 'Awaiting Paymob',
-					deliveryDate: moment().add(14, 'd').valueOf(),
+					deliveryDate: moment().add(10, 'd').valueOf(),
 					items:processedProducts,
 					address,
 					phone,
@@ -1966,7 +1966,7 @@ router.route('/orders')
 					cashOnDeliveryFees,
 					paymentMethod,
 					state: 'Pending',
-					deliveryDate: moment().add(14, 'd').valueOf(),
+					deliveryDate: moment().add(10, 'd').valueOf(),
 					items: processedProducts
 				})
 				res.status(201).send({
@@ -2052,7 +2052,7 @@ router.post('/orders/mock', authenticateUser, async (req, res)=>{
 			cashOnDeliveryFees,
 			address,
 			phone,
-			deliveryDate: moment().add(14, 'd').format('DD/MM/YYYY')
+			deliveryDate: moment().add(10, 'd').format('DD/MM/YYYY')
 		});
 	} catch(err) {
 		console.error("Caught error", err);
