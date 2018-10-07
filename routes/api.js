@@ -1247,6 +1247,30 @@ router.route('/products')
 		}: {}), {new: true}).then((updated)=>console.log(updated))
 		return res.sendStatus(201);
 	})
+	.then(()=>{
+		User.find({
+			favourites: _id
+		})
+		.then((users)=>{
+			users.forEach((user)=>{
+				fcm.send({
+					token: user.fcmToken,
+					notification: {
+						title: "Made In Egypt",
+						body: "احد المنتجات التي فضلتها عاد من جديد"
+					},
+					data: {
+						titleEn: "Product back in stock",
+						bodyEn: "An item you favourited has just come back in stock",
+						titleAr: "عاد منتجك المفضل",
+						bodyAr: "احد المنتجات التي فضلتها عاد من جديد",
+						productId: _id
+					}
+				})
+			})
+		})
+		.catch((err)=>console.error(err));
+	})
 	.catch(err =>{
 		console.error(err);
 		res.sendStatus(500);
