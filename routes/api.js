@@ -1873,7 +1873,7 @@ router.route('/orders')
 				brandId: element.brandId._id,
 				brand: element.brandId.nameEn + " - " + element.brandId.nameAr,
 				category: (element.categoryId)? element.categoryId.nameEn + " - " + element.categoryId.nameAr : "Deleted Category",
-				imageUrl: element.photos.length > 1? element.photos[0] : undefined
+				imageUrl: element.photos.length > 0? element.photos[0] : undefined
 			})
 			totalPrice += element.price * products[index].details[0].quantity * (element.discount? 1 - (element.discount/100) : 1)
 			productDecrementor.push(decrementObj);
