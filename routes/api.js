@@ -1249,6 +1249,7 @@ router.route('/products')
 		let shouldSendFCM = false;
 		theProduct.details.forEach((detail)=>{
 			let newDetail = details.find((oneDetail)=>oneDetail.size === detail.size);
+			console.log("OLD detail", detail, "New detail", newDetail);
 			if(newDetail && detail.quantity < 6 && newDetail >= 6){
 				shouldSendFCM = true;
 			}
