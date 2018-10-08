@@ -1789,10 +1789,13 @@ router.route('/favourites/:productId')
 async function _checkProductAndSendFCMIfNeeded(productId){
 	try {
 		let product = await Product.findById(productId).lean()
+		console.log("Checking product to send fcm if needed")
 		if(product.details.find((detail)=>detail.quantity <= 5)){
+			console.log("Checking. Product has 5 or less in stock")
 			let concernedUsers = await User.find({
 				favourites: product._id
 			}).lean()
+			console.log("Concerned users", concernedUsers)
 			concernedUsers.forEach(async (user)=>{
 				if(user.fcmToken){
 					let fcmMsg = await fcm.send({
