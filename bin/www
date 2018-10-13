@@ -32,6 +32,13 @@ if(process.env.SECURED){
   }, app);
 }
 
+if(process.env.ENABLE_INSECURE){
+  http.createServer(app)
+  .listen(80)
+  .on('error', onError)
+  .on('listening', onListening)
+}
+
 /**
  * Listen on provided port, on all network interfaces.
  */
