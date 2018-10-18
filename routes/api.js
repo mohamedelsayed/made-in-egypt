@@ -339,7 +339,10 @@ router.route('/admin/orders/:orderId')
 						return;
 					}
 					let detailIndex = product.details.findIndex((detail)=>{
-						return detail.size === order.items[index].details.size
+						if(detail.size){
+							return detail.size === order.items[index].details.size
+						}
+						return (_.order.items[index].details.size === "" || _.order.items[index].details.size === null || _.order.items[index].details.size === undefined)
 					})
 					if(detailIndex < 0){
 						responseSent = true;
