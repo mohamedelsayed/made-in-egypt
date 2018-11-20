@@ -2,10 +2,11 @@ import React from 'react';
 import axios from 'axios';
 import { Button, Table, Modal, Dropdown } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
-
+import ShippingFeesTable from './Admin/shippingFeesTable.jsx';
+import FreeShippingMinimumOrderTable from './Admin/freeShippingMinimumOrderTable.jsx';
 import moment from 'moment';
-
 import 'react-datepicker/dist/react-datepicker.css';
+
 
 export default class Admin extends React.Component {
 	constructor(){
@@ -22,8 +23,8 @@ export default class Admin extends React.Component {
 			newAdminError: "",
 			newAdminMessage: "",
 			cashOnDeliveryFees: 0,
-			shippingFees: 0,
-			freeShippingMinimumOrder: 0,
+			shippingFees: {},
+			freeShippingMinimumOrder: {},
 			address: "",
 			phone: "",
 			configError: "",
@@ -303,6 +304,36 @@ export default class Admin extends React.Component {
 		})
 	}
 
+
+	getShippingFees(data) {
+    const shippingFees = data.reduce((previousValue, currentValue) => {
+      const configurationObject = {};
+      const { governorate, price} = currentValue;
+      configurationObject[governorate] = price;
+      return {
+        ...previousValue,
+        ...configurationObject
+      }
+		}, {});
+		console.log('the vlue of shipping fees: ', shippingFees);
+		this.state.shippingFees = shippingFees;
+	}
+
+	getFreeShippingMinimumOrder(data) {
+    const freeShippingMinimumOrder = data.reduce((previousValue, currentValue) => {
+      const configurationObject = {};
+      const { governorate, price} = currentValue;
+      configurationObject[governorate] = price;
+      return {
+        ...previousValue,
+        ...configurationObject
+      }
+		}, {});
+		this.state.freeShippingMinimumOrder = freeShippingMinimumOrder;
+
+	}
+	
+
 	render(){
 		const actionBtnStyle = {
 			margin: '3px'
@@ -384,8 +415,8 @@ export default class Admin extends React.Component {
 						null
 					}
 					Cash On Delivery Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.cashOnDeliveryFees} min="0" onChange={(event)=>this.setState({cashOnDeliveryFees: event.currentTarget.valueAsNumber})} /><br/>
-					Shipping Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.shippingFees} min="0" onChange={(event)=>this.setState({shippingFees: event.currentTarget.valueAsNumber})} /><br/>
-					Free Shipping Minimum Order: <input disabled={this.state.configDisabled} type="number" value={this.state.freeShippingMinimumOrder} min="0" onChange={(event)=>this.setState({freeShippingMinimumOrder: event.currentTarget.valueAsNumber})} /><br/>
+					Shipping Fees: <ShippingFeesTable getData={this.getShippingFees.bind(this)}></ShippingFeesTable>
+					Free Shipping Minimum Order: <FreeShippingMinimumOrderTable getData={this.getFreeShippingMinimumOrder.bind(this)}></FreeShippingMinimumOrderTable>
 					Address: <input disabled={this.state.configDisabled} type="text" value={this.state.address} min="0" onChange={(event)=>this.setState({address: event.currentTarget.value})} /><br/>
 					Phone: <input disabled={this.state.configDisabled} type="text" value={this.state.phone} min="0" onChange={(event)=>this.setState({phone: event.currentTarget.value})} /><br/>
 					<Button onClick={this.handleEditConfig}>Edit</Button>

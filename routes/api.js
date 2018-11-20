@@ -2569,7 +2569,7 @@ router.route('/config')
 		Key: "config/config.json"
 	}).promise()
 	.then((configFile)=>{
-		res.json(JSON.parse(Buffer.from(configFile.Body).toString()));
+		res.send(JSON.parse(Buffer.from(configFile.Body)));
 	})
 	.catch((err)=>{
 		console.error(err);
@@ -2578,15 +2578,14 @@ router.route('/config')
 })
 .put(authenticateAdmin, (req, res)=>{
 	let { cashOnDeliveryFees = 5, shippingFees = 15, freeShippingMinimumOrder = 250, address = "N/A", phone = "N/A" } = req.body;
-	let file = Buffer.from(`
-	{
-		"cashOnDeliveryFees": ${cashOnDeliveryFees},
-		"shippingFees": ${shippingFees},
-		"freeShippingMinimumOrder": ${freeShippingMinimumOrder},
-		"address": "${address}",
-		"phone": "${phone}"
-	}
-	`);
+	const fileContent = JSON.stringify({
+		"cashOnDeliveryFees": cashOnDeliveryFees,
+		"shippingFees": shippingFees,
+		"freeShippingMinimumOrder": freeShippingMinimumOrder,
+		"address": address,
+		"phone": phone
+	}, null, 2);
+	let file = Buffer.from(fileContent);
 	publicS3.putObject({
 		Body: file,
 		Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
