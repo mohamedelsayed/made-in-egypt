@@ -1,6 +1,34 @@
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const Schema = mongoose.Schema;
+const validGovernrate = [
+	'Giza',
+	'Qalyubia',
+	'Alexandria',
+	'Aswan',
+	'Asyut',
+	'Beheira',
+	'BeniSuef',
+	'Dakahlia',
+	'Damietta',
+	'Faiyum',
+	'Gharbia',
+	'Ismailia',
+	'KafrElSheikh',
+	'Luxor',
+	'Matruh',
+	'Minya',
+	'Monufia',
+	'NewValley',
+	'NorthSinai',
+	'SouthSinai',
+	'PortSaid',
+	'Qena',
+	'RedSea',
+	'Sharqia',
+	'Sohag',
+	'Suez'
+];
 
 const UserSchema = new Schema({
 	firstName: {
@@ -28,6 +56,38 @@ const UserSchema = new Schema({
 		type: String,
 		required: true
 	},
+	governorate: {
+		type: String,
+		enum: ['Cairo', 'Giza',
+			'Qalyubia',
+			'Alexandria',
+			'Aswan',
+			'Asyut',
+			'Beheira',
+			'BeniSuef',
+			'Dakahlia',
+			'Damietta',
+			'Faiyum',
+			'Gharbia',
+			'Ismailia',
+			'KafrElSheikh',
+			'Luxor',
+			'Matruh',
+			'Minya',
+			'Monufia',
+			'NewValley',
+			'NorthSinai',
+			'SouthSinai',
+			'PortSaid',
+			'Qena',
+			'RedSea',
+			'Sharqia',
+			'Sohag',
+			'Suez'
+		],
+		required: true
+
+	},
 	gender: {
 		type: String,
 		enum: ["male", "female"],
@@ -54,7 +114,7 @@ const UserSchema = new Schema({
 	// 	ref: 'Product'
 	// },
 }, {
-	timestamps: true
-})
+		timestamps: true
+	})
 
 module.exports = mongoose.model('User', UserSchema);

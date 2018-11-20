@@ -12,8 +12,6 @@ global.Promise = require('bluebird');
 
 const index = require('./routes/index');
 const api = require('./routes/api');
-const users = require('./routes/users');
-// const admins = require('./routes/admins');
 
 mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost:27017/madeInEgypt'}`,  function(err){
   if(err){
@@ -41,7 +39,6 @@ app.use('/api', api);
 app.use('/admin', function(req, res){
   res.render('admin');
 });
-// app.use('/users', users);
 app.use('/', index);
 
 // catch 404 and forward to error handler

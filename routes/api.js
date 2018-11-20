@@ -11,7 +11,6 @@ const co = require('co');
 const randomstring = require('randomstring');
 const multer = require('multer');
 const upload = multer({storage: multer.memoryStorage()});
-// const upload = multer();
 
 const _ = require('lodash');
 const moment = require('moment')
@@ -892,7 +891,7 @@ router.route('/users')
 })
 .post((req, res)=>{
 	let responseSent = false;
-	let { firstName, lastName, email, password, passwordConfirmation, phone, address, gender, creditCard } = req.body;
+	let { firstName, lastName, email, password, passwordConfirmation, phone, address, gender, creditCard, governorate } = req.body;
 	if(password === passwordConfirmation){
 		User.findOne({
 			email
@@ -909,7 +908,7 @@ router.route('/users')
 		})
 		.then(async (hash)=>{
 			let newUser = await User.create({
-				firstName, lastName, email, password: hash, phone, address, gender
+				firstName, lastName, email, password: hash, phone, address, gender, governorate
 			}).catch((err)=>{
 				console.error(err);
 				res.status(400).send({
@@ -964,7 +963,7 @@ router.route('/users')
 .put(authenticateUser, (req, res)=>{
 	// res.sendStatus(501);
 	// let { firstName, lastName, email, password, passwordConfirmation, phone, address } = req.body;
-	let acceptedAttrs = [ "firstName", "lastName", "email", "password", "passwordConfirmation", "phone", "address", "gender" ]
+	let acceptedAttrs = [ "firstName", "lastName", "email", "password", "passwordConfirmation", "phone", "address", "gender", "governorate" ]
 	let attrs = {};
 	Object.keys(req.body).forEach((key)=>{
 		if(acceptedAttrs.includes(key)) Object.assign(attrs, {[key]: req.body[key]});
