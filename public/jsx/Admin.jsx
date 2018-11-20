@@ -415,8 +415,11 @@ export default class Admin extends React.Component {
 						null
 					}
 					Cash On Delivery Fees: <input disabled={this.state.configDisabled} type="number" value={this.state.cashOnDeliveryFees} min="0" onChange={(event)=>this.setState({cashOnDeliveryFees: event.currentTarget.valueAsNumber})} /><br/>
+					<br/>
 					Shipping Fees: <ShippingFeesTable getData={this.getShippingFees.bind(this)}></ShippingFeesTable>
+					<br/>
 					Free Shipping Minimum Order: <FreeShippingMinimumOrderTable getData={this.getFreeShippingMinimumOrder.bind(this)}></FreeShippingMinimumOrderTable>
+					<br/>
 					Address: <input disabled={this.state.configDisabled} type="text" value={this.state.address} min="0" onChange={(event)=>this.setState({address: event.currentTarget.value})} /><br/>
 					Phone: <input disabled={this.state.configDisabled} type="text" value={this.state.phone} min="0" onChange={(event)=>this.setState({phone: event.currentTarget.value})} /><br/>
 					<Button onClick={this.handleEditConfig}>Edit</Button>
