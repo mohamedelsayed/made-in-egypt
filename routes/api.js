@@ -11,7 +11,6 @@ const co = require('co');
 const randomstring = require('randomstring');
 const multer = require('multer');
 const upload = multer({storage: multer.memoryStorage()});
-// const upload = multer();
 
 const _ = require('lodash');
 const moment = require('moment')
@@ -892,7 +891,7 @@ router.route('/users')
 })
 .post((req, res)=>{
 	let responseSent = false;
-	let { firstName, lastName, email, password, passwordConfirmation, phone, address, gender, creditCard } = req.body;
+	let { firstName, lastName, email, password, passwordConfirmation, phone, address, gender, creditCard, governorate } = req.body;
 	if(password === passwordConfirmation){
 		User.findOne({
 			email
@@ -909,7 +908,7 @@ router.route('/users')
 		})
 		.then(async (hash)=>{
 			let newUser = await User.create({
-				firstName, lastName, email, password: hash, phone, address, gender
+				firstName, lastName, email, password: hash, phone, address, gender, governorate
 			}).catch((err)=>{
 				console.error(err);
 				res.status(400).send({
@@ -964,7 +963,7 @@ router.route('/users')
 .put(authenticateUser, (req, res)=>{
 	// res.sendStatus(501);
 	// let { firstName, lastName, email, password, passwordConfirmation, phone, address } = req.body;
-	let acceptedAttrs = [ "firstName", "lastName", "email", "password", "passwordConfirmation", "phone", "address", "gender" ]
+	let acceptedAttrs = [ "firstName", "lastName", "email", "password", "passwordConfirmation", "phone", "address", "gender", "governorate" ]
 	let attrs = {};
 	Object.keys(req.body).forEach((key)=>{
 		if(acceptedAttrs.includes(key)) Object.assign(attrs, {[key]: req.body[key]});
@@ -2569,7 +2568,7 @@ router.route('/config')
 		Key: "config/config.json"
 	}).promise()
 	.then((configFile)=>{
-		res.json(JSON.parse(Buffer.from(configFile.Body).toString()));
+		res.send(JSON.parse(Buffer.from(configFile.Body)));
 	})
 	.catch((err)=>{
 		console.error(err);
@@ -2578,15 +2577,14 @@ router.route('/config')
 })
 .put(authenticateAdmin, (req, res)=>{
 	let { cashOnDeliveryFees = 5, shippingFees = 15, freeShippingMinimumOrder = 250, address = "N/A", phone = "N/A" } = req.body;
-	let file = Buffer.from(`
-	{
-		"cashOnDeliveryFees": ${cashOnDeliveryFees},
-		"shippingFees": ${shippingFees},
-		"freeShippingMinimumOrder": ${freeShippingMinimumOrder},
-		"address": "${address}",
-		"phone": "${phone}"
-	}
-	`);
+	const fileContent = JSON.stringify({
+		"cashOnDeliveryFees": cashOnDeliveryFees,
+		"shippingFees": shippingFees,
+		"freeShippingMinimumOrder": freeShippingMinimumOrder,
+		"address": address,
+		"phone": phone
+	}, null, 2);
+	let file = Buffer.from(fileContent);
 	publicS3.putObject({
 		Body: file,
 		Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
