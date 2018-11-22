@@ -60,7 +60,7 @@ export default class freeShippingMinimumOrderTable extends Component {
 
     return new Promise((resolve, reject) => {
 
-      fetch('http://localhost:3000/api/config')
+      fetch('/api/config')
         .then((res) => {
           return res.json();
         })
