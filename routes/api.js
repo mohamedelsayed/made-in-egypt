@@ -97,6 +97,7 @@ router.post('/login', (req, res)=>{
 							email,
 							creditCard: card,
 							verified: user.verified,
+							governorate: user.governorate,
 							token: jwt.sign({
 								id: user._id
 							}, jwtSecret)
