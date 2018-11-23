@@ -6,7 +6,8 @@ import { Select } from 'rc-inputs';
 import "rc-inputs/styles/select.css"
 
 const validGovernorates = [
-    'Giza',
+  'Cairo',
+  'Giza',
   'Qalyubia',
   'Alexandria',
   'Aswan',
