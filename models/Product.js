@@ -79,6 +79,9 @@ const ProductSchema = new Schema({
 	color: {
 		type: String
 	},
+	colorArabic: {
+		type: String
+	},
 	details: {
 		type: [Schema.Types.Mixed],
 		required: true
