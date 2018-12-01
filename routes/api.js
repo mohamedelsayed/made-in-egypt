@@ -1178,7 +1178,7 @@ router.route('/products')
 					throw new Error('You must provide an arabic color, in this format english: colorEn: colorAr');
 				}
 				yield Product.create({
-					nameEn, colorAr, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color: colorEn, featured: (featured === "yes"), photos,
+					nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color: colorEn, featured: (featured === "yes"), photos,
 					ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 				})
 			}
@@ -1422,6 +1422,7 @@ router.get('/mostpopular', (req, res)=>{
 				discount: 1,
 				color: 1,
 				details: 1,
+				colorAr: 1,
 				photos: 1,
 				ratingTotal: 1,
 				ratingCount: 1,
@@ -1461,6 +1462,7 @@ router.get('/mostpopular', (req, res)=>{
 				price: 1,
 				discount: 1,
 				color: 1,
+				colorAr: 1,
 				details: 1,
 				photos: 1,
 				ratingTotal: 1,
