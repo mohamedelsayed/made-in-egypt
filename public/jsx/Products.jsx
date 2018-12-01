@@ -419,7 +419,7 @@ class ProductEditForm extends Component {
 
 	handleSubmit = ()=>{
 		this.setState({error: ""})
-		let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured } = this.state;
+		let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, colorAr, details, photos, brand, category, featured } = this.state;
 		if(!(_id && nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ /* color && */ details.length > 0 && photos && brand && category && typeof featured === 'boolean')){
 			console.log([!!_id , !!nameEn , !!nameAr , !!descriptionEn , !!descriptionAr , !!price , !!/* discount , !!*/ color , !!details.length > 0 , !!photos , !!brand , !!category , !!(typeof featured === 'boolean')]);
 			return this.setState({error: "Form is incomplete"})
@@ -438,6 +438,7 @@ class ProductEditForm extends Component {
 			data.append('discount', discount)
 		}
 		data.append('color', color)
+		data.append('colorAr', colorAr);
 		data.append('details', JSON.stringify(details))
 		if(photos){
 			console.log(typeof photos, photos);
@@ -524,8 +525,12 @@ class ProductEditForm extends Component {
 						<input type="number" value={this.state.discount} min="0" max="100" onChange={(event)=>this.setState({ discount: event.currentTarget.valueAsNumber})} />
 					</Form.Field>
 					<Form.Field>
-						<label>Color</label>
+						<label>Color English</label>
 						<input type="text" value={this.state.color} onChange={(event)=>this.setState({ color: event.currentTarget.value})} />
+					</Form.Field>
+					<Form.Field>
+						<label>Color Arabic</label>
+						<input type="text" value={this.state.colorAr} onChange={(event)=>this.setState({ colorAr: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Details</label>
