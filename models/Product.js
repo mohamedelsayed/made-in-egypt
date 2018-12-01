@@ -79,7 +79,7 @@ const ProductSchema = new Schema({
 	color: {
 		type: String
 	},
-	colorArabic: {
+	colorAr: {
 		type: String
 	},
 	details: {

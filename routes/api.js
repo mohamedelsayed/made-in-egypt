@@ -1173,8 +1173,12 @@ router.route('/products')
 				if(!color){
 					continue;
 				}
+				const [colorEn, colorAr] = color.split('$');
+				if (!colorAr) {
+					throw new Error('You must provide an arabic color, in this format english: colorEn: colorAr');
+				}
 				yield Product.create({
-					nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
+					nameEn, colorAr, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color: colorEn, featured: (featured === "yes"), photos,
 					ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 				})
 			}
