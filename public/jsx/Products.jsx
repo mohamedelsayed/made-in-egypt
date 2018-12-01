@@ -178,7 +178,8 @@ export default class Products extends Component {
 							<Table.HeaderCell textAlign='center'>English Description</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Arabic Description</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Price</Table.HeaderCell>
-							<Table.HeaderCell textAlign='center'>Color</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Color English</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Color Arabic</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Discount</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Quantity</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Number of photos</Table.HeaderCell>
@@ -204,6 +205,7 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{product.descriptionAr}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.price}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.color}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.colorAr}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.discount}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.quantity}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.photos.length}</Table.Cell>

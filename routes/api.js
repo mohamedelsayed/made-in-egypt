@@ -748,6 +748,7 @@ router.route('/admin/products')
 				'price': 1,
 				'discount': 1,
 				'color': 1,
+				'colorAr': 1,
 				'details': 1,
 				'photos': 1,
 				'ratingTotal': 1,
