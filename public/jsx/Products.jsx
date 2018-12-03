@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import { Icon, Table, Modal, Button, Form, Select, Radio, Dropdown } from 'semantic-ui-react'
 
 import axios from 'axios';
+Array.prototype.insert = function (index, item) {
+	this.splice( index, 0, item );
+};
+
 
 export default class Products extends Component {
 	constructor(){
@@ -195,7 +199,7 @@ export default class Products extends Component {
 
 					<Table.Body>
 						{
-							this.state.products.map((product)=>{
+							this.state.products.map((product, productIndex)=>{
 								return(
 								<Table.Row key={Math.random().toFixed(5)} error={product.quantity < 6}>
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, categoryId, brandId, productDetailsEn, productDetailsAr, views, reviews */}
@@ -215,7 +219,34 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{JSON.stringify(product.details)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									{/* <Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell> */}
-									<Table.Cell textAlign='center'><Button style={actionBtnStyle} onClick={()=>this.setState({targetProduct: product, editOpen: true})} >Edit</Button><Button style={actionBtnStyle} onClick={()=>this.setState({targetProductId: product._id, deleteOpen: true})}>Delete</Button></Table.Cell>
+									<Table.Cell textAlign='center'>
+										<Button style={actionBtnStyle} onClick={()=>this.setState({targetProduct: product, editOpen: true})} >
+											Edit
+										</Button>
+										<Button style={actionBtnStyle} onClick={()=>this.setState({targetProductId: product._id, deleteOpen: true})}>
+											Delete
+										</Button>
+										<Button style={actionBtnStyle} onClick={
+											() => {
+												const { products } = this.state;
+												this.createProduct.call(product)
+													.then(() => {
+														products.insert(productIndex + 1, product);
+														this.setState({
+															products,
+														});
+													})
+													.catch((error) => {
+														console.error(error);
+														this.setState({
+															error,
+														})
+													});
+											}
+										}>
+											Duplicate
+										</Button>
+									</Table.Cell>
 								</Table.Row>
 								)
 							})
@@ -225,6 +256,39 @@ export default class Products extends Component {
 			</div>
 		)
 	}
+
+
+	createProduct() {
+
+		return new Promise((resolve, reject) => {
+
+			const product = this;
+
+			product.details = JSON.stringify(product.details);
+			product.colors = JSON.stringify([product.color + '$' + product.colorAr]);
+
+
+			const axiosOptions = {
+				headers: {
+					'x-auth-token': localStorage.getItem('auth')
+				},
+				validateStatus: function(status){
+					return status < 500
+				}
+			};
+			if (!product) {
+				return reject('Product is reuqired');
+			}
+
+			axios.post('/api/products', {
+				...product
+			}, axiosOptions)
+			.then(resolve, reject);
+
+		});
+
+	}
+
 }
 
 class ProductForm extends Component {
