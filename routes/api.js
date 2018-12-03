@@ -748,6 +748,7 @@ router.route('/admin/products')
 				'price': 1,
 				'discount': 1,
 				'color': 1,
+				'colorAr': 1,
 				'details': 1,
 				'photos': 1,
 				'ratingTotal': 1,
@@ -1172,8 +1173,12 @@ router.route('/products')
 				if(!color){
 					continue;
 				}
+				const [colorEn, colorAr] = color.split('$');
+				if (!colorAr) {
+					throw new Error('You must provide an arabic color, in this format english: colorEn: colorAr');
+				}
 				yield Product.create({
-					nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured: (featured === "yes"), photos,
+					nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color: colorEn, featured: (featured === "yes"), photos,
 					ratingTotal: 0, ratingCount: 0, createdBy: req.admin._id
 				})
 			}
@@ -1186,7 +1191,7 @@ router.route('/products')
 	});
 })
 .put(upload.array('photos'), (req, res)=>{
-	let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, category, brand, color, featured } = req.body;
+	let { _id, nameEn, nameAr, descriptionEn, descriptionAr, colorAr, price, discount, details, category, brand, color, featured } = req.body;
 	if(!_id){
 		return res.status(400).json({
 			error: "Product ID not provided"
@@ -1240,7 +1245,7 @@ router.route('/products')
 		}
 		console.log("PHOTOS", photos, photos.length);
 		yield Product.findByIdAndUpdate(_id, Object.assign({},{
-			nameEn, nameAr, descriptionEn, descriptionAr, price, discount, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured
+			nameEn, nameAr, descriptionEn, descriptionAr, price, discount, colorAr, details, categoryId: theCategory._id, brandId: theBrand._id, color, featured
 		}, (photos.length > 0)? {
 			$push: {
 				photos: {
@@ -1417,6 +1422,7 @@ router.get('/mostpopular', (req, res)=>{
 				discount: 1,
 				color: 1,
 				details: 1,
+				colorAr: 1,
 				photos: 1,
 				ratingTotal: 1,
 				ratingCount: 1,
@@ -1456,6 +1462,7 @@ router.get('/mostpopular', (req, res)=>{
 				price: 1,
 				discount: 1,
 				color: 1,
+				colorAr: 1,
 				details: 1,
 				photos: 1,
 				ratingTotal: 1,
