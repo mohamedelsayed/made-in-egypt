@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import { Icon, Table, Modal, Button, Form, Select, Radio, Dropdown } from 'semantic-ui-react'
 
 import axios from 'axios';
+Array.prototype.insert = function (index, item) {
+	this.splice( index, 0, item );
+};
+
 
 export default class Products extends Component {
 	constructor(){
@@ -178,7 +182,8 @@ export default class Products extends Component {
 							<Table.HeaderCell textAlign='center'>English Description</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Arabic Description</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Price</Table.HeaderCell>
-							<Table.HeaderCell textAlign='center'>Color</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Color English</Table.HeaderCell>
+							<Table.HeaderCell textAlign='center'>Color Arabic</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Discount</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Quantity</Table.HeaderCell>
 							<Table.HeaderCell textAlign='center'>Number of photos</Table.HeaderCell>
@@ -194,7 +199,7 @@ export default class Products extends Component {
 
 					<Table.Body>
 						{
-							this.state.products.map((product)=>{
+							this.state.products.map((product, productIndex)=>{
 								return(
 								<Table.Row key={Math.random().toFixed(5)} error={product.quantity < 6}>
 									{/* nameEn, nameAr, description, price, quantity, photos, ratingTotal, categoryId, brandId, productDetailsEn, productDetailsAr, views, reviews */}
@@ -204,6 +209,7 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{product.descriptionAr}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.price}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.color}</Table.Cell>
+									<Table.Cell textAlign='center'>{product.colorAr}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.discount}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.quantity}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.photos.length}</Table.Cell>
@@ -213,7 +219,34 @@ export default class Products extends Component {
 									<Table.Cell textAlign='center'>{JSON.stringify(product.details)}</Table.Cell>
 									<Table.Cell textAlign='center'>{product.views.length}</Table.Cell>
 									{/* <Table.Cell textAlign='center'>{product.reviews.length}</Table.Cell> */}
-									<Table.Cell textAlign='center'><Button style={actionBtnStyle} onClick={()=>this.setState({targetProduct: product, editOpen: true})} >Edit</Button><Button style={actionBtnStyle} onClick={()=>this.setState({targetProductId: product._id, deleteOpen: true})}>Delete</Button></Table.Cell>
+									<Table.Cell textAlign='center'>
+										<Button style={actionBtnStyle} onClick={()=>this.setState({targetProduct: product, editOpen: true})} >
+											Edit
+										</Button>
+										<Button style={actionBtnStyle} onClick={()=>this.setState({targetProductId: product._id, deleteOpen: true})}>
+											Delete
+										</Button>
+										<Button style={actionBtnStyle} onClick={
+											() => {
+												const { products } = this.state;
+												this.createProduct.call(product)
+													.then(() => {
+														products.insert(productIndex + 1, product);
+														this.setState({
+															products,
+														});
+													})
+													.catch((error) => {
+														console.error(error);
+														this.setState({
+															error,
+														})
+													});
+											}
+										}>
+											Duplicate
+										</Button>
+									</Table.Cell>
 								</Table.Row>
 								)
 							})
@@ -223,6 +256,39 @@ export default class Products extends Component {
 			</div>
 		)
 	}
+
+
+	createProduct() {
+
+		return new Promise((resolve, reject) => {
+
+			const product = this;
+
+			product.details = JSON.stringify(product.details);
+			product.colors = JSON.stringify([product.color + '$' + product.colorAr]);
+
+
+			const axiosOptions = {
+				headers: {
+					'x-auth-token': localStorage.getItem('auth')
+				},
+				validateStatus: function(status){
+					return status < 500
+				}
+			};
+			if (!product) {
+				return reject('Product is reuqired');
+			}
+
+			axios.post('/api/products', {
+				...product
+			}, axiosOptions)
+			.then(resolve, reject);
+
+		});
+
+	}
+
 }
 
 class ProductForm extends Component {
@@ -417,7 +483,7 @@ class ProductEditForm extends Component {
 
 	handleSubmit = ()=>{
 		this.setState({error: ""})
-		let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, details, photos, brand, category, featured } = this.state;
+		let { _id, nameEn, nameAr, descriptionEn, descriptionAr, price, discount, color, colorAr, details, photos, brand, category, featured } = this.state;
 		if(!(_id && nameEn && nameAr && descriptionEn && descriptionAr && price && /* discount && */ /* color && */ details.length > 0 && photos && brand && category && typeof featured === 'boolean')){
 			console.log([!!_id , !!nameEn , !!nameAr , !!descriptionEn , !!descriptionAr , !!price , !!/* discount , !!*/ color , !!details.length > 0 , !!photos , !!brand , !!category , !!(typeof featured === 'boolean')]);
 			return this.setState({error: "Form is incomplete"})
@@ -436,6 +502,7 @@ class ProductEditForm extends Component {
 			data.append('discount', discount)
 		}
 		data.append('color', color)
+		data.append('colorAr', colorAr);
 		data.append('details', JSON.stringify(details))
 		if(photos){
 			console.log(typeof photos, photos);
@@ -522,8 +589,12 @@ class ProductEditForm extends Component {
 						<input type="number" value={this.state.discount} min="0" max="100" onChange={(event)=>this.setState({ discount: event.currentTarget.valueAsNumber})} />
 					</Form.Field>
 					<Form.Field>
-						<label>Color</label>
+						<label>Color English</label>
 						<input type="text" value={this.state.color} onChange={(event)=>this.setState({ color: event.currentTarget.value})} />
+					</Form.Field>
+					<Form.Field>
+						<label>Color Arabic</label>
+						<input type="text" value={this.state.colorAr} onChange={(event)=>this.setState({ colorAr: event.currentTarget.value})} />
 					</Form.Field>
 					<Form.Field>
 						<label>Details</label>
