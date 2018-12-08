@@ -777,7 +777,7 @@ router.route('/admin/products')
 	])
 	.then((products)=>{
 		theProducts = products;
-		return Category.find().lean()
+		return Category.find().populate('parentCategory').lean()
 	})
 	.then((categories)=>{
 		theCategories = categories;
@@ -1066,6 +1066,12 @@ router.route('/products')
 			},
 			{
 				nameAr: rx
+			},
+			{
+				color: rx
+			},
+			{
+				colorAr: rx
 			},
 			{
 				descriptionEn: rx

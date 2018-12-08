@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, Table, Modal, Button, Form, Select, Radio, Dropdown } from 'semantic-ui-react'
+import { Icon, Table, Modal, Button, Form, Select, Radio, Dropdown } from 'semantic-ui-react';
+import cloneDeep from 'lodash/cloneDeep';
 
 import axios from 'axios';
 Array.prototype.insert = function (index, item) {
@@ -262,7 +263,7 @@ export default class Products extends Component {
 
 		return new Promise((resolve, reject) => {
 
-			const product = this;
+			const product = cloneDeep(this);
 
 			product.details = JSON.stringify(product.details);
 			product.colors = JSON.stringify([product.color + '$' + product.colorAr]);
@@ -304,8 +305,9 @@ class ProductForm extends Component {
 	}
 
 	componentDidMount(){
+		const categories = this.props.context.state.categories.filter((c)=>c.parentCategory).map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr + " | " + category.parentCategory.nameEn + " - " + category.parentCategory.nameAr }));
 		this.setState({brands: this.props.context.state.brands.map((brand)=>Object.assign({},{key: brand._id, value: brand._id, text: brand.nameEn+" - "+brand.nameAr})),
-									categories: this.props.context.state.categories.filter((c)=>c.parentCategory).map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))})
+									categories})
 	}
 
 	handleSubmit = ()=>{
@@ -475,9 +477,11 @@ class ProductEditForm extends Component {
 		}
 	}
 	componentDidMount(){
+
+		console.log(JSON.stringify(this.props.context.state.categories, null, 2));
 		this.setState({...this.props.context.state.targetProduct, 
 			brands: this.props.context.state.brands.map((brand)=>Object.assign({},{key: brand._id, value: brand._id, text: brand.nameEn+" - "+brand.nameAr})),
-			categories: this.props.context.state.categories.filter((c)=>c.parentCategory).map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr}))
+			categories: this.props.context.state.categories.filter((c)=>c.parentCategory).map((category)=>Object.assign({},{key: category._id, value: category._id, text: category.nameEn+" - "+category.nameAr + " | " + category.parentCategory.nameEn + " - " + category.parentCategory.nameAr }))
 		})
 	}
 
