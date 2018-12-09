@@ -2206,12 +2206,13 @@ router.route('/categories')
 	let attrs = {nameEn, nameAr};
 	if(nameEn || nameAr){
 		let foundCategory = await Category.findOne({
-			$or: [
+			$and: [
 				{nameEn},
-				{nameAr}
+				{nameAr},
 			]
 		});
-		if(foundCategory){
+		const expectedParentCategoryId = _.get(foundCategory, 'parentCategory._id').toString();
+		if(foundCategory && expectedParentCategoryId === parentCategory.toString()){
 			return res.sendStatus(409);
 		}
 	} else {

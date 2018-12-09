@@ -147,7 +147,7 @@ class CategoryForm extends Component {
 				this.props.context.setState({createOpen: false});
 			} else {
 				// response code 409 with a conflict
-				this.setState({error: "This category has children. Delete the children before deleting this category"})
+				this.setState({error: "This cateogry already exist."})
 			}
 		})
 		.catch((err)=>{
@@ -250,7 +250,7 @@ class CategoryFormEdit extends Component {
 				this.props.context.setState({editOpen: false})
 			} else {
 				// response code 409 with a conflict
-				this.setState({error: "This category has children. Delete the children before deleting this category"})
+				this.setState({error: "This cateogry already exist."})
 			}
 		})
 		.catch((err)=>{

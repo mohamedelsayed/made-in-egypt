@@ -4,14 +4,10 @@ const Schema = mongoose.Schema;
 
 const CategorySchema = new Schema({
 	nameEn: {
-		type: String,
-		required: true,
-		unique: true
+		type: String
 	},
 	nameAr: {
-		type: String,
-		required: true,
-		unique: true
+		type: String
 	},
 	parentCategory: {
 		type: Schema.Types.ObjectId,
