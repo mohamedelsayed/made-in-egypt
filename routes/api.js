@@ -995,9 +995,8 @@ router.route('/users')
 function _updateUser(req, res, attrs){
 	User.findByIdAndUpdate(req.user._id, attrs)
 	.then((result)=>{
-		res.json({
-			success: "User updated successfully"
-		})
+		console.log(JSON.stringify(result, null, 2));
+		res.json(result)
 	})
 	.catch((err)=>{
 		console.error(err);
