@@ -992,16 +992,20 @@ router.route('/users')
 	}
 })
 
-function _updateUser(req, res, attrs){
-	User.findByIdAndUpdate(req.user._id, attrs)
-	.then((result)=>{
-		console.log(JSON.stringify(result, null, 2));
-		res.json(result)
-	})
-	.catch((err)=>{
-		console.error(err);
+async function _updateUser(req, res, attrs){
+
+	try {
+		const userId = req.user._id;
+		await User.findByIdAndUpdate(req.user._id, attrs);
+		const updatedUser = await User.findById(userId);
+		res.json(updatedUser);
+
+	}
+	catch (error) {
+		console.error(error);
 		res.sendStatus(500);
-	})
+	}
+
 }
 
 router.get('/users/:id', (req, res)=>{
