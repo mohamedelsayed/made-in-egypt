@@ -2215,10 +2215,10 @@ router.route('/categories')
 			$and: [
 				{nameEn},
 				{nameAr},
+				{parentCategory}
 			]
 		});
-		const expectedParentCategoryId = _.get(foundCategory, 'parentCategory._id').toString();
-		if(foundCategory && expectedParentCategoryId === parentCategory.toString()){
+		if(foundCategory){
 			return res.sendStatus(409);
 		}
 	} else {
