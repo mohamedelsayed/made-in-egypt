@@ -997,7 +997,9 @@ async function _updateUser(req, res, attrs){
 	try {
 		const userId = req.user._id;
 		await User.findByIdAndUpdate(req.user._id, attrs);
-		const updatedUser = await User.findById(userId);
+		const updatedUser = await User.findById(userId).lean();
+		const token = req.get('x-auth-token');
+		updatedUser.token = token;
 		res.json(updatedUser);
 
 	}
