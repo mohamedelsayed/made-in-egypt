@@ -71,15 +71,15 @@ export default class Products extends Component {
 			this.setState({deleteOpen: false, targetProductId: undefined});
 		})
 		.catch((err)=>{
+			alert('Can not delete this product because it belongs to a pending order')
 			this.setState({
 				error: 'Can not delete this product because it belongs to a pending order'
 			})
-			alert('Can not delete this product because it belongs to a pending order')
 			setTimeout(() => {
 				this.setState({
 					error: ''
 				})
-			}, 5000);
+			}, 30000);
 			console.error(err);
 		})
 	}
