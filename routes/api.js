@@ -2023,6 +2023,8 @@ router.route('/orders')
 					shippingFees: shippingFees,
 					cashOnDeliveryFees,
 					paymentMethod,
+					phone,
+					address,
 					state: 'Pending',
 					deliveryDate: moment().add(10, 'd').valueOf(),
 					items: processedProducts
