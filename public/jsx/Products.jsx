@@ -24,7 +24,8 @@ export default class Products extends Component {
 			targetProduct: undefined,
 			filterBrand: undefined,
 			filterCategory: undefined,
-			filterFeatured: null
+			filterFeatured: null,
+			error: null,
 		}
 	}
 
@@ -70,6 +71,14 @@ export default class Products extends Component {
 			this.setState({deleteOpen: false, targetProductId: undefined});
 		})
 		.catch((err)=>{
+			this.setState({
+				error: 'Can not delete this product because it belongs to a pending order'
+			})
+			setTimeout(() => {
+				this.setState({
+					error: ''
+				})
+			}, 5000);
 			console.error(err);
 		})
 	}
@@ -111,6 +120,14 @@ export default class Products extends Component {
 		return(
 			<div style={{padding: '15px', overflowX: 'scroll'}}>
 				<h1 style={{textAlign: 'center'}}>Products</h1>
+				{
+						this.state.error?
+						<div style={{color: 'red', textAlign: 'center'}}>
+							{this.state.error}
+						</div>
+						:
+						null
+				}
 				<Modal
 					trigger={<Button onClick={()=>this.setState({createOpen: true})}>Create New Product</Button>}
 					header="New Product"
