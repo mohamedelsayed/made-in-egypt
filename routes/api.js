@@ -1858,7 +1858,7 @@ router.route('/orders')
 })
 .post(authenticateUser, async (req, res)=>{
 	let { products, paymentMethod, creditCard, shippingFees, address, phone, cashOnDeliveryFees } = req.body;
-	if(!_.isArray(products) || products.length < 1 || !shippingFees){
+	if(!_.isArray(products) || products.length < 1 || typeof(shippingFees) === 'undefined'){
 		return res.sendStatus(400);
 	}
 	let processedProducts = [];
@@ -2050,7 +2050,7 @@ router.route('/orders')
 
 router.post('/orders/mock', authenticateUser, async (req, res)=>{
 	let { products, shippingFees, address, phone, cashOnDeliveryFees } = req.body;
-	if(!_.isArray(products) || products.length < 1 || !shippingFees){
+	if(!_.isArray(products) || products.length < 1 || typeof(shippingFees) === 'undefined'){
 		return res.sendStatus(400);
 	}
 	let processedProducts = [];
