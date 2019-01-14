@@ -342,7 +342,7 @@ router.route('/admin/orders/:orderId')
 						if(detail.size){
 							return detail.size === order.items[index].details.size
 						}
-						return (_.order.items[index].details.size === "" || _.order.items[index].details.size === null || _.order.items[index].details.size === undefined)
+						return (order.items[index].details.size === "" || order.items[index].details.size === null || order.items[index].details.size === undefined)
 					})
 					if(detailIndex < 0){
 						responseSent = true;
