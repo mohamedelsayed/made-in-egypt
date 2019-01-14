@@ -15,6 +15,12 @@ const upload = multer({storage: multer.memoryStorage()});
 const _ = require('lodash');
 const moment = require('moment')
 const AWS = require('aws-sdk');
+
+const PAYMENT_TYPE = {
+	TRANSACTION: 'TRANSACTION',
+}
+
+
 AWS.config.setPromisesDependency(global.Promise);
 const publicS3 = new AWS.S3({
 	accessKeyId: process.env.ACCESS_KEY_ID || 'AKIAIYLCCVSOEDYBUVVA',
@@ -2627,58 +2633,66 @@ router.route('/paymob_callback')
 .post(async (req, res)=>{
 	console.log(req.body);
 	let { type, obj } = req.body;
-	let { id, success, order, data, error_occured } = obj;
-	let order_id = obj.order.id.toString();
-	let { txn_response_code } = data;
-	try {
-		let theOrder = await Order.findOne({
-			paymobOrderId: order_id
-		}).lean();
-		if(txn_response_code != "0"){
-			// Error in transaction
-			// Cancelling order and return products to stock
-			let returnedProducts = theOrder.items.map((item)=>{
-				return Product.findById(item.productId).lean().exec()
-			})
-			returnedProducts = await Promise.all(returnedProducts);
-			for (let index = 0; index < returnedProducts.length; index++) {
-				let product = returnedProducts[index];
-				if(!product){
-					continue;
-				}
-				let detailIndex = product.details.findIndex((detail)=>{
-					return detail.size === theOrder.items[index].details.size
+
+	if (type === PAYMENT_TYPE.TRANSACTION){
+		let { id, success, order, data, error_occured } = obj;
+		let order_id = obj.order.id.toString();
+		let { txn_response_code } = data;
+		try {
+			let theOrder = await Order.findOne({
+				paymobOrderId: order_id
+			}).lean();
+			if(txn_response_code != "0"){
+				// Error in transaction
+				// Cancelling order and return products to stock
+				let returnedProducts = theOrder.items.map((item)=>{
+					return Product.findById(item.productId).lean().exec()
 				})
-				if(detailIndex < 0){
-					responseSent = true;
-					res.sendStatus(500);
-					throw Error("Detail not found")
-				}
-				console.log("DETAIL INDEX", detailIndex, product.details, "ORDER DETAILS", theOrder.items[index].details);
-				await Product.findByIdAndUpdate(product._id, {
-					$inc: {
-						['details.'+detailIndex+'.quantity']: theOrder.items[index].details.quantity
+				returnedProducts = await Promise.all(returnedProducts);
+				for (let index = 0; index < returnedProducts.length; index++) {
+					let product = returnedProducts[index];
+					if(!product){
+						continue;
 					}
-				}, {
-					new: true
-				})
-				.then((updated)=>console.log("RESTOCKED", updated._id))	
+					let detailIndex = product.details.findIndex((detail)=>{
+						return detail.size === theOrder.items[index].details.size
+					})
+					if(detailIndex < 0){
+						responseSent = true;
+						res.sendStatus(500);
+						throw Error("Detail not found")
+					}
+					console.log("DETAIL INDEX", detailIndex, product.details, "ORDER DETAILS", theOrder.items[index].details);
+					await Product.findByIdAndUpdate(product._id, {
+						$inc: {
+							['details.'+detailIndex+'.quantity']: theOrder.items[index].details.quantity
+						}
+					}, {
+						new: true
+					})
+					.then((updated)=>console.log("RESTOCKED", updated._id))	
+				}
+				await Order.findByIdAndUpdate(theOrder._id, {
+					state: 'Cancelled'
+				}, {new: true})
+				return res.sendStatus(200);
+			} else {
+				// transaction successful. Set transaction to pending
+				await Order.findByIdAndUpdate(theOrder._id, {
+					state: 'Pending'
+				}, {new: true})
+				res.sendStatus(200);
 			}
-			await Order.findByIdAndUpdate(theOrder._id, {
-				state: 'Cancelled'
-			}, {new: true})
-			return res.sendStatus(200);
-		} else {
-			// transaction successful. Set transaction to pending
-			await Order.findByIdAndUpdate(theOrder._id, {
-				state: 'Pending'
-			}, {new: true})
-			res.sendStatus(200);
+		} catch(err){
+			console.error(err);
+			res.sendStatus(500);
 		}
-	} catch(err){
-		console.error(err);
-		res.sendStatus(500);
 	}
+	else {
+		res.sendStatus(200);
+	}
+
+
 
 })
 
