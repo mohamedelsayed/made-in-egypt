@@ -3,7 +3,7 @@ module.exports = {
 	paymob: {
 		username: process.env.PAYMOB_USERNAME || "MadeInEgypt",
 		password: process.env.PAYMOB_PASSWORD || "MyP@ssw0rd1",
-		cardIntegrationId: "1141" || process.env.PAYMOB_CID
+		cardIntegrationId: process.env.PAYMOB_CID || "1141"
 	},
 	shippingFees: parseInt(process.env.SHIPPING_FEE) || 20
 }
