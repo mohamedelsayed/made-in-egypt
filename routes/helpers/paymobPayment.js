@@ -29,13 +29,13 @@ const orderRegistration = function(token, merchantId, amount, currency, merchant
 			last_name: user.lastName,
 			phone_number: user.phone,
 			email: user.email,
-			apartment: "Not specified",
-			floor: "Not specified",
-			street: "Not specified",
-			building: "Not specified",
-			postal_code: "Not specified",
-			country: "Not specified",
-			city: "Not specified",
+			apartment: "NA",
+			floor: "NA",
+			street: "NA",
+			building: "NA",
+			postal_code: "NA",
+			country: "NA",
+			city: "NA",
 		}
 	})
 }
@@ -50,16 +50,16 @@ const paymentKey = function(token, amount, orderId, expiration, user, currency){
 		billing_data: {
 			first_name: user.firstName,
 			last_name: user.lastName,
-			phone_number: user.phone || "not specified",
+			phone_number: user.phone || "NA",
 			email: user.email,
 			shipping_method: "DG",
-			apartment: "not specified",
-			floor: "not specified",
-			street: "not specified",
-			building: "not specified",
-			city: "not specified",
-			country: "not specified",
-			state: "not specified"
+			apartment: "NA",
+			floor: "NA",
+			street: "NA",
+			building: "NA",
+			city: "NA",
+			country: "NA",
+			state: "NA"
 		}
 	})
 }
