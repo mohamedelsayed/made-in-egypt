@@ -2287,7 +2287,7 @@ router.route('/categories/:id')
 	Category.findById(req.params.id).lean()
 	.then((category)=>{
 		if(category){
-			return Product.find(Object.assign({}, {categoryId: category._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*15).limit(15).populate('brandId').lean();
+			return Product.find(Object.assign({}, {categoryId: category._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*16).limit(16).populate('brandId').lean();
 		}
 	})
 	.then((products)=>{
@@ -2424,7 +2424,7 @@ router.route('/brands/:id')
 	.then((theBrand)=>{
 		if(theBrand){
 			brand = theBrand;
-			return Product.find(Object.assign({}, {brandId: brand._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*15).populate('brandId').limit(15).lean()
+			return Product.find(Object.assign({}, {brandId: brand._id}, filter)).sort(sort).skip((parseInt(pageNumber) - 1)*16).populate('brandId').limit(16).lean()
 		} else {
 			return null;
 		}
