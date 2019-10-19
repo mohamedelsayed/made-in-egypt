@@ -17,7 +17,7 @@ mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost:27017/madeInEg
   if(err){
     return console.error(err);
   }
-  console.log("connected to mongodb")
+  console.log(`CONNECTED TO DATABASE AT ${process.env.MONGO_URL}`);
 })
 
 const app = express();
