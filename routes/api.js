@@ -242,6 +242,24 @@ router.get('/admin/auth', authenticateAdmin, (req, res, next)=>{
 	res.status(200).send({master: req.admin.master});
 })
 
+
+router.get('/admin/config', authenticateAdmin, (req, res, next) => {
+	res.send({
+		"AWS_S3": {
+			ACCESS_KEY_ID: process.env.ACCESS_KEY_ID || 'AKIAIYLCCVSOEDYBUVVA',
+			SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY || '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',
+			END_POINT: process.env.STORAGE_ENDPOINT || undefined,
+			REGION: process.env.REGION || undefined
+		},
+		"MONGO_DB": {
+			CONNECTION_STRING: process.env.MONGO_URL
+		},
+		"FIREBASE_DB": {
+			CONNECTION_STRING: process.env.FIREBASE_DB
+		}
+	})
+})
+
 router.route('/admin/categories')
 .all(authenticateAdmin)
 .get((req, res)=>{
