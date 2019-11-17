@@ -514,6 +514,8 @@ class ProductEditForm extends Component {
 			return entry.quantity
 		})
 		let data = new FormData();
+
+
 		data.append('_id', _id)
 		data.append('nameEn', nameEn)
 		data.append('nameAr', nameAr)
@@ -529,7 +531,9 @@ class ProductEditForm extends Component {
 		if(photos){
 			console.log(typeof photos, photos);
 			Object.keys(photos).forEach((photoKey)=>{
-				data.append('photos', photos[photoKey], photos[photoKey].name);
+				if (photos[photoKey].name) {
+					data.append('photos', photos[photoKey], photos[photoKey].name);
+				}
 			})
 			data.append('photos', photos)
 		}
