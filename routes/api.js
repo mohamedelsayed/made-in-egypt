@@ -249,7 +249,8 @@ router.get('/admin/config', authenticateAdmin, (req, res, next) => {
 			ACCESS_KEY_ID: process.env.ACCESS_KEY_ID || 'AKIAIYLCCVSOEDYBUVVA',
 			SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY || '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',
 			END_POINT: process.env.STORAGE_ENDPOINT || undefined,
-			REGION: process.env.REGION || undefined
+			REGION: process.env.REGION || undefined,
+			BUCKET_NAME: process.env.BUCKET_NAME
 		},
 		"MONGO_DB": {
 			CONNECTION_STRING: process.env.MONGO_URL
