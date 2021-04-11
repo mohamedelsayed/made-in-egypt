@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 export default class Login extends React.Component {
-	constructor(){
+	constructor() {
 		super();
 		this.state = {
 			error: ""
@@ -14,37 +14,37 @@ export default class Login extends React.Component {
 		let password = "";
 	}
 
-	handleSubmit = (event)=>{
+	handleSubmit = (event) => {
 		event.preventDefault();
 		console.log("LOGGING IN")
 		axios.post(`/api/admin/login`, {
 			username: this.username,
 			password: this.password
-		},{
+		}, {
 			validateStatus: function (status) {
 				return status < 500; // Reject only if the status code is greater than or equal to 500
 			}
 		})
-		.then((response)=>{
-			console.log(response.status, response.data);
-			if(response.status === 200){
-				localStorage.setItem('auth', response.data.token);
-				this.props.context.setState({master: response.data.master});
-				if(response.data.master){
-					this.props.changeView('products');
+			.then((response) => {
+				console.log(response.status, response.data);
+				if (response.status === 200) {
+					localStorage.setItem('auth', response.data.token);
+					this.props.context.setState({ master: response.data.master });
+					if (response.data.master) {
+						this.props.changeView('products');
+					} else {
+						this.props.changeView('orders');
+					}
 				} else {
-					this.props.changeView('orders');
+					this.setState({ error: "Incorrect username or password" })
 				}
-			} else {
-				this.setState({error: "Incorrect username or password"})
-			}
-		})
-		.catch((err)=>{
-			console.error(err);
-		})
+			})
+			.catch((err) => {
+				console.error(err);
+			})
 	}
 
-	render(){
+	render() {
 		return (
 			<div className='login-form'>
 				{/*
@@ -66,16 +66,16 @@ export default class Login extends React.Component {
 				>
 					<Grid.Column style={{ maxWidth: 450 }}>
 						<Header as='h2' color='teal' textAlign='center'>
-							<Image src='/logo.png' />
+							<Image src='/images/logo.png' />
 							{' '}Log-in to your account
 						</Header>
 						{
-							(this.state.error)?
-							<Header as='h2' color='teal' textAlign='center'>
-								{this.state.error}
-							</Header>
-							:
-							null
+							(this.state.error) ?
+								<Header as='h2' color='teal' textAlign='center'>
+									{this.state.error}
+								</Header>
+								:
+								null
 						}
 						<Form size='large'>
 							<Segment stacked>
@@ -84,7 +84,7 @@ export default class Login extends React.Component {
 									icon='user'
 									iconPosition='left'
 									placeholder='Username'
-									onChange={(event, input)=>this.username = input.value}
+									onChange={(event, input) => this.username = input.value}
 								/>
 								<Form.Input
 									fluid
@@ -92,9 +92,9 @@ export default class Login extends React.Component {
 									iconPosition='left'
 									placeholder='Password'
 									type='password'
-									onChange={(event, input)=>this.password = input.value}
+									onChange={(event, input) => this.password = input.value}
 								/>
-	
+
 								<Button color='teal' fluid size='large' onClick={this.handleSubmit}>Login</Button>
 							</Segment>
 						</Form>
