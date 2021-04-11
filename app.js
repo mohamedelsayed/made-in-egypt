@@ -40,6 +40,7 @@ app.use('/admin', function(req, res){
   res.render('admin');
 });
 app.use('/', index);
+app.listen(3001);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
