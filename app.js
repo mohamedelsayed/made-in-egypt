@@ -8,10 +8,9 @@ const cors = require('cors');
 const muler = require('multer');
 const mongoose = require('mongoose');
 global.Promise = require('bluebird');
-
-
 const index = require('./routes/index');
 const api = require('./routes/api');
+require('dotenv').config()
 
 mongoose.connect(`mongodb://${process.env.MONGO_URL || 'localhost:27017/madeInEgypt'}`,  function(err){
   if(err){

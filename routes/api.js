@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const path = require('path');
 const URL = require('url');
 const fs = require('fs');
@@ -24,11 +23,11 @@ const PAYMENT_TYPE = {
 
 AWS.config.setPromisesDependency(global.Promise);
 const publicS3 = new AWS.S3({
-	accessKeyId: process.env.ACCESS_KEY_ID || 'AKIAIYLCCVSOEDYBUVVA',
-	secretAccessKey: process.env.SECRET_ACCESS_KEY || '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',
-	endpoint: process.env.STORAGE_ENDPOINT || undefined,
+	accessKeyId: process.env.ACCESS_KEY_ID || '6LA3WXKYDULQAYRBD75V',
+	secretAccessKey: process.env.SECRET_ACCESS_KEY || 'ewbdqWHKEapoxhDng3PbKyYJPtcLe5GBBPTCvZ5+ZGE',
+	endpoint: process.env.STORAGE_ENDPOINT || 'https://ams3.digitaloceanspaces.com',
 	// region: 'eu-west-2'
-	region: process.env.REGION || undefined
+	region: process.env.REGION || 'ams3'
 })
 const xlsx = require('xlsx');
 const firebase = require('firebase-admin');
@@ -1068,7 +1067,7 @@ router.get('/file', (req, res)=>{
 	try {
 		let parsed = URL.parse(url);
 		let stream = publicS3.getObject({
-			Bucket: process.env.BUCKET_NAME || 'madeinegypt-test',
+			Bucket: process.env.BUCKET_NAME || 'madeinegypt',
 			Key: parsed.pathname.slice(1)
 		}).createReadStream()
 		stream
